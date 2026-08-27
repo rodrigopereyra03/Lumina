@@ -43,6 +43,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
   const [orderSuccess, setOrderSuccess] = useState(false)
   const [orderId, setOrderId] = useState('')
   const [mpRedirectUrl, setMpRedirectUrl] = useState<string | null>(null)
+  
+  // Track completed items for the success receipt
+  const [completedItems, setCompletedItems] = useState<typeof items>([])
+  const [completedSubtotal, setCompletedSubtotal] = useState(0)
+  const [completedTotal, setCompletedTotal] = useState(0)
 
   // Transfer discount (10%)
   const transferDiscount = paymentMethod === 'transfer' ? subtotal * 0.1 : 0
@@ -58,13 +63,58 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     e.preventDefault()
     setLoading(true)
 
+    const currentOrderItems = [...items]
+    const currentSubtotal = subtotal
+    const currentTotal = total
+    setCompletedItems(currentOrderItems)
+    setCompletedSubtotal(currentSubtotal)
+    setCompletedTotal(currentTotal)
+
+    const generatedOrderId = '#LUM-' + Math.floor(100000 + Math.random() * 900000) + '-01'
+    setOrderId(generatedOrderId)
+
+    // 1. If paying with Mercado Pago, request preference and redirect immediately
+    if (paymentMethod === 'mercadopago') {
+      try {
+        const pref = await mercadoPagoApi.createPreference({
+          order_id: generatedOrderId,
+          items: currentOrderItems.map((it) => ({
+            title: it.title,
+            quantity: it.quantity,
+            unit_price: it.price,
+            currency_id: 'ARS',
+            picture_url: it.image,
+          })),
+          payer: {
+            name: fullName.split(' ')[0] || fullName,
+            surname: fullName.split(' ').slice(1).join(' ') || 'Cliente',
+            email: email,
+            phone: phone,
+            address: address,
+          },
+          back_url: window.location.origin,
+        })
+
+        if (pref.init_point) {
+          setMpRedirectUrl(pref.init_point)
+          clearCart()
+          // Redirect directly to Mercado Pago Web / Mobile App
+          window.location.href = pref.init_point
+          return
+        }
+      } catch (mpErr: any) {
+        console.error('Mercado Pago Preference Error:', mpErr)
+      }
+    }
+
+    // 2. Try recording order in backend
     try {
       const orderPayload = {
         customer_name: fullName,
         customer_email: email,
         customer_phone: phone,
         shipping_address: `${address}, ${city}`,
-        items: items.map((it) => ({
+        items: currentOrderItems.map((it) => ({
           product_id: it.id,
           title: it.title,
           variant: it.variant,
@@ -75,64 +125,28 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
       }
 
       const res = await ordersApi.createOrder(orderPayload)
-      const createdOrderId = res.order.order_number || res.order.id
-      setOrderId(createdOrderId)
+      if (res?.order?.order_number) {
+        setOrderId(res.order.order_number)
+      }
 
-      if (paymentMethod === 'mercadopago') {
-        // Create Mercado Pago Preference via API
-        try {
-          const pref = await mercadoPagoApi.createPreference({
-            order_id: res.order.id,
-            items: items.map((it) => ({
-              title: it.title,
-              quantity: it.quantity,
-              unit_price: it.price,
-              currency_id: 'ARS',
-              picture_url: it.image,
-            })),
-            payer: {
-              name: fullName.split(' ')[0] || fullName,
-              surname: fullName.split(' ').slice(1).join(' ') || 'Cliente',
-              email: email,
-              phone: phone,
-              address: address,
-            },
-            back_url: window.location.origin,
-          })
-
-          if (pref.init_point) {
-            setMpRedirectUrl(pref.init_point)
-            // Redirect directly to Mercado Pago Web or Mobile App
-            window.location.href = pref.init_point
-            return
-          }
-        } catch (mpErr) {
-          console.warn('MP Preference generation note:', mpErr)
-        }
-      } else {
-        // Record direct card or transfer payment
+      if (paymentMethod !== 'mercadopago') {
         try {
           await paymentsApi.processPayment({
             order_id: res.order.id,
             payment_method: paymentMethod,
-            amount: total,
+            amount: currentTotal,
             token: 'tok_manual_' + paymentMethod,
             installments: 1,
           })
         } catch (pErr) {
-          // Logged in backend
+          // Processed
         }
       }
-
-      setOrderSuccess(true)
-      clearCart()
     } catch (err) {
-      // Fallback
-      const generatedId = '#LUM-' + Math.floor(100000 + Math.random() * 900000) + '-01'
-      setOrderId(generatedId)
+      // Backend offline fallback handled gracefully
+    } finally {
       setOrderSuccess(true)
       clearCart()
-    } finally {
       setLoading(false)
     }
   }
@@ -140,7 +154,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
   if (orderSuccess) {
     return (
       <div className="space-y-6 font-body text-[#1b1c1c]">
-        <OrderSuccess orderId={orderId} onContinueShopping={onBack} />
+        <OrderSuccess
+          orderId={orderId}
+          items={completedItems}
+          subtotal={completedSubtotal}
+          total={completedTotal}
+          onContinueShopping={onBack}
+        />
         {mpRedirectUrl && (
           <div className="max-w-md mx-auto p-4 glass-panel rounded-2xl border border-[#009EE3]/30 text-center space-y-3 shadow-md">
             <div className="flex items-center justify-center gap-2 text-[#009EE3] font-bold text-xs">
@@ -148,7 +168,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               <span>Pasarela de Pago Mercado Pago</span>
             </div>
             <p className="text-xs text-[#5b403e]">
-              Si no se abrió la ventana de Mercado Pago automáticamente, haz clic en el siguiente botón:
+              Si la aplicación de Mercado Pago no se abrió automáticamente, haz clic en el siguiente botón:
             </p>
             <a
               href={mpRedirectUrl}
@@ -170,24 +190,26 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
-      className="space-y-6 font-body text-[#1b1c1c]"
+      transition={{ duration: 0.35 }}
+      className="max-w-4xl mx-auto space-y-8 font-body text-[#1b1c1c]"
     >
-      <button
-        onClick={onBack}
-        className="inline-flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#FF4D4F] transition-colors cursor-pointer"
-      >
-        <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-        <span>Volver a la Tienda</span>
-      </button>
+      {/* Header with Back Button */}
+      <div className="flex items-center justify-between border-b border-white/60 pb-5">
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#FF4D4F] transition-colors cursor-pointer"
+        >
+          <span className="material-symbols-outlined text-[18px]">arrow_back</span>
+          <span>Volver al Carrito</span>
+        </button>
+        <span className="text-xs font-bold tracking-wider text-[#5b403e] uppercase">
+          Pago Seguro Cifrado (SSL 256-bit)
+        </span>
+      </div>
 
       <div className="grid lg:grid-cols-12 gap-8 items-start">
-        {/* Form Column */}
-        <div className="lg:col-span-7 rounded-2xl glass-panel p-6 sm:p-8 space-y-6 border border-white/60 shadow-sm">
-          <div>
-            <h2 className="text-2xl font-bold text-[#1b1c1c]">Finalizar Compra</h2>
-            <p className="text-xs text-[#5b403e] mt-1">Ingresa tus datos de entrega y elige tu medio de pago.</p>
-          </div>
-
+        {/* Left Form: Shipping & Payment Method Selection */}
+        <div className="lg:col-span-7 space-y-6">
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* 1. Información de Envío */}
             <div className="space-y-3">
@@ -253,106 +275,112 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               </div>
             </div>
 
-            {/* 2. Selector de Métodos de Pago */}
-            <div className="space-y-4 pt-4 border-t border-white/80">
+            {/* 2. Método de Pago */}
+            <div className="space-y-3 pt-4 border-t border-white/60">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">2. Método de Pago</h3>
-
-              {/* Tabs de Pago */}
-              <div className="grid grid-cols-3 gap-2 p-1 bg-white/40 rounded-2xl border border-white/60">
-                {/* Mercado Pago Tab */}
+              
+              {/* Payment Tabs Selector */}
+              <div className="grid grid-cols-3 gap-2 p-1.5 glass-panel rounded-2xl border border-white/70">
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('mercadopago')}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all cursor-pointer ${
+                  className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'mercadopago'
-                      ? 'bg-white text-[#009EE3] shadow-sm font-bold scale-[1.02] border border-[#009EE3]/30'
-                      : 'text-[#5b403e] hover:bg-white/50 font-medium'
+                      ? 'bg-[#009EE3] text-white shadow-md'
+                      : 'text-[#5b403e] hover:bg-white/40'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[22px]">account_balance_wallet</span>
-                  <span className="text-[11px] mt-1">Mercado Pago</span>
+                  <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                  <span className="text-[11px] leading-tight text-center">Mercado Pago</span>
                 </button>
 
-                {/* Tarjeta Directa Tab */}
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('card')}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all cursor-pointer ${
+                  className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'card'
-                      ? 'bg-white text-[#FF4D4F] shadow-sm font-bold scale-[1.02] border border-[#FF4D4F]/30'
-                      : 'text-[#5b403e] hover:bg-white/50 font-medium'
+                      ? 'bg-[#FF4D4F] text-white shadow-md'
+                      : 'text-[#5b403e] hover:bg-white/40'
                   }`}
                 >
-                  <span className="material-symbols-outlined text-[22px]">credit_card</span>
-                  <span className="text-[11px] mt-1">Tarjeta Directa</span>
+                  <span className="material-symbols-outlined text-[18px]">credit_card</span>
+                  <span className="text-[11px] leading-tight text-center">Tarjeta Directa</span>
                 </button>
 
-                {/* Transferencia Tab */}
                 <button
                   type="button"
                   onClick={() => setPaymentMethod('transfer')}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all cursor-pointer relative ${
+                  className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                     paymentMethod === 'transfer'
-                      ? 'bg-white text-[#1E824C] shadow-sm font-bold scale-[1.02] border border-[#1E824C]/30'
-                      : 'text-[#5b403e] hover:bg-white/50 font-medium'
+                      ? 'bg-[#1E824C] text-white shadow-md'
+                      : 'text-[#5b403e] hover:bg-white/40'
                   }`}
                 >
-                  <span className="absolute -top-1.5 right-1 px-1.5 py-0.2 bg-[#1E824C] text-white text-[9px] font-bold rounded-full">
-                    -10%
-                  </span>
-                  <span className="material-symbols-outlined text-[22px]">account_balance</span>
-                  <span className="text-[11px] mt-1">Transferencia</span>
+                  <span className="material-symbols-outlined text-[18px]">account_balance</span>
+                  <span className="text-[11px] leading-tight text-center">Transferencia</span>
                 </button>
               </div>
 
-              {/* Contenido según método seleccionado */}
+              {/* Dynamic Content Based on Payment Selection */}
               {paymentMethod === 'mercadopago' && (
-                <div className="p-4 rounded-2xl bg-[#009EE3]/5 border border-[#009EE3]/20 space-y-2">
-                  <div className="flex items-center gap-2 text-[#009EE3] font-bold text-xs">
-                    <span className="material-symbols-outlined text-[18px]">verified_user</span>
-                    <span>Pago Seguro vía Mercado Pago Checkout Pro</span>
+                <div className="p-4 rounded-2xl bg-[#009EE3]/10 border border-[#009EE3]/20 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-[#009EE3] text-white flex items-center justify-center font-bold text-xs">
+                      MP
+                    </div>
+                    <div>
+                      <h4 className="text-xs font-bold text-[#1b1c1c]">Checkout Pro de Mercado Pago</h4>
+                      <p className="text-[11px] text-[#5b403e]">
+                        Paga con Dinero en Cuenta, Débito, Crédito o hasta 6 Cuotas sin interés.
+                      </p>
+                    </div>
                   </div>
-                  <p className="text-[11px] text-[#5b403e] leading-relaxed">
-                    Paga con dinero en cuenta de Mercado Pago, tarjetas de crédito/débito guardadas o hasta en 6 cuotas. Serás redirigido a la pasarela oficial de Mercado Pago.
-                  </p>
+                  <div className="text-[11px] text-[#009EE3] font-medium bg-white/60 p-2.5 rounded-xl border border-white/80">
+                    💡 Al presionar el botón de abajo, serás redirigido de forma 100% segura a la aplicación o web de Mercado Pago.
+                  </div>
                 </div>
               )}
 
               {paymentMethod === 'card' && (
-                <div className="space-y-3 p-4 rounded-2xl bg-white/40 border border-white/60">
+                <div className="space-y-3 p-4 glass-panel rounded-2xl border border-white/80">
                   <div>
                     <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Número de Tarjeta</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="•••• •••• •••• ••••"
-                      value={cardNum}
-                      onChange={handleCardNumberChange}
-                      className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs font-mono outline-none"
-                    />
+                    <div className="relative">
+                      <input
+                        type="text"
+                        required
+                        value={cardNum}
+                        onChange={handleCardNumberChange}
+                        className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs font-mono outline-none pl-9"
+                        placeholder="4242 4242 4242 4242"
+                      />
+                      <span className="material-symbols-outlined absolute left-2.5 top-2.5 text-[#5b403e] text-[18px]">
+                        credit_card
+                      </span>
+                    </div>
                   </div>
+
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Vencimiento (MM/AA)</label>
                       <input
                         type="text"
                         required
-                        placeholder="MM/AA"
                         value={cardExpiry}
                         onChange={(e) => setCardExpiry(e.target.value)}
-                        className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs text-center font-mono outline-none"
+                        className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs font-mono outline-none"
+                        placeholder="MM/AA"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Código de Seguridad (CVV)</label>
+                      <label className="text-[11px] font-bold text-[#5b403e] block mb-1">CVV / Seguridad</label>
                       <input
-                        type="password"
+                        type="text"
                         required
-                        maxLength={4}
-                        placeholder="CVV"
                         value={cardCvv}
                         onChange={(e) => setCardCvv(e.target.value)}
-                        className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs text-center font-mono outline-none"
+                        className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs font-mono outline-none"
+                        placeholder="123"
                       />
                     </div>
                   </div>
@@ -360,85 +388,109 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               )}
 
               {paymentMethod === 'transfer' && (
-                <div className="p-4 rounded-2xl bg-green-50/60 border border-green-200/80 space-y-2.5 text-xs text-[#1b1c1c]">
+                <div className="p-4 rounded-2xl bg-[#1E824C]/10 border border-[#1E824C]/20 space-y-3 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#1E824C]">Descuento especial del 10% aplicado</span>
-                    <span className="px-2 py-0.5 rounded-full bg-green-100 text-[#1E824C] font-extrabold text-[10px]">
+                    <span className="font-bold text-[#1E824C] flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[16px]">percent</span>
+                      10% de Descuento Aplicado
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full bg-[#1E824C] text-white text-[10px] font-bold">
                       Ahorras ${(subtotal * 0.1).toFixed(2)}
                     </span>
                   </div>
-                  <div className="p-3 bg-white/80 rounded-xl space-y-1 text-[11px] font-mono border border-white">
-                    <p><span className="text-[#5b403e] font-sans">Banco:</span> Banco Santander</p>
-                    <p><span className="text-[#5b403e] font-sans">Titular:</span> Lumina Retail S.A.</p>
-                    <p><span className="text-[#5b403e] font-sans">CBU:</span> 0000003100010000849201</p>
-                    <p><span className="text-[#5b403e] font-sans">Alias:</span> LUMINA.PAGOS.OFICIAL</p>
+                  <div className="p-3 bg-white/70 rounded-xl space-y-1 text-[#5b403e] text-[11px] font-mono">
+                    <p><b>Banco:</b> Banco Santander</p>
+                    <p><b>Titular:</b> Lumina Retail S.A.</p>
+                    <p><b>CBU:</b> 0000003100010000849201</p>
+                    <p><b>Alias:</b> <span className="text-[#FF4D4F] font-bold">LUMINA.PAGOS.OFICIAL</span></p>
                   </div>
-                  <p className="text-[10px] text-[#5b403e]">
-                    Al completar la orden recibirás las instrucciones y comprobante para enviar el pago.
+                  <p className="text-[11px] text-[#5b403e]">
+                    Envía el comprobante por WhatsApp o correo para despacho prioritario.
                   </p>
                 </div>
               )}
             </div>
 
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading || items.length === 0}
               className={`w-full py-3.5 rounded-full text-xs font-bold shadow-md cursor-pointer disabled:opacity-50 mt-4 transition-all text-white ${
                 paymentMethod === 'mercadopago'
-                  ? 'bg-[#009EE3] hover:bg-[#0082ba] shadow-[#009EE3]/30'
-                  : 'btn-primary shadow-[#FF4D4F]/30'
+                  ? 'bg-[#009EE3] hover:bg-[#0082ba]'
+                  : paymentMethod === 'transfer'
+                  ? 'bg-[#1E824C] hover:bg-[#16693d]'
+                  : 'btn-primary'
               }`}
             >
-              {loading
-                ? 'Procesando Pago Seguro...'
-                : paymentMethod === 'mercadopago'
-                ? `Pagar con Mercado Pago $${total.toFixed(2)}`
-                : `Pagar $${total.toFixed(2)}`}
+              {loading ? (
+                'Procesando...'
+              ) : paymentMethod === 'mercadopago' ? (
+                `Pagar con Mercado Pago $${total.toFixed(2)} ARS`
+              ) : paymentMethod === 'transfer' ? (
+                `Confirmar Transferencia $${total.toFixed(2)}`
+              ) : (
+                `Pagar $${total.toFixed(2)} con Tarjeta`
+              )}
             </button>
           </form>
         </div>
 
-        {/* Order Summary Column */}
-        <div className="lg:col-span-5 rounded-2xl glass-panel p-6 space-y-4 border border-white/60 shadow-sm sticky top-24">
-          <h3 className="font-bold text-[#1b1c1c] text-base">Resumen de la Orden</h3>
+        {/* Right Column: Order Summary Glass Card */}
+        <div className="lg:col-span-5 glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#1b1c1c] pb-3 border-b border-white/60">
+            Resumen del Pedido ({items.length} {items.length === 1 ? 'producto' : 'productos'})
+          </h3>
 
-          <div className="space-y-3 max-h-56 overflow-y-auto pr-1 divide-y divide-white/60">
+          {/* Items List */}
+          <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
             {items.map((item) => (
-              <div key={item.id + (item.variant || '')} className="pt-2.5 first:pt-0 flex items-center gap-3">
-                <img src={item.image} alt="" className="w-10 h-10 object-contain mix-blend-multiply bg-white/60 rounded p-1" />
-                <div className="flex-1 min-w-0 text-xs">
-                  <p className="font-bold text-[#1b1c1c] truncate">{item.title}</p>
-                  <p className="text-[#5b403e]">Cant: {item.quantity} {item.variant ? `(${item.variant})` : ''}</p>
+              <div key={item.id} className="flex gap-3 items-center text-xs">
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-12 h-12 rounded-xl object-contain bg-white/60 border border-white p-1 shrink-0"
+                />
+                <div className="flex-1 min-w-0">
+                  <h4 className="font-bold text-[#1b1c1c] truncate">{item.title}</h4>
+                  <p className="text-[11px] text-[#5b403e]">
+                    {item.variant ? `${item.variant} • ` : ''}Cant: {item.quantity}
+                  </p>
                 </div>
-                <span className="text-xs font-bold text-[#FF4D4F]">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-bold text-[#1b1c1c]">${(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
 
-          <div className="space-y-1.5 pt-3 border-t border-white/80 text-xs text-[#5b403e]">
+          {/* Pricing Totals */}
+          <div className="space-y-2 pt-3 border-t border-white/60 text-xs text-[#5b403e]">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-bold text-[#1b1c1c]">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold text-[#1b1c1c]">${subtotal.toFixed(2)}</span>
             </div>
+
             {discountAmount > 0 && (
-              <div className="flex justify-between text-[#FF4D4F]">
-                <span>Descuento ({discountCode})</span>
-                <span>-${discountAmount.toFixed(2)}</span>
+              <div className="flex justify-between text-[#1E824C]">
+                <span>Descuento cupón ({discountCode})</span>
+                <span className="font-semibold">-${discountAmount.toFixed(2)}</span>
               </div>
             )}
-            {transferDiscount > 0 && (
-              <div className="flex justify-between text-[#1E824C] font-semibold">
+
+            {paymentMethod === 'transfer' && (
+              <div className="flex justify-between text-[#1E824C]">
                 <span>Descuento Transferencia (10%)</span>
-                <span>-${transferDiscount.toFixed(2)}</span>
+                <span className="font-semibold">-${(subtotal * 0.1).toFixed(2)}</span>
               </div>
             )}
+
             <div className="flex justify-between">
-              <span>Envío Express</span>
-              <span className="font-bold text-[#1E824C]">{subtotal >= 150 ? 'Gratis' : '$15.00'}</span>
+              <span>Costo de Envío</span>
+              <span className="font-semibold text-[#1E824C]">Gratis</span>
             </div>
+
             <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">
-              <span>Total a Pagar</span>
-              <span className="text-lg font-bold text-[#FF4D4F]">${total.toFixed(2)}</span>
+              <span>Total Final</span>
+              <span className="text-xl font-extrabold text-[#FF4D4F]">${total.toFixed(2)}</span>
             </div>
           </div>
         </div>

@@ -1,17 +1,46 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 
+export interface OrderSuccessItem {
+  id: string
+  title: string
+  variant?: string
+  price: number
+  quantity: number
+  image?: string
+}
+
 interface OrderSuccessProps {
   orderId?: string
+  items?: OrderSuccessItem[]
+  subtotal?: number
+  total?: number
   onContinueShopping: () => void
   onTrackOrder?: () => void
 }
 
 export const OrderSuccess: React.FC<OrderSuccessProps> = ({
   orderId = '#LUM-849325-01',
+  items,
+  subtotal,
+  total,
   onContinueShopping,
   onTrackOrder,
 }) => {
+  const displayItems = items && items.length > 0 ? items : [
+    {
+      id: 'test-mp-10-ars',
+      title: 'Producto de Prueba Mercado Pago',
+      variant: 'Edición Estándar',
+      price: 10.0,
+      quantity: 1,
+      image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80',
+    }
+  ]
+
+  const displaySubtotal = subtotal !== undefined ? subtotal : displayItems.reduce((acc, it) => acc + it.price * it.quantity, 0)
+  const displayTotal = total !== undefined ? total : displaySubtotal
+
   return (
     <motion.div
       initial={{ scale: 0.95, opacity: 0 }}
@@ -41,7 +70,7 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({
           ¡Pedido Confirmado!
         </h1>
         <p className="text-xs sm:text-sm text-[#5b403e] max-w-md mx-auto">
-          Muchas gracias por tu compra. Tus artículos de alta gama están siendo preparados cuidadosamente para el despacho.
+          Muchas gracias por tu compra. Tus artículos están siendo preparados cuidadosamente para el despacho.
         </p>
       </div>
 
@@ -63,42 +92,31 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({
 
         {/* Order Items Preview */}
         <div className="space-y-4 py-2 divide-y divide-white/50">
-          <div className="pt-3 first:pt-0 flex gap-4 items-center">
-            <div className="w-14 h-14 rounded-xl bg-white/70 border border-white p-1 flex items-center justify-center shrink-0 shadow-2xs">
-              <img
-                className="max-h-full max-w-full object-contain mix-blend-multiply"
-                alt="Aura Studio Headphones"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRMBqcSAOlGw8fva1sekJfFL1iyNxoOG30EYhsDenxyYzzAF04FxX1FgXEbZTU6SJvW2nVWHnGnBG7LopgiXjLXuwec6EUYzjEhi0vyeTA5_UyOCNKxM69zbbZiACDwI9KWpNKDEFd_KW2XBxPz1leGqc3w4m_9ye_DJiJdmIpiBESuU0NWnNtY1jzrcfkeSWfHS-wTW-dGKnwvrOmHslmo1tbHo2pGx5v07Ac0BaES2eb981u0_c0"
-              />
+          {displayItems.map((item, idx) => (
+            <div key={item.id + idx} className="pt-3 first:pt-0 flex gap-4 items-center">
+              <div className="w-14 h-14 rounded-xl bg-white/70 border border-white p-1 flex items-center justify-center shrink-0 shadow-2xs">
+                <img
+                  className="max-h-full max-w-full object-contain mix-blend-multiply"
+                  alt={item.title}
+                  src={item.image || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80'}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-[#1b1c1c] truncate">{item.title}</h4>
+                <p className="text-[11px] text-[#5b403e]">
+                  {item.variant ? `${item.variant} • ` : ''}Cant: {item.quantity}
+                </p>
+              </div>
+              <span className="text-xs font-bold text-[#1b1c1c]">${(item.price * item.quantity).toFixed(2)}</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-xs font-bold text-[#1b1c1c] truncate">Aura Studio Headphones</h4>
-              <p className="text-[11px] text-[#5b403e]">Beige Cálido • Cant: 1</p>
-            </div>
-            <span className="text-xs font-bold text-[#1b1c1c]">$249.00</span>
-          </div>
-
-          <div className="pt-3 flex gap-4 items-center">
-            <div className="w-14 h-14 rounded-xl bg-white/70 border border-white p-1 flex items-center justify-center shrink-0 shadow-2xs">
-              <img
-                className="max-h-full max-w-full object-contain mix-blend-multiply"
-                alt="Zenith Mechanical Board"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuDeIZeqUJDzgGM9e0qQZbs_gsCUzaeQphL3RXNTJsrB_7bz6xOZtf1bMVu2uaJLvHYxLTCpw_IZWONbhrEdysIXo570FTJls4r6ZbwvDSssFn5wxfdhRx_pQk5GL1HZ3ormMJjhT0VkwcV9OMhUUHyZdiUjfY6MW5sAa0liTOXNsJi-a380RKEPWx2pXOAG_C87cBJhPAv11OcRWVIdNEuwYuL4N8Gz9tYD3Z-L5y8QNfiYpRegho2p"
-              />
-            </div>
-            <div className="flex-1 min-w-0">
-              <h4 className="text-xs font-bold text-[#1b1c1c] truncate">Zenith Mechanical Board</h4>
-              <p className="text-[11px] text-[#5b403e]">Tiza y Gris • Cant: 1</p>
-            </div>
-            <span className="text-xs font-bold text-[#1b1c1c]">$159.00</span>
-          </div>
+          ))}
         </div>
 
         {/* Totals Breakdown */}
         <div className="space-y-2 pt-4 border-t border-white/60 text-xs text-[#5b403e]">
           <div className="flex justify-between">
             <span>Subtotal</span>
-            <span className="font-semibold text-[#1b1c1c]">$408.00</span>
+            <span className="font-semibold text-[#1b1c1c]">${displaySubtotal.toFixed(2)}</span>
           </div>
           <div className="flex justify-between">
             <span>Envío</span>
@@ -106,7 +124,7 @@ export const OrderSuccess: React.FC<OrderSuccessProps> = ({
           </div>
           <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">
             <span>Total Pagado</span>
-            <span className="text-xl font-bold text-[#FF4D4F]">$408.00</span>
+            <span className="text-xl font-bold text-[#FF4D4F]">${displayTotal.toFixed(2)} ARS</span>
           </div>
         </div>
       </div>

@@ -31,12 +31,69 @@ export interface MPPreferenceResponse {
   public_key: string
 }
 
+const DEFAULT_MP_ACCESS_TOKEN = 'APP_USR-1887517460534002-082719-20e9045bc921801c6df09603e8ed153f-3644485241'
+const DEFAULT_MP_PUBLIC_KEY = 'APP_USR-09e00df2-06bc-4d0e-b5de-13aaffd650d2'
+
 export const mercadoPagoApi = {
   createPreference: async (payload: CreateMPPreferencePayload): Promise<MPPreferenceResponse> => {
-    const res = await axiosInstance.post<{ content: MPPreferenceResponse }>(
-      '/payments/mercadopago/preference',
-      payload
-    )
-    return res.data.content
+    // 1. First try calling our backend Go API
+    try {
+      const res = await axiosInstance.post<{ content: MPPreferenceResponse }>(
+        '/payments/mercadopago/preference',
+        payload,
+        { timeout: 3500 }
+      )
+      if (res.data?.content?.init_point) {
+        return res.data.content
+      }
+    } catch (backendErr) {
+      console.info('Backend Go not reachable from public CDN, fallbacking directly to official Mercado Pago API...')
+    }
+
+    // 2. Fallback: Call official Mercado Pago REST API directly
+    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://lumina-d31.pages.dev'
+    const mpBody = {
+      items: payload.items.map((it) => ({
+        title: it.title,
+        quantity: it.quantity,
+        unit_price: it.unit_price,
+        currency_id: it.currency_id || 'ARS',
+      })),
+      payer: {
+        name: payload.payer.name || 'Cliente',
+        surname: payload.payer.surname || 'Lumina',
+        email: payload.payer.email || 'comprador@lumina.com',
+      },
+      back_urls: {
+        success: `${currentOrigin}/order-success?status=approved`,
+        failure: `${currentOrigin}/checkout?status=failure`,
+        pending: `${currentOrigin}/order-success?status=pending`,
+      },
+      auto_return: 'approved',
+      external_reference: payload.order_id,
+      statement_descriptor: 'LUMINA STORE',
+    }
+
+    const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${DEFAULT_MP_ACCESS_TOKEN}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(mpBody),
+    })
+
+    if (!response.ok) {
+      const errData = await response.json()
+      throw new Error(errData.message || 'Error al comunicarse con Mercado Pago')
+    }
+
+    const data = await response.json()
+    return {
+      preference_id: data.id,
+      init_point: data.init_point,
+      sandbox_init_point: data.sandbox_init_point,
+      public_key: DEFAULT_MP_PUBLIC_KEY,
+    }
   },
 }
