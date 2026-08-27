@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	orderProviders "ecommerce-ganador/backend/src/core/providers/orders"
@@ -37,12 +39,12 @@ type MPBackURLsPayload struct {
 }
 
 type MPPreferencePayload struct {
-	Items             []MPItemPayload   `json:"items"`
-	Payer             MPPayerPayload    `json:"payer"`
-	BackURLs          MPBackURLsPayload `json:"back_urls"`
-	AutoReturn        string            `json:"auto_return"`
-	ExternalReference string            `json:"external_reference"`
-	StatementDescriptor string          `json:"statement_descriptor"`
+	Items               []MPItemPayload   `json:"items"`
+	Payer               MPPayerPayload    `json:"payer"`
+	BackURLs            MPBackURLsPayload `json:"back_urls"`
+	AutoReturn          string            `json:"auto_return,omitempty"`
+	ExternalReference   string            `json:"external_reference"`
+	StatementDescriptor string            `json:"statement_descriptor"`
 }
 
 type MPPreferenceAPIResponse struct {
@@ -82,7 +84,7 @@ func NewCreateMPPreferenceImpl(
 	return CreateMPPreferenceImpl{
 		settingRepo: settingRepo,
 		orderRepo:   orderRepo,
-		httpClient:  &http.Client{Timeout: 10 * time.Second},
+		httpClient:  &http.Client{Timeout: 15 * time.Second},
 	}
 }
 
@@ -99,7 +101,7 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 		}
 	}
 
-	backURL := input.BackURL
+	backURL := strings.TrimRight(input.BackURL, "/")
 	if backURL == "" {
 		backURL = "http://localhost:5173"
 	}
@@ -112,13 +114,17 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 			Failure: fmt.Sprintf("%s/checkout?order_id=%s&status=failure", backURL, input.OrderID),
 			Pending: fmt.Sprintf("%s/order-success?order_id=%s&status=pending", backURL, input.OrderID),
 		},
-		AutoReturn:          "approved",
 		ExternalReference:   input.OrderID,
 		StatementDescriptor: "LUMINA STORE",
 	}
 
-	// If valid Mercado Pago Access Token is present, call real API
-	if settings.MPAccessToken != "" && settings.MPAccessToken != "APP_USR-948201948201948201948201-948201" {
+	// Only set auto_return if URL is public https
+	if strings.HasPrefix(backURL, "https://") {
+		payload.AutoReturn = "approved"
+	}
+
+	// If valid Mercado Pago Access Token is present, call real Mercado Pago REST API
+	if settings.MPAccessToken != "" && !strings.Contains(settings.MPAccessToken, "APP_USR-948201948201948201948201-948201") {
 		payloadBytes, err := json.Marshal(payload)
 		if err != nil {
 			return CreateMPPreferenceOutput{}, fmt.Errorf("failed to marshal MP payload: %w", err)
@@ -139,6 +145,7 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 
 		resp, err := uc.httpClient.Do(req)
 		if err != nil {
+			slog.Error("Mercado Pago HTTP request failed", "error", err)
 			return CreateMPPreferenceOutput{}, fmt.Errorf("failed to execute MP API call: %w", err)
 		}
 		defer resp.Body.Close()
@@ -147,6 +154,7 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
 			var mpResp MPPreferenceAPIResponse
 			if err := json.Unmarshal(respBody, &mpResp); err == nil && mpResp.ID != "" {
+				slog.Info("Mercado Pago preference created successfully", "pref_id", mpResp.ID, "init_point", mpResp.InitPoint)
 				return CreateMPPreferenceOutput{
 					PreferenceID:     mpResp.ID,
 					InitPoint:        mpResp.InitPoint,
@@ -154,10 +162,12 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 					PublicKey:        settings.MPPublicKey,
 				}, nil
 			}
+		} else {
+			slog.Warn("Mercado Pago API returned error status", "status", resp.StatusCode, "response", string(respBody))
 		}
 	}
 
-	// Simulation / Sandbox URL when running in demo/dev mode
+	// Fallback URL if API key invalid
 	simulatedPrefID := fmt.Sprintf("PREF-%d-%s", time.Now().Unix(), input.OrderID)
 	simulatedInitPoint := fmt.Sprintf("https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=%s", simulatedPrefID)
 
