@@ -17,6 +17,7 @@ import { CheckoutPage } from './features/ecommerce/components/CheckoutPage'
 import { CartDrawer } from './features/ecommerce/components/CartDrawer'
 import { UserProfile } from './features/profile/components/UserProfile'
 import { AdminPanel } from './features/admin/components/AdminPanel'
+import { OrderSuccessPage } from './features/ecommerce/components/OrderSuccessPage'
 
 const queryClient = new QueryClient()
 
@@ -147,6 +148,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainStore />} />
+          <Route path="/order-success" element={<OrderSuccessPage />} />
           <Route
             path="/admin"
             element={

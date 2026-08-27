@@ -5,13 +5,13 @@ import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 
 interface HeaderProps {
-  selectedCategorySlug: string
-  onCategorySelect: (slug: string) => void
+  selectedCategorySlug?: string
+  onCategorySelect?: (slug: string) => void
 }
 
 export const Header: React.FC<HeaderProps> = ({
-  selectedCategorySlug,
-  onCategorySelect,
+  selectedCategorySlug = 'all',
+  onCategorySelect = () => {},
 }) => {
   const { items, openDrawer } = useCartStore()
   const { user, isAuthenticated, clearAuth } = useAuthStore()
