@@ -7,11 +7,17 @@ import { useAuthStore } from '../../store/useAuthStore'
 interface HeaderProps {
   selectedCategorySlug?: string
   onCategorySelect?: (slug: string) => void
+  searchQuery?: string
+  onSearchChange?: (query: string) => void
+  onSearchSubmit?: () => void
 }
 
 export const Header: React.FC<HeaderProps> = ({
   selectedCategorySlug = 'all',
   onCategorySelect = () => {},
+  searchQuery = '',
+  onSearchChange = () => {},
+  onSearchSubmit = () => {},
 }) => {
   const { items, openDrawer } = useCartStore()
   const { user, isAuthenticated, clearAuth } = useAuthStore()
@@ -47,9 +53,26 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
         <input
           type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter') {
+              onSearchSubmit()
+            }
+          }}
           placeholder="Buscar productos de alta gama, cámaras, audio..."
-          className="w-full bg-white/70 border border-white/80 rounded-full py-2 pl-10 pr-4 text-xs placeholder:text-[#5b403e]/70 focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 transition-all"
+          className="w-full bg-white/70 border border-white/80 rounded-full py-2 pl-10 pr-9 text-xs placeholder:text-[#5b403e]/70 focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 transition-all text-[#1b1c1c]"
         />
+        {searchQuery && (
+          <button
+            type="button"
+            onClick={() => onSearchChange('')}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b403e] hover:text-[#FF4D4F] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+            title="Limpiar búsqueda"
+          >
+            ✕
+          </button>
+        )}
       </div>
 
       {/* Category Pills (Desktop) */}

@@ -26,11 +26,12 @@ function MainStore() {
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>('all')
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
   const [isCheckout, setIsCheckout] = useState<boolean>(false)
+  const [searchQuery, setSearchQuery] = useState<string>('')
 
   // Scroll to top when view changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' })
-  }, [selectedProductId, isCheckout, currentTab])
+  }, [selectedProductId, isCheckout, currentTab, searchQuery])
 
   const handleTabChange = (tab: 'home' | 'categories' | 'favorites' | 'account') => {
     setCurrentTab(tab)
@@ -53,6 +54,19 @@ function MainStore() {
     setIsCheckout(false)
   }
 
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query)
+    if (query.trim() && (currentTab !== 'home' || selectedProductId || isCheckout)) {
+      setCurrentTab('home')
+      setSelectedProductId(null)
+      setIsCheckout(false)
+    }
+  }
+
+  const handleClearSearch = () => {
+    setSearchQuery('')
+  }
+
   return (
     <div className="bg-[#fbf9f8] text-[#1b1c1c] font-body min-h-screen antialiased flex">
       {/* SideNavBar (Desktop Fixed Left) */}
@@ -64,6 +78,9 @@ function MainStore() {
         <Header
           selectedCategorySlug={selectedCategorySlug}
           onCategorySelect={handleCategorySelect}
+          searchQuery={searchQuery}
+          onSearchChange={handleSearchChange}
+          onSearchSubmit={() => {}}
         />
 
         {/* Slide-over Side Cart Drawer */}
@@ -115,14 +132,16 @@ function MainStore() {
                 exit={{ opacity: 0 }}
                 className="flex flex-col gap-10"
               >
-                {/* Hero Section (Capture Life's Brilliance) */}
-                <HeroSection onProductClick={handleProductSelect} />
+                {/* Hero Section (Capture Life's Brilliance) - Only shown when not searching */}
+                {!searchQuery && <HeroSection onProductClick={handleProductSelect} />}
 
-                {/* Trending Now Product Grid */}
+                {/* Trending Now Product Grid / Search Results */}
                 <ProductGrid
                   selectedCategorySlug={selectedCategorySlug}
                   onProductClick={handleProductSelect}
                   onViewAll={() => handleCategorySelect('all')}
+                  searchQuery={searchQuery}
+                  onClearSearch={handleClearSearch}
                 />
               </motion.div>
             )}
