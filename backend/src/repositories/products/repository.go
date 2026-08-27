@@ -27,11 +27,27 @@ func NewProductsRepository(db *pgxpool.Pool) *ProductsRepository {
 }
 
 func (r *ProductsRepository) seedInMemory() {
+	origPriceTest := 20.00
 	origPriceCamera := 1499.00
 	origPriceWatch := 229.00
 	origPriceTote := 295.00
 
 	demoProducts := []ProductDAO{
+		{
+			ID:            "test-mp-10-ars",
+			CategoryName:  "Electrónica",
+			Title:         "Producto de Prueba Mercado Pago",
+			Subtitle:      "Ítem de prueba para validación en vivo de Mercado Pago Checkout",
+			Description:   "Producto especial creado para verificar el flujo de compra en vivo con Mercado Pago ($10 ARS), dinero en cuenta y tarjetas.",
+			Price:         10.00,
+			OriginalPrice: &origPriceTest,
+			Stock:         999,
+			Image:         "https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80",
+			Rating:        5.0,
+			ReviewsCount:  12,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
 		{
 			ID:            "lumina-pro-camera",
 			CategoryName:  "Electrónica",

@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"os"
 	"sync"
 	"time"
 
@@ -17,12 +18,25 @@ type SettingsRepository struct {
 }
 
 func NewSettingsRepository(db *pgxpool.Pool) *SettingsRepository {
+	mpPub := os.Getenv("MP_PUBLIC_KEY")
+	if mpPub == "" {
+		mpPub = "APP_USR-49281039-4821-4820-9102-849201849201"
+	}
+
+	mpToken := os.Getenv("MP_ACCESS_TOKEN")
+	if mpToken == "" {
+		mpToken = os.Getenv("MERCADOPAGO_ACCESS_TOKEN")
+	}
+	if mpToken == "" {
+		mpToken = "APP_USR-948201948201948201948201-948201"
+	}
+
 	repo := &SettingsRepository{
 		db: db,
 		memory: settings.PaymentSettings{
 			MPActive:         true,
-			MPPublicKey:      "APP_USR-49281039-4821-4820-9102-849201849201",
-			MPAccessToken:    "APP_USR-948201948201948201948201-948201",
+			MPPublicKey:      mpPub,
+			MPAccessToken:    mpToken,
 			MPSandbox:        false,
 			MPInstallments:   6,
 			TransferActive:   true,

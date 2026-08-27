@@ -102,8 +102,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
 
           if (pref.init_point) {
             setMpRedirectUrl(pref.init_point)
-            // If running with active MP, we can redirect or provide checkout button
-            window.open(pref.init_point, '_blank')
+            // Redirect directly to Mercado Pago Web or Mobile App
+            window.location.href = pref.init_point
+            return
           }
         } catch (mpErr) {
           console.warn('MP Preference generation note:', mpErr)

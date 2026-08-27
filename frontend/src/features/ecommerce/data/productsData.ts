@@ -40,6 +40,34 @@ export const CATEGORIES = [
 
 export const PRODUCTS: Product[] = [
   {
+    id: 'test-mp-10-ars',
+    title: 'Producto de Prueba Mercado Pago',
+    category: 'Electrónica',
+    categorySlug: 'electronics',
+    subtitle: 'Ítem de prueba para validación en vivo de Mercado Pago Checkout',
+    description: 'Producto especial creado para verificar el flujo de compra en vivo con Mercado Pago ($10 ARS), dinero en cuenta y tarjetas.',
+    price: 10.00,
+    originalPrice: 20.00,
+    rating: 5.0,
+    reviewsCount: 12,
+    image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80',
+    gallery: [
+      'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80'
+    ],
+    tags: ['Prueba MP', 'En Vivo', '$10 ARS'],
+    isTrending: true,
+    isSale: true,
+    stock: 999,
+    variants: [
+      { id: 'standard', name: 'Edición Estándar', colorClass: 'bg-[#009EE3]' }
+    ],
+    specs: [
+      { label: 'Precio Test', value: '$10.00 ARS' },
+      { label: 'Pasarela', value: 'Mercado Pago Checkout Pro' },
+      { label: 'Entrega', value: 'Inmediata' }
+    ]
+  },
+  {
     id: 'lumina-pro-camera',
     title: 'Lumina Pro Camera',
     category: 'Electrónica',
