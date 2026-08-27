@@ -47,7 +47,7 @@ func LoadConfig() Config {
 	}
 
 	resendAPIKey := getEnv("RESEND_API_KEY", "")
-	resendFromEmail := getEnv("RESEND_FROM_EMAIL", "Lumina Store <onboarding@resend.dev>")
+	resendFromEmail := getEnv("FROM_EMAIL", getEnv("RESEND_FROM_EMAIL", "Lumina Store <onboarding@resend.dev>"))
 
 	return Config{
 		Env:                  env,
