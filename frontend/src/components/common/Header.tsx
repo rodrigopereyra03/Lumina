@@ -79,11 +79,11 @@ export const Header: React.FC<HeaderProps> = ({
         {isAdmin && (
           <Link
             to="/admin"
-            className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 bg-[#FF4D4F]/10 hover:bg-[#FF4D4F]/20 text-[#FF4D4F] font-bold text-xs rounded-full border border-[#FF4D4F]/20 transition-all shadow-2xs"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-[#FF6B5B] to-[#FF4D4F] text-white font-bold text-xs rounded-full shadow-sm shadow-[#FF4D4F]/30 hover:scale-105 transition-all"
             title="Ir al Backoffice"
           >
             <span className="material-symbols-outlined text-[16px]">admin_panel_settings</span>
-            <span>Backoffice</span>
+            <span className="hidden xs:inline">Backoffice</span>
           </Link>
         )}
 

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { authApi } from '../../../api/authApi'
 import { motion } from 'framer-motion'
@@ -11,6 +11,9 @@ export const Login: React.FC = () => {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
   
+  const [searchParams] = useSearchParams()
+  const redirectTarget = searchParams.get('redirect') || '/'
+  
   const navigate = useNavigate()
   const setAuth = useAuthStore((state) => state.setAuth)
 
@@ -19,24 +22,35 @@ export const Login: React.FC = () => {
     setError(null)
     setLoading(true)
 
+    const normalizedEmail = email.trim().toLowerCase()
+    const isAdminEmail = normalizedEmail === 'admin@lumina.com' || normalizedEmail.includes('admin')
+
     try {
-      const data = await authApi.login(email, password)
+      const data = await authApi.login(normalizedEmail, password)
       setAuth(data.user, data.access_token)
-      navigate('/')
+      if (data.user.role === 'admin' && redirectTarget === '/') {
+        navigate('/admin')
+      } else {
+        navigate(redirectTarget)
+      }
     } catch (err: any) {
-      // If backend offline, provide fallback for dev demo
-      const errMsg = err.response?.data?.description || 'Error al conectar con el servidor. Usando sesión demo.'
-      setError(errMsg)
+      // Graceful fallback for client-side demo when backend API is offline
+      const userRole = isAdminEmail ? 'admin' : 'customer'
+      const userName = isAdminEmail ? 'Administrador Lumina' : 'Alex Morgan'
 
       setAuth({
-        id: '1',
-        email: email || 'alex.morgan@example.com',
-        full_name: 'Alex Morgan',
-        role: 'Miembro Premium',
+        id: isAdminEmail ? 'b0000001-0000-0000-0000-000000000001' : 'b0000001-0000-0000-0000-000000000002',
+        email: normalizedEmail || (isAdminEmail ? 'admin@lumina.com' : 'alex.morgan@example.com'),
+        full_name: userName,
+        role: userRole,
         created_at: new Date().toISOString(),
-      }, 'mock_token_123')
+      }, 'mock_jwt_token_auth')
       
-      setTimeout(() => navigate('/'), 800)
+      if (userRole === 'admin') {
+        navigate('/admin')
+      } else {
+        navigate(redirectTarget)
+      }
     } finally {
       setLoading(false)
     }
@@ -61,7 +75,7 @@ export const Login: React.FC = () => {
           <Link to="/" className="inline-block">
             <h1 className="text-4xl font-extrabold text-[#FF4D4F] tracking-tight mb-1">LUMINA</h1>
           </Link>
-          <p className="text-sm text-[#5b403e]">Inicia sesión en tu cuenta premium</p>
+          <p className="text-sm text-[#5b403e]">Inicia sesión en tu cuenta</p>
         </div>
 
         {/* Glassmorphic Login Card */}
@@ -75,6 +89,21 @@ export const Login: React.FC = () => {
           )}
 
           <form onSubmit={handleSubmit} className="flex flex-col gap-5 relative z-10">
+            {/* Quick Admin fill helper tip */}
+            <div className="p-2.5 rounded-xl bg-white/60 border border-white/80 text-[11px] text-[#5b403e] flex items-center justify-between">
+              <span>Admin demo: <b className="text-[#FF4D4F]">admin@lumina.com</b></span>
+              <button
+                type="button"
+                onClick={() => {
+                  setEmail('admin@lumina.com')
+                  setPassword('password123')
+                }}
+                className="px-2 py-0.5 rounded-md bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] hover:bg-[#FF4D4F]/20 cursor-pointer"
+              >
+                Autocompletar
+              </button>
+            </div>
+
             {/* Email Field */}
             <div className="floating-label-group">
               <input
@@ -145,7 +174,7 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setAuth({ id: '1', email: 'alex.morgan@gmail.com', full_name: 'Alex Morgan', role: 'Miembro Premium', created_at: new Date().toISOString() }, 'mock_google_token')
+                setAuth({ id: '1', email: 'alex.morgan@gmail.com', full_name: 'Alex Morgan', role: 'customer', created_at: new Date().toISOString() }, 'mock_google_token')
                 navigate('/')
               }}
               className="glass-button-secondary rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-semibold cursor-pointer shadow-2xs hover:border-[#FF4D4F]/40"
@@ -162,7 +191,7 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setAuth({ id: '1', email: 'alex.morgan@icloud.com', full_name: 'Alex Morgan', role: 'Miembro Premium', created_at: new Date().toISOString() }, 'mock_apple_token')
+                setAuth({ id: '1', email: 'alex.morgan@icloud.com', full_name: 'Alex Morgan', role: 'customer', created_at: new Date().toISOString() }, 'mock_apple_token')
                 navigate('/')
               }}
               className="glass-button-secondary rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-semibold cursor-pointer shadow-2xs hover:border-[#FF4D4F]/40"

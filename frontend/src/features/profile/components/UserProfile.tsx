@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { addressesApi, type AddressDTO } from '../../../api/addressesApi'
@@ -145,6 +146,16 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
             <span className="material-symbols-outlined text-[18px]">receipt_long</span>
             <span>Historial de Pedidos</span>
           </button>
+
+          {user?.role === 'admin' && (
+            <Link
+              to="/admin"
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#FF6B5B] to-[#FF4D4F] shadow-md shadow-[#FF4D4F]/30 hover:scale-[1.02] transition-all mt-3 block"
+            >
+              <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+              <span>Panel de Administración (Backoffice)</span>
+            </Link>
+          )}
         </div>
 
         {/* Right Content Area */}
