@@ -37,6 +37,8 @@ func MapRoutes(r *gin.Engine, c *dependencies.Container) {
 		payments := v1.Group("/payments")
 		{
 			payments.POST("/process", c.ProcessPaymentHandler.Handle())
+			payments.POST("/mercadopago/preference", c.MercadoPagoHandler.HandleCreatePreference)
+			payments.POST("/mercadopago/webhook", c.MercadoPagoHandler.HandleWebhook)
 		}
 
 		// Products Routes

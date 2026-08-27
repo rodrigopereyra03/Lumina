@@ -9,6 +9,7 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => {
   const { user, isAuthenticated } = useAuthStore()
+  const isAdmin = isAuthenticated && user?.role === 'admin'
 
   return (
     <aside className="h-screen w-64 left-0 top-0 fixed border-r border-white/40 hidden lg:flex flex-col p-6 gap-4 bg-[#f5f3f3]/60 backdrop-blur-[20px] z-40 font-body">
@@ -85,14 +86,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
         </button>
       </div>
 
-      {/* Admin Panel Access Link */}
-      <Link
-        to="/admin"
-        className="flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#5b403e] hover:text-[#FF4D4F] hover:bg-white/40 transition-colors"
-      >
-        <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-        <span>Panel de Administración</span>
-      </Link>
+      {/* Admin Panel Access Link - ONLY VISIBLE TO ADMINS */}
+      {isAdmin && (
+        <Link
+          to="/admin"
+          className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#FF6B5B] to-[#FF4D4F] shadow-sm shadow-[#FF4D4F]/30 hover:scale-[1.02] transition-all"
+        >
+          <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
+          <span>Panel de Administración</span>
+        </Link>
+      )}
 
       {/* User Profile Card */}
       <div className="flex items-center gap-3 p-3 bg-white/40 rounded-xl border border-white/50 shadow-2xs">
@@ -101,11 +104,13 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           className="w-11 h-11 rounded-full object-cover shadow-xs border border-white/60"
           src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsAngPk9rQZQjrTsirIfkWPnvlCngc9MZQOD_kJo2OHxteBApsxWzBFHZ_fqwFcjLlHiajiU3MbpxrVbUInX6XhkO3ZhM-Zm62bc8_t2j6hIGOiRkKoMOp2U2YX4M9kZVoLWnQ5mVwPFJqp_1-KZoZLotJNNwVdbcajfsMnFMiF020ITw-29dQXpxa2aCgTjujefQQV_K7k2m9xGfmgjkw8pRRbM9bGToT2Syl1OsHVbV-2182g32y"
         />
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="text-xs font-bold text-[#1b1c1c] truncate">
-            {isAuthenticated ? user?.full_name : 'Hola, Alex'}
+            {isAuthenticated ? user?.full_name : 'Invitado'}
           </p>
-          <p className="text-[11px] text-[#5b403e]">Miembro Premium</p>
+          <p className="text-[11px] text-[#5b403e]">
+            {isAdmin ? '👑 Administrador' : isAuthenticated ? 'Cliente' : 'No autenticado'}
+          </p>
         </div>
       </div>
     </aside>

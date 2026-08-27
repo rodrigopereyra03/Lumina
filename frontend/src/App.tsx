@@ -9,6 +9,7 @@ import { Sidebar } from './components/common/Sidebar'
 import { Header } from './components/common/Header'
 import { Footer } from './components/common/Footer'
 import { BottomNav } from './components/common/BottomNav'
+import { AdminProtectedRoute } from './components/common/AdminProtectedRoute'
 import { HeroSection } from './features/ecommerce/components/HeroSection'
 import { ProductGrid } from './features/ecommerce/components/ProductGrid'
 import { ProductDetail } from './features/ecommerce/components/ProductDetail'
@@ -146,7 +147,14 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<MainStore />} />
-          <Route path="/admin" element={<AdminPanel />} />
+          <Route
+            path="/admin"
+            element={
+              <AdminProtectedRoute>
+                <AdminPanel />
+              </AdminProtectedRoute>
+            }
+          />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Routes>

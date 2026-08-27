@@ -58,6 +58,7 @@ type Container struct {
 	ValidateCouponHandler  couponHandlers.ValidateCouponHandler
 	ProcessPaymentHandler  paymentHandlers.ProcessPaymentHandler
 	PaymentSettingsHandler settingHandlers.PaymentSettingsHandler
+	MercadoPagoHandler     paymentHandlers.MercadoPagoHandler
 
 	// Services
 	JWTService   *jwt.JWTService
@@ -104,6 +105,8 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 	validateCouponUc := couponUsecases.NewValidateCouponImpl(couponRepo)
 
 	processPaymentUc := paymentUsecases.NewProcessPaymentImpl(paymentRepo, orderRepo, emailService)
+	createMPPrefUc := paymentUsecases.NewCreateMPPreferenceImpl(settingRepo, orderRepo)
+	handleMPWebhookUc := paymentUsecases.NewHandleMPWebhookImpl(orderRepo, paymentRepo, emailService)
 
 	getSettingsUc := settingUsecases.NewGetPaymentSettingsImpl(settingRepo)
 	updateSettingsUc := settingUsecases.NewUpdatePaymentSettingsImpl(settingRepo)
@@ -130,6 +133,7 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 		ValidateCouponHandler:  couponHandlers.NewValidateCouponHandler(validateCouponUc),
 		ProcessPaymentHandler:  paymentHandlers.NewProcessPaymentHandler(processPaymentUc),
 		PaymentSettingsHandler: settingHandlers.NewPaymentSettingsHandler(getSettingsUc, updateSettingsUc),
+		MercadoPagoHandler:     paymentHandlers.NewMercadoPagoHandler(createMPPrefUc, handleMPWebhookUc),
 
 		JWTService:   jwtService,
 		EmailService: emailService,

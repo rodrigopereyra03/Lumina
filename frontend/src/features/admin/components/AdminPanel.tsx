@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useAuthStore } from '../../../store/useAuthStore'
 
 import { AdminDashboard } from './AdminDashboard'
 import { ProductManagement } from './ProductManagement'
@@ -14,6 +15,8 @@ export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'use
 export const AdminPanel: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<AdminTab>('dashboard')
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
+  const { user, clearAuth } = useAuthStore()
+  const navigate = useNavigate()
 
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'dashboard' },
@@ -23,6 +26,11 @@ export const AdminPanel: React.FC = () => {
     { id: 'users', label: 'Usuarios', icon: 'group' },
     { id: 'payments', label: 'Medios de Pago', icon: 'credit_card' },
   ] as const
+
+  const handleLogout = () => {
+    clearAuth()
+    navigate('/')
+  }
 
   return (
     <div className="bg-[#fbf9f8] text-[#1b1c1c] font-body min-h-screen antialiased flex">
@@ -66,7 +74,7 @@ export const AdminPanel: React.FC = () => {
           })}
         </div>
 
-        {/* Bottom Actions: Storefront Shortcut */}
+        {/* Bottom Actions: Storefront & Logout */}
         <div className="mt-auto space-y-2 pt-4 border-t border-white/60">
           <Link
             to="/"
@@ -75,6 +83,14 @@ export const AdminPanel: React.FC = () => {
             <span className="material-symbols-outlined text-[18px]">storefront</span>
             <span>Volver a la Tienda</span>
           </Link>
+
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-2.5 px-3.5 py-2 rounded-xl text-xs font-semibold text-[#c0392b] hover:bg-red-50/60 transition-colors cursor-pointer text-left"
+          >
+            <span className="material-symbols-outlined text-[18px]">logout</span>
+            <span>Cerrar Sesión</span>
+          </button>
         </div>
       </aside>
 
@@ -103,13 +119,23 @@ export const AdminPanel: React.FC = () => {
               <span>Ver Tienda en Vivo</span>
             </Link>
 
-            <div className="flex items-center gap-2 border-l border-white/60 pl-3">
+            <div className="flex items-center gap-3 border-l border-white/60 pl-3">
+              <div className="text-right hidden md:block">
+                <p className="text-xs font-bold text-[#1b1c1c] leading-tight">{user?.full_name || 'Administrador'}</p>
+                <p className="text-[10px] text-[#5b403e] leading-tight">{user?.email || 'admin@lumina.com'}</p>
+              </div>
               <img
                 src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&q=80"
                 alt="Admin"
                 className="w-8 h-8 rounded-full object-cover border border-white shadow-2xs"
               />
-              <span className="hidden md:inline text-xs font-bold text-[#1b1c1c]">Rodrigo López</span>
+              <button
+                onClick={handleLogout}
+                title="Cerrar Sesión"
+                className="p-1.5 text-[#5b403e] hover:text-[#c0392b] rounded-lg hover:bg-red-50/60 transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">logout</span>
+              </button>
             </div>
           </div>
         </header>
@@ -140,6 +166,23 @@ export const AdminPanel: React.FC = () => {
                   <span>{item.label}</span>
                 </button>
               ))}
+
+              <div className="pt-2 border-t border-white/60 space-y-1">
+                <Link
+                  to="/"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-[#5b403e]"
+                >
+                  <span className="material-symbols-outlined text-[18px]">storefront</span>
+                  <span>Volver a la Tienda</span>
+                </Link>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-[#c0392b]"
+                >
+                  <span className="material-symbols-outlined text-[18px]">logout</span>
+                  <span>Cerrar Sesión</span>
+                </button>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
