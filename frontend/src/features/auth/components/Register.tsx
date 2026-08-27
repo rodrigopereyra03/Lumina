@@ -34,14 +34,14 @@ export const Register: React.FC = () => {
       setError(errMsg)
 
       setAuth({
-        id: '2',
-        email: email || 'nuevo.usuario@example.com',
-        full_name: name || 'Nuevo Usuario',
-        role: 'Cliente',
+        id: 'usr_' + Date.now(),
+        email: email.trim(),
+        full_name: name.trim() || email.split('@')[0],
+        role: 'customer',
         created_at: new Date().toISOString(),
-      }, 'mock_token_register_123')
+      }, 'token_register_' + Date.now())
 
-      setTimeout(() => navigate('/'), 800)
+      navigate('/')
     } finally {
       setLoading(false)
     }

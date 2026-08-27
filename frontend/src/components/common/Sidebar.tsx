@@ -97,22 +97,30 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
         </Link>
       )}
 
-      {/* User Profile Card */}
-      <div className="flex items-center gap-3 p-3 bg-white/40 rounded-xl border border-white/50 shadow-2xs">
-        <img
-          alt="User profile"
-          className="w-11 h-11 rounded-full object-cover shadow-xs border border-white/60"
-          src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsAngPk9rQZQjrTsirIfkWPnvlCngc9MZQOD_kJo2OHxteBApsxWzBFHZ_fqwFcjLlHiajiU3MbpxrVbUInX6XhkO3ZhM-Zm62bc8_t2j6hIGOiRkKoMOp2U2YX4M9kZVoLWnQ5mVwPFJqp_1-KZoZLotJNNwVdbcajfsMnFMiF020ITw-29dQXpxa2aCgTjujefQQV_K7k2m9xGfmgjkw8pRRbM9bGToT2Syl1OsHVbV-2182g32y"
-        />
-        <div className="min-w-0 flex-1">
-          <p className="text-xs font-bold text-[#1b1c1c] truncate">
-            {isAuthenticated ? user?.full_name : 'Invitado'}
-          </p>
-          <p className="text-[11px] text-[#5b403e]">
-            {isAdmin ? '👑 Administrador' : isAuthenticated ? 'Cliente' : 'No autenticado'}
-          </p>
+      {/* User Profile / Guest Card */}
+      {isAuthenticated ? (
+        <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl border border-white/70 shadow-2xs">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FF6B5B] to-[#FF4D4F] text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
+            {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-xs font-bold text-[#1b1c1c] truncate">
+              {user?.full_name || 'Mi Cuenta'}
+            </p>
+            <p className="text-[10px] text-[#5b403e] truncate">
+              {isAdmin ? '👑 Administrador' : 'Cliente'}
+            </p>
+          </div>
         </div>
-      </div>
+      ) : (
+        <Link
+          to="/login"
+          className="flex items-center justify-center gap-2 p-3 rounded-xl bg-white/70 hover:bg-white border border-white/80 text-xs font-bold text-[#1b1c1c] hover:text-[#FF4D4F] transition-all shadow-2xs"
+        >
+          <span className="material-symbols-outlined text-[18px]">login</span>
+          <span>Iniciar Sesión</span>
+        </Link>
+      )}
     </aside>
   )
 }

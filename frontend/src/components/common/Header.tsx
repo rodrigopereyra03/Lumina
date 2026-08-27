@@ -102,26 +102,27 @@ export const Header: React.FC<HeaderProps> = ({
         </button>
 
         {/* User Menu Trigger */}
-        <div className="relative" ref={menuRef}>
-          <button
-            onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-            className="p-1 rounded-full hover:ring-2 hover:ring-[#FF4D4F]/40 transition-all cursor-pointer flex items-center gap-1.5 bg-white/60 border border-white/80 shadow-2xs"
-            title={isAuthenticated ? user?.full_name : 'Iniciar Sesión'}
-          >
-            <img
-              alt="Usuario"
-              className="w-8 h-8 rounded-full object-cover border border-white shadow-2xs"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsAngPk9rQZQjrTsirIfkWPnvlCngc9MZQOD_kJo2OHxteBApsxWzBFHZ_fqwFcjLlHiajiU3MbpxrVbUInX6XhkO3ZhM-Zm62bc8_t2j6hIGOiRkKoMOp2U2YX4M9kZVoLWnQ5mVwPFJqp_1-KZoZLotJNNwVdbcajfsMnFMiF020ITw-29dQXpxa2aCgTjujefQQV_K7k2m9xGfmgjkw8pRRbM9bGToT2Syl1OsHVbV-2182g32y"
-            />
-            <span className="material-symbols-outlined text-[#5b403e] text-[16px] pr-1">
-              {isUserMenuOpen ? 'expand_less' : 'expand_more'}
-            </span>
-          </button>
+        {isAuthenticated ? (
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+              className="p-1 pr-2 rounded-full hover:ring-2 hover:ring-[#FF4D4F]/40 transition-all cursor-pointer flex items-center gap-1.5 bg-white/60 border border-white/80 shadow-2xs"
+              title={user?.full_name || 'Mi Cuenta'}
+            >
+              <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-[#FF6B5B] to-[#FF4D4F] text-white font-bold flex items-center justify-center text-xs shadow-2xs">
+                {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
+              </div>
+              <span className="text-xs font-semibold text-[#1b1c1c] max-w-[80px] truncate hidden md:inline">
+                {user?.full_name?.split(' ')[0]}
+              </span>
+              <span className="material-symbols-outlined text-[#5b403e] text-[16px]">
+                {isUserMenuOpen ? 'expand_less' : 'expand_more'}
+              </span>
+            </button>
 
-          {/* Dropdown Menu */}
-          {isUserMenuOpen && (
-            <div className="absolute right-0 mt-2 w-56 glass-panel rounded-2xl p-2 border border-white/80 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
-              {isAuthenticated ? (
+            {/* Dropdown Menu */}
+            {isUserMenuOpen && (
+              <div className="absolute right-0 mt-2 w-56 glass-panel rounded-2xl p-2 border border-white/80 shadow-xl z-50 animate-in fade-in zoom-in-95 duration-150">
                 <div className="space-y-1">
                   <div className="px-3 py-2 border-b border-white/60 mb-1">
                     <p className="text-xs font-bold text-[#1b1c1c] truncate">{user?.full_name}</p>
@@ -143,17 +144,6 @@ export const Header: React.FC<HeaderProps> = ({
                   )}
 
                   <button
-                    onClick={() => {
-                      setIsUserMenuOpen(false)
-                      navigate('/profile')
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-[#5b403e] hover:bg-white/60 hover:text-[#1b1c1c] transition-colors cursor-pointer text-left"
-                  >
-                    <span className="material-symbols-outlined text-[18px]">person</span>
-                    <span>Mi Perfil & Direcciones</span>
-                  </button>
-
-                  <button
                     onClick={handleLogout}
                     className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-[#c0392b] hover:bg-red-50/60 transition-colors cursor-pointer text-left border-t border-white/60 mt-1 pt-1.5"
                   >
@@ -161,28 +151,18 @@ export const Header: React.FC<HeaderProps> = ({
                     <span>Cerrar Sesión</span>
                   </button>
                 </div>
-              ) : (
-                <div className="space-y-1 p-1">
-                  <p className="text-[11px] text-[#5b403e] px-2 py-1">Accede a tu cuenta de Lumina</p>
-                  <Link
-                    to="/login"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="w-full py-2 btn-primary rounded-xl text-xs font-bold text-center block shadow-2xs"
-                  >
-                    Iniciar Sesión
-                  </Link>
-                  <Link
-                    to="/register"
-                    onClick={() => setIsUserMenuOpen(false)}
-                    className="w-full py-2 bg-white/60 hover:bg-white text-[#5b403e] rounded-xl text-xs font-bold text-center block border border-white transition-colors"
-                  >
-                    Crear Cuenta
-                  </Link>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <Link
+            to="/login"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/70 hover:bg-white border border-white/80 text-xs font-bold text-[#1b1c1c] hover:text-[#FF4D4F] shadow-2xs transition-all"
+          >
+            <span className="material-symbols-outlined text-[16px]">login</span>
+            <span>Ingresar</span>
+          </Link>
+        )}
       </div>
     </header>
   )

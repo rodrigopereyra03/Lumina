@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useCartStore } from '../../../store/useCartStore'
 import { useAuthStore } from '../../../store/useAuthStore'
+import { useUserDataStore } from '../../../store/useUserDataStore'
 import { ordersApi } from '../../../api/ordersApi'
 import { paymentsApi } from '../../../api/paymentsApi'
 import { mercadoPagoApi } from '../../../api/mercadoPagoApi'
@@ -23,21 +24,24 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     discountCode,
   } = useCartStore()
   const { user, isAuthenticated } = useAuthStore()
+  const { addresses, cards, loadUserData, addAddress, addCard, addOrder } = useUserDataStore()
 
   const subtotal = getSubtotal()
   const discountAmount = getDiscountAmount()
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('mercadopago')
-  const [fullName, setFullName] = useState(isAuthenticated ? user?.full_name || '' : 'Alex Morgan')
-  const [email, setEmail] = useState(isAuthenticated ? user?.email || '' : 'alex.morgan@example.com')
-  const [phone, setPhone] = useState('+54 9 11 4455-6677')
-  const [address, setAddress] = useState('Av. Libertador 2450, Piso 8')
-  const [city, setCity] = useState('Buenos Aires, Argentina')
+  const [fullName, setFullName] = useState(user?.full_name || '')
+  const [email, setEmail] = useState(user?.email || '')
+  const [phone, setPhone] = useState(user?.phone || '')
+  const [address, setAddress] = useState('')
+  const [city, setCity] = useState('')
+  const [saveAddressOption, setSaveAddressOption] = useState(true)
+  const [saveCardOption, setSaveCardOption] = useState(false)
 
   // Direct Card Fields
-  const [cardNum, setCardNum] = useState('4242 •••• •••• 4242')
-  const [cardExpiry, setCardExpiry] = useState('12/26')
-  const [cardCvv, setCardCvv] = useState('849')
+  const [cardNum, setCardNum] = useState('')
+  const [cardExpiry, setCardExpiry] = useState('')
+  const [cardCvv, setCardCvv] = useState('')
 
   const [loading, setLoading] = useState(false)
   const [orderSuccess, setOrderSuccess] = useState(false)
@@ -49,6 +53,24 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
   const [completedSubtotal, setCompletedSubtotal] = useState(0)
   const [completedTotal, setCompletedTotal] = useState(0)
 
+  useEffect(() => {
+    if (user?.email) {
+      loadUserData(user.email)
+    }
+  }, [user?.email, loadUserData])
+
+  // Populate first saved address if exists and field is empty
+  useEffect(() => {
+    if (addresses.length > 0 && !address) {
+      const defaultAddr = addresses.find((a) => a.is_default) || addresses[0]
+      setAddress(defaultAddr.street_address)
+      setCity(defaultAddr.city)
+      if (defaultAddr.recipient_phone && !phone) {
+        setPhone(defaultAddr.recipient_phone)
+      }
+    }
+  }, [addresses])
+
   // Transfer discount (10%)
   const transferDiscount = paymentMethod === 'transfer' ? subtotal * 0.1 : 0
   const total = Math.max(0, getTotal() - transferDiscount)
@@ -57,6 +79,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
     const formatted = raw.replace(/(\d{4})/g, '$1 ').trim()
     setCardNum(formatted)
+  }
+
+  const handleSelectSavedAddress = (addr: typeof addresses[0]) => {
+    setAddress(addr.street_address)
+    setCity(addr.city)
+    if (addr.recipient_phone) setPhone(addr.recipient_phone)
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -73,6 +101,60 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     const generatedOrderId = '#LUM-' + Math.floor(100000 + Math.random() * 900000) + '-01'
     setOrderId(generatedOrderId)
 
+    // Save address if user opted in
+    if (user?.email && saveAddressOption && address && city) {
+      const alreadySaved = addresses.some(
+        (a) => a.street_address.toLowerCase() === address.toLowerCase()
+      )
+      if (!alreadySaved) {
+        addAddress(user.email, {
+          title: 'Domicilio de Entrega',
+          recipient_name: fullName || user.full_name,
+          recipient_phone: phone || '+54 9 11 ...',
+          street_address: address,
+          city: city,
+          state: 'Buenos Aires',
+          is_default: addresses.length === 0,
+        })
+      }
+    }
+
+    // Save card if user opted in
+    if (user?.email && saveCardOption && cardNum && cardExpiry && paymentMethod === 'card') {
+      const rawNum = cardNum.replace(/\s+/g, '')
+      const last4 = rawNum.slice(-4) || '4242'
+      const brand = rawNum.startsWith('4') ? 'visa' : rawNum.startsWith('5') ? 'mastercard' : 'other'
+      addCard(user.email, {
+        cardholder_name: fullName || user.full_name,
+        brand,
+        last4,
+        expiry: cardExpiry,
+        is_default: cards.length === 0,
+      })
+    }
+
+    // Record order in user history
+    if (user?.email) {
+      addOrder(user.email, {
+        id: 'ord_' + Date.now(),
+        order_number: generatedOrderId,
+        date: new Date().toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' }),
+        items: currentOrderItems.map((it) => ({
+          id: it.id,
+          title: it.title,
+          variant: it.variant,
+          price: it.price,
+          quantity: it.quantity,
+          image: it.image,
+        })),
+        subtotal: currentSubtotal,
+        total: currentTotal,
+        payment_method: paymentMethod === 'mercadopago' ? 'Mercado Pago' : paymentMethod === 'transfer' ? 'Transferencia' : 'Tarjeta',
+        status: paymentMethod === 'mercadopago' ? 'Aprobado' : 'En Proceso',
+        status_color: paymentMethod === 'mercadopago' ? 'bg-[#E8F8F0] text-[#1E824C]' : 'bg-[#ffdad7]/60 text-[#FF4D4F]',
+      })
+    }
+
     // 1. If paying with Mercado Pago, request preference and redirect immediately
     if (paymentMethod === 'mercadopago') {
       try {
@@ -86,9 +168,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
             picture_url: it.image,
           })),
           payer: {
-            name: fullName.split(' ')[0] || fullName,
-            surname: fullName.split(' ').slice(1).join(' ') || 'Cliente',
-            email: email,
+            name: (fullName || user?.full_name || 'Cliente').split(' ')[0],
+            surname: (fullName || user?.full_name || 'Cliente').split(' ').slice(1).join(' ') || 'Lumina',
+            email: email || user?.email || 'comprador@lumina.com',
             phone: phone,
             address: address,
           },
@@ -213,14 +295,42 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* 1. Información de Envío */}
             <div className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">1. Información de Envío</h3>
+              <div className="flex justify-between items-center">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">1. Información de Envío</h3>
+                {addresses.length > 0 && (
+                  <span className="text-[10px] text-[#5b403e] font-semibold">
+                    {addresses.length} {addresses.length === 1 ? 'dirección guardada' : 'direcciones guardadas'}
+                  </span>
+                )}
+              </div>
+
+              {/* Saved Addresses quick pills */}
+              {addresses.length > 0 && (
+                <div className="flex flex-wrap gap-2 pb-1">
+                  {addresses.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => handleSelectSavedAddress(a)}
+                      className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
+                        address === a.street_address
+                          ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-2xs'
+                          : 'bg-white/60 border-white/80 text-[#5b403e] hover:bg-white'
+                      }`}
+                    >
+                      📍 {a.title}: {a.street_address.split(',')[0]}
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Nombre Completo</label>
                   <input
                     type="text"
                     required
-                    placeholder="ej. Alex Morgan"
+                    placeholder="ej. Juan Pérez"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
@@ -231,13 +341,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                   <input
                     type="email"
                     required
-                    placeholder="alex@ejemplo.com"
+                    placeholder="tu@correo.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
                   />
                 </div>
               </div>
+
               <div className="grid sm:grid-cols-3 gap-3">
                 <div>
                   <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Dirección de Entrega</label>
@@ -273,6 +384,21 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                   />
                 </div>
               </div>
+
+              {/* Save Address Checkbox */}
+              {isAuthenticated && (
+                <label className="flex items-center gap-2 pt-1 px-1 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={saveAddressOption}
+                    onChange={(e) => setSaveAddressOption(e.target.checked)}
+                    className="rounded border-[#e4bebb] text-[#FF4D4F] focus:ring-[#FF4D4F]/30"
+                  />
+                  <span className="text-[11px] text-[#5b403e] font-medium">
+                    Guardar esta dirección de entrega para mis próximas compras
+                  </span>
+                </label>
+              )}
             </div>
 
             {/* 2. Método de Pago */}
@@ -384,6 +510,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       />
                     </div>
                   </div>
+
+                  {isAuthenticated && (
+                    <label className="flex items-center gap-2 pt-1 px-1 cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={saveCardOption}
+                        onChange={(e) => setSaveCardOption(e.target.checked)}
+                        className="rounded border-[#e4bebb] text-[#FF4D4F] focus:ring-[#FF4D4F]/30"
+                      />
+                      <span className="text-[11px] text-[#5b403e] font-medium">
+                        Guardar esta tarjeta de forma segura para mis próximas compras
+                      </span>
+                    </label>
+                  )}
                 </div>
               )}
 
