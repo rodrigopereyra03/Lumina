@@ -1,0 +1,9 @@
+DROP TABLE IF EXISTS order_status_history;
+DROP TABLE IF EXISTS shipments;
+DROP TABLE IF EXISTS payments;
+DROP TABLE IF EXISTS coupons;
+DROP TABLE IF EXISTS wishlists;
+DROP TABLE IF EXISTS product_reviews;
+DROP TABLE IF EXISTS product_images;
+DROP TABLE IF EXISTS product_variants;
+DROP TABLE IF EXISTS user_addresses;

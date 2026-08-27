@@ -1,0 +1,19 @@
+# Binaries
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+bin/
+api
+
+# Environment variables
+.env
+.env.local
+
+# IDE configurations
+.idea/
+.vscode/
+
+# Dependency directories (only if vendor is used)
+# vendor/

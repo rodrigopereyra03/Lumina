@@ -1,0 +1,18 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: lumina_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgrespassword
+      POSTGRES_DB: lumina_ecommerce
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/db/migrations/000001_init_schema.up.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./backend/db/dev/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+
+volumes:
+  postgres_data:
