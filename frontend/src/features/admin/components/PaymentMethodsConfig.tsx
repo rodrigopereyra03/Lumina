@@ -3,8 +3,8 @@ import { settingsApi } from '../../../api/settingsApi'
 
 export const PaymentMethodsConfig: React.FC = () => {
   const [mpActive, setMpActive] = useState(true)
-  const [mpPublicKey, setMpPublicKey] = useState('APP_USR-49281039-4821-4820-9102-849201849201')
-  const [mpAccessToken, setMpAccessToken] = useState('APP_USR-948201948201948201948201-948201')
+  const [mpPublicKey, setMpPublicKey] = useState('APP_USR-09e00df2-06bc-4d0e-b5de-13aaffd650d2')
+  const [mpAccessToken, setMpAccessToken] = useState('APP_USR-1887517460534002-082719-20e9045bc921801c6df09603e8ed153f-3644485241')
   const [mpSandbox, setMpSandbox] = useState(false)
   const [mpInstallments, setMpInstallments] = useState('6')
 
