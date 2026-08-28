@@ -1,132 +1,86 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { categoriesApi } from '../../../api/categoriesApi'
+import { productsApi } from '../../../api/productsApi'
 
 interface CategoryItem {
   id: string
   name: string
+  slug: string
   icon: string
   productsCount: number
-  subcategories: { name: string; count: number }[]
 }
 
-const DEFAULT_CATEGORIES: CategoryItem[] = [
-  {
-    id: 'cat-1',
-    name: 'Electrónica',
-    icon: 'devices',
-    productsCount: 14,
-    subcategories: [
-      { name: 'Auriculares', count: 4 },
-      { name: 'Smartwatches', count: 3 },
-      { name: 'Altavoces', count: 4 },
-      { name: 'Teclados', count: 3 },
-    ],
-  },
-  {
-    id: 'cat-2',
-    name: 'Moda',
-    icon: 'checkroom',
-    productsCount: 12,
-    subcategories: [
-      { name: 'Ropa Masculina', count: 4 },
-      { name: 'Bolsos y Carteras', count: 5 },
-      { name: 'Accesorios', count: 3 },
-    ],
-  },
-  {
-    id: 'cat-3',
-    name: 'Hogar & Confort',
-    icon: 'home',
-    productsCount: 8,
-    subcategories: [
-      { name: 'Accesorios de Escritorio', count: 3 },
-      { name: 'Decoración Acústica', count: 3 },
-      { name: 'Iluminación', count: 2 },
-    ],
-  },
-  {
-    id: 'cat-4',
-    name: 'Belleza',
-    icon: 'spa',
-    productsCount: 6,
-    subcategories: [
-      { name: 'Cuidado Facial', count: 3 },
-      { name: 'Fragancias', count: 3 },
-    ],
-  },
-  {
-    id: 'cat-5',
-    name: 'Deportes',
-    icon: 'fitness_center',
-    productsCount: 8,
-    subcategories: [
-      { name: 'Ropa Deportiva', count: 4 },
-      { name: 'Botellas Térmicas', count: 4 },
-    ],
-  },
-]
-
 export const CategoryManagement: React.FC = () => {
-  const [categories, setCategories] = useState<CategoryItem[]>(DEFAULT_CATEGORIES)
-
-  useEffect(() => {
-    const fetchCats = async () => {
-      try {
-        const res = await categoriesApi.getCategories()
-        if (res.categories && res.categories.length > 0) {
-          const mapped: CategoryItem[] = res.categories.map((c: any) => ({
-            id: c.id,
-            name: c.name,
-            icon: c.icon || 'category',
-            productsCount: c.products_count || 4,
-            subcategories: [
-              { name: 'General', count: c.products_count || 4 }
-            ]
-          }))
-          setCategories(mapped)
-        }
-      } catch (e) {
-        // use default state
-      }
-    }
-    fetchCats()
-  }, [])
-
+  const [categories, setCategories] = useState<CategoryItem[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [newCatIcon, setNewCatIcon] = useState('category')
+
+  const fetchAll = async () => {
+    setLoading(true)
+    try {
+      const [catRes, prodRes] = await Promise.all([
+        categoriesApi.getCategories(),
+        productsApi.getProducts('all'),
+      ])
+
+      const products = prodRes.products || []
+      const cats = catRes.categories || []
+
+      const mapped: CategoryItem[] = cats.map((c: any) => {
+        const matchingCount = products.filter((p) => {
+          const catName = (p.category_name || '').toLowerCase()
+          const cName = (c.name || '').toLowerCase()
+          const cSlug = (c.slug || '').toLowerCase()
+          return catName.includes(cName) || catName.includes(cSlug) || cSlug.includes(catName)
+        }).length
+
+        return {
+          id: c.id || c.slug,
+          name: c.name,
+          slug: c.slug || c.name.toLowerCase(),
+          icon: c.icon || 'category',
+          productsCount: matchingCount || c.products_count || 0,
+        }
+      })
+
+      setCategories(mapped)
+    } catch (e) {
+      // Handled
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchAll()
+  }, [])
 
   const handleAddCategory = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!newCatName.trim()) return
 
-    const newCat: CategoryItem = {
-      id: 'cat-' + Date.now(),
-      name: newCatName,
-      icon: newCatIcon || 'category',
-      productsCount: 0,
-      subcategories: [
-        { name: 'General', count: 0 }
-      ]
-    }
-
-    setCategories(prev => [...prev, newCat])
-    setNewCatName('')
-    setIsModalOpen(false)
-
     try {
       await categoriesApi.createCategory({
-        name: newCatName,
-        icon: newCatIcon || 'category',
+        name: newCatName.trim(),
+        icon: newCatIcon.trim() || 'category',
       })
+      setNewCatName('')
+      setNewCatIcon('category')
+      setIsModalOpen(false)
+      fetchAll()
     } catch (e) {
       // Handled
     }
   }
 
-  const handleDelete = (id: string) => {
-    setCategories(prev => prev.filter(c => c.id !== id))
+  const handleDelete = async (id: string, name: string) => {
+    if (confirm(`¿Estás seguro de que deseas eliminar la categoría "${name}"?`)) {
+      await categoriesApi.deleteCategory(id)
+      fetchAll()
+    }
   }
 
   return (
@@ -136,7 +90,7 @@ export const CategoryManagement: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Categorías</h1>
           <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
-            Organiza los productos de tu tienda en secciones lógicas y jerárquicas.
+            Estructura y taxonomía del catálogo sincronizada con la base de datos.
           </p>
         </div>
 
@@ -149,85 +103,78 @@ export const CategoryManagement: React.FC = () => {
         </button>
       </div>
 
-      {/* Categories Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {categories.map((cat, idx) => (
-          <motion.div
-            key={cat.id}
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: idx * 0.06 }}
-            className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-5 flex flex-col justify-between"
-          >
-            <div>
-              {/* Category Header */}
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F]">
-                    <span className="material-symbols-outlined text-[22px]">{cat.icon}</span>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-base text-[#1b1c1c]">{cat.name}</h3>
-                    <p className="text-[11px] text-[#5b403e]">{cat.productsCount} productos activos</p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => handleDelete(cat.id)}
-                  className="text-[#5b403e] hover:text-[#ba1a1a] p-1 rounded-lg hover:bg-white/60 transition-colors cursor-pointer"
-                  title="Eliminar categoría"
-                >
-                  <span className="material-symbols-outlined text-[18px]">delete</span>
-                </button>
-              </div>
-
-              {/* Subcategories List */}
-              <div className="mt-5 space-y-2">
-                <span className="text-[10px] uppercase font-bold tracking-wider text-[#5b403e] block">
-                  Subcategorías
-                </span>
-                <div className="space-y-1.5">
-                  {cat.subcategories.map((sub, i) => (
-                    <div
-                      key={i}
-                      className="flex justify-between items-center text-xs py-1.5 px-3 rounded-lg bg-white/50 border border-white/60"
-                    >
-                      <span className="font-medium text-[#1b1c1c]">{sub.name}</span>
-                      <span className="text-[#5b403e] font-semibold text-[11px]">{sub.count}</span>
+      {loading ? (
+        <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e]">
+          Cargando categorías desde la base de datos...
+        </div>
+      ) : (
+        /* Categories Cards Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {categories.map((cat, idx) => (
+            <motion.div
+              key={cat.id || cat.slug}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: idx * 0.05 }}
+              className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-5 flex flex-col justify-between"
+            >
+              <div>
+                {/* Category Header */}
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-11 h-11 rounded-2xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F] border border-white shadow-2xs">
+                      <span className="material-symbols-outlined text-[24px]">{cat.icon}</span>
                     </div>
-                  ))}
+                    <div>
+                      <h3 className="font-bold text-base text-[#1b1c1c]">{cat.name}</h3>
+                      <p className="text-xs font-semibold text-[#FF4D4F] mt-0.5">
+                        {cat.productsCount} {cat.productsCount === 1 ? 'producto activo' : 'productos activos'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => handleDelete(cat.id, cat.name)}
+                    className="text-[#5b403e] hover:text-[#ba1a1a] p-1.5 rounded-xl hover:bg-white/80 transition-colors cursor-pointer border border-transparent hover:border-white shadow-2xs"
+                    title="Eliminar categoría"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                  </button>
+                </div>
+
+                <div className="mt-4 p-3 rounded-xl bg-white/50 border border-white/60 text-xs text-[#5b403e] flex justify-between items-center">
+                  <span className="font-medium">Slug del sistema:</span>
+                  <span className="font-mono font-bold text-[#1b1c1c]">/{cat.slug}</span>
                 </div>
               </div>
-            </div>
 
-            {/* Actions */}
-            <div className="pt-3 border-t border-white/60 flex justify-between items-center text-xs">
-              <button className="text-[#FF4D4F] font-bold hover:underline cursor-pointer">
-                Gestionar Productos
-              </button>
-              <button className="text-[#5b403e] hover:text-[#1b1c1c] font-semibold cursor-pointer">
-                Editar
-              </button>
-            </div>
-          </motion.div>
-        ))}
+              {/* Status Footer */}
+              <div className="pt-3 border-t border-white/60 flex justify-between items-center text-xs">
+                <span className="bg-[#E8F8F0] text-[#1E824C] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+                  Sincronizado
+                </span>
+                <span className="text-[11px] font-semibold text-[#5b403e]">Catálogo Lumina</span>
+              </div>
+            </motion.div>
+          ))}
 
-        {/* Create New Category Card (Dashed) */}
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setIsModalOpen(true)}
-          className="rounded-2xl p-8 border-2 border-dashed border-white/80 bg-white/30 hover:bg-white/50 transition-all flex flex-col items-center justify-center gap-3 text-center min-h-[220px] cursor-pointer shadow-2xs"
-        >
-          <div className="w-12 h-12 rounded-full bg-[#ffdad7]/60 flex items-center justify-center text-[#FF4D4F]">
-            <span className="material-symbols-outlined text-[28px]">add</span>
-          </div>
-          <div>
-            <span className="font-bold text-sm text-[#1b1c1c] block">Crear Nueva Categoría</span>
-            <span className="text-xs text-[#5b403e]">Añadir taxonomías y filtros personalizados</span>
-          </div>
-        </motion.button>
-      </div>
+          {/* Create New Category Card (Dashed) */}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setIsModalOpen(true)}
+            className="rounded-2xl p-8 border-2 border-dashed border-[#FF4D4F]/30 bg-white/30 hover:bg-white/60 transition-all flex flex-col items-center justify-center gap-3 text-center min-h-[190px] cursor-pointer shadow-2xs group"
+          >
+            <div className="w-12 h-12 rounded-full bg-[#ffdad7]/60 flex items-center justify-center text-[#FF4D4F] group-hover:scale-110 transition-transform">
+              <span className="material-symbols-outlined text-[28px]">add</span>
+            </div>
+            <div>
+              <span className="font-bold text-sm text-[#1b1c1c] block">Crear Nueva Categoría</span>
+              <span className="text-xs text-[#5b403e]">Añadir taxonomías y filtros al catálogo</span>
+            </div>
+          </motion.button>
+        </div>
+      )}
 
       {/* New Category Modal */}
       <AnimatePresence>
@@ -277,7 +224,7 @@ export const CategoryManagement: React.FC = () => {
                     value={newCatIcon}
                     onChange={(e) => setNewCatIcon(e.target.value)}
                     className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                    placeholder="sports_esports"
+                    placeholder="sports_esports, devices, checkroom..."
                   />
                 </div>
 
@@ -293,7 +240,7 @@ export const CategoryManagement: React.FC = () => {
                     type="submit"
                     className="btn-primary px-5 py-2.5 rounded-xl font-bold cursor-pointer shadow-md"
                   >
-                    Guardar
+                    Guardar Categoría
                   </button>
                 </div>
               </form>
