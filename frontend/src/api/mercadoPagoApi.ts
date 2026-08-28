@@ -51,7 +51,6 @@ export const mercadoPagoApi = {
     }
 
     // 2. Direct Mercado Pago REST API call
-    // Note: Mercado Pago requires a valid public HTTPS URL for back_urls when auto_return is enabled
     const publicBaseUrl = 'https://lumina-d31.pages.dev'
 
     const mpBody = {
@@ -97,6 +96,39 @@ export const mercadoPagoApi = {
       init_point: data.init_point,
       sandbox_init_point: data.sandbox_init_point,
       public_key: DEFAULT_MP_PUBLIC_KEY,
+    }
+  },
+
+  refundPayment: async (
+    paymentId: string
+  ): Promise<{ success: boolean; message: string; refund_id?: string }> => {
+    try {
+      // Direct call to Mercado Pago Refund API
+      const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${DEFAULT_MP_ACCESS_TOKEN}`,
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.message || 'Error al procesar el reembolso en Mercado Pago')
+      }
+
+      const data = await response.json()
+      return {
+        success: true,
+        message: 'Reembolso de $' + (data.amount || '') + ' procesado con éxito en Mercado Pago',
+        refund_id: data.id ? data.id.toString() : undefined,
+      }
+    } catch (err: any) {
+      console.error('Mercado Pago refund error:', err)
+      return {
+        success: false,
+        message: err.message || 'No se pudo procesar el reembolso en Mercado Pago',
+      }
     }
   },
 }

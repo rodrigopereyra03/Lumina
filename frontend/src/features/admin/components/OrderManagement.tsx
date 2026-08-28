@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { ordersApi, type BackendOrderDTO } from '../../../api/ordersApi'
+import { mercadoPagoApi } from '../../../api/mercadoPagoApi'
 
 interface AdminOrderItem {
   id: string
@@ -21,6 +22,11 @@ export const OrderManagement: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string>('Todas')
   const [loading, setLoading] = useState<boolean>(true)
   const [statusFeedback, setStatusFeedback] = useState<string | null>(null)
+
+  // Refund Modal State
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState<boolean>(false)
+  const [refundLoading, setRefundLoading] = useState<boolean>(false)
+  const [paymentIdInput, setPaymentIdInput] = useState<string>('175009292359')
 
   const fetchOrders = async (currentFilter: string) => {
     setLoading(true)
@@ -85,13 +91,43 @@ export const OrderManagement: React.FC = () => {
     )
     setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null))
     setStatusFeedback(`Orden ${selectedOrder.id} actualizada a "${newStatus}"`)
-    setTimeout(() => setStatusFeedback(null), 3000)
+    setTimeout(() => setStatusFeedback(null), 3500)
 
     // 2. Persist to storage and backend
     try {
       await ordersApi.updateOrderStatus(selectedOrder.id, newStatus)
     } catch (e) {
       // Handled
+    }
+  }
+
+  const handleCancelWithRefund = async (processMPRefund: boolean) => {
+    if (!selectedOrder) return
+    setRefundLoading(true)
+
+    try {
+      if (processMPRefund) {
+        // Execute real Mercado Pago Refund API call
+        const paymentIdToRefund = paymentIdInput.trim() || '175009292359'
+        const refundRes = await mercadoPagoApi.refundPayment(paymentIdToRefund)
+
+        if (refundRes.success) {
+          setStatusFeedback(`✅ ${refundRes.message} (Orden ${selectedOrder.id} cancelada)`)
+        } else {
+          setStatusFeedback(`⚠️ Orden cancelada. Nota MP: ${refundRes.message}`)
+        }
+      } else {
+        setStatusFeedback(`Orden ${selectedOrder.id} cancelada sin reembolso automático`)
+      }
+
+      await handleUpdateStatus('Cancelado')
+      setIsRefundModalOpen(false)
+    } catch (err: any) {
+      setStatusFeedback(`Orden cancelada con error en pasarela: ${err.message}`)
+      await handleUpdateStatus('Cancelado')
+      setIsRefundModalOpen(false)
+    } finally {
+      setRefundLoading(false)
     }
   }
 
@@ -294,6 +330,7 @@ export const OrderManagement: React.FC = () => {
               <div className="pt-2 flex flex-col gap-2">
                 <span className="text-[11px] font-bold text-[#5b403e]">Cambiar Estado del Pedido:</span>
                 <div className="grid grid-cols-2 gap-2.5 text-xs pt-1">
+                  {/* 1. Enviado */}
                   <button
                     onClick={() => handleUpdateStatus('Enviado')}
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
@@ -306,6 +343,7 @@ export const OrderManagement: React.FC = () => {
                     <span>Marcar Enviado</span>
                   </button>
 
+                  {/* 2. Entregado */}
                   <button
                     onClick={() => handleUpdateStatus('Entregado')}
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
@@ -318,6 +356,7 @@ export const OrderManagement: React.FC = () => {
                     <span>Marcar Entregado</span>
                   </button>
 
+                  {/* 3. En Proceso */}
                   <button
                     onClick={() => handleUpdateStatus('En Proceso')}
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
@@ -330,8 +369,9 @@ export const OrderManagement: React.FC = () => {
                     <span>En Proceso</span>
                   </button>
 
+                  {/* 4. Cancelar Orden (Triggers Modal for Refund Question) */}
                   <button
-                    onClick={() => handleUpdateStatus('Cancelado')}
+                    onClick={() => setIsRefundModalOpen(true)}
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Cancelado'
                         ? 'bg-[#ba1a1a] text-white border-[#ba1a1a] shadow-sm'
@@ -345,6 +385,85 @@ export const OrderManagement: React.FC = () => {
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* MODAL: CANCELACIÓN Y REEMBOLSO MERCADO PAGO */}
+      {isRefundModalOpen && selectedOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in">
+          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-2xl space-y-5 bg-white/95 text-xs">
+            <div className="flex justify-between items-start border-b border-white/80 pb-3">
+              <div className="flex items-center gap-2 text-[#ba1a1a]">
+                <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-[#ba1a1a]">
+                  <span className="material-symbols-outlined text-[22px]">assignment_return</span>
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-[#1b1c1c]">Cancelar y Reembolsar Orden</h3>
+                  <span className="font-mono text-[11px] text-[#5b403e]">{selectedOrder.id}</span>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsRefundModalOpen(false)}
+                className="text-[#5b403e] hover:text-[#1b1c1c] cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[20px]">close</span>
+              </button>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/20 space-y-2 text-[#1b1c1c]">
+              <div className="flex items-center gap-2 font-bold text-[#009EE3]">
+                <span className="material-symbols-outlined text-[18px]">payments</span>
+                <span>¿Deseas reembolsar el dinero en Mercado Pago?</span>
+              </div>
+              <p className="text-[11px] text-[#5b403e] leading-relaxed">
+                El comprador <b>{selectedOrder.customer}</b> abonó <b>${selectedOrder.total.toFixed(2)} ARS</b>. Si confirmas, se enviará la orden de reembolso a la API de Mercado Pago y el saldo se reintegrará automáticamente.
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-[#5b403e] block">
+                ID de Pago en Mercado Pago (Transaction ID)
+              </label>
+              <input
+                type="text"
+                value={paymentIdInput}
+                onChange={(e) => setPaymentIdInput(e.target.value)}
+                placeholder="ej. 175009292359"
+                className="glass-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs outline-none"
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 pt-2 border-t border-white/80">
+              {/* Option 1: Refund via MP and Cancel */}
+              <button
+                disabled={refundLoading}
+                onClick={() => handleCancelWithRefund(true)}
+                className="w-full py-3 px-4 rounded-xl bg-[#009EE3] hover:bg-[#0082ba] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 transition-all"
+              >
+                <span className="material-symbols-outlined text-[18px]">undo</span>
+                <span>{refundLoading ? 'Procesando Reembolso en MP...' : 'Cancelar y Reembolsar en Mercado Pago'}</span>
+              </button>
+
+              {/* Option 2: Just Cancel */}
+              <button
+                disabled={refundLoading}
+                onClick={() => handleCancelWithRefund(false)}
+                className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-[#ba1a1a] font-bold text-xs border border-red-200 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all"
+              >
+                <span className="material-symbols-outlined text-[16px]">block</span>
+                <span>Solo Cancelar Orden (Sin Reembolso Automático)</span>
+              </button>
+
+              {/* Cancel / Close */}
+              <button
+                type="button"
+                onClick={() => setIsRefundModalOpen(false)}
+                className="w-full py-2 text-center text-[#5b403e] hover:text-[#1b1c1c] text-xs font-semibold cursor-pointer"
+              >
+                Volver atrás
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
