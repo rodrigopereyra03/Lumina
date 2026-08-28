@@ -2,6 +2,7 @@ package users
 
 import (
 	"sync"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -18,7 +19,7 @@ func NewUsersRepository(db *pgxpool.Pool) *UsersRepository {
 		memory: make(map[string]UserDAO),
 	}
 
-	// Seed in-memory demo users if no DB
+	// Seed in-memory initial admin user if no DB
 	if db == nil {
 		repo.seedInMemory()
 	}
@@ -27,12 +28,15 @@ func NewUsersRepository(db *pgxpool.Pool) *UsersRepository {
 }
 
 func (r *UsersRepository) seedInMemory() {
-	r.memory["1"] = UserDAO{
-		ID:           "1",
-		Email:        "alex.morgan@example.com",
-		PasswordHash: "$2a$10$7EqJtq98hPqEX7fNZaFWoOZhB7zG7tL8v6y9wQz5b2fV3oA9mQcZa", // "password123"
-		FullName:     "Alex Morgan",
-		Phone:        "+54 9 11 4455-6677",
-		Role:         "premium",
+	now := time.Now()
+	r.memory["admin-1"] = UserDAO{
+		ID:           "admin-1",
+		Email:        "admin@lumina.com",
+		PasswordHash: "$2a$10$7EqJtq98hPqEX7fNZaFWoOZhB7zG7tL8v6y9wQz5b2fV3oA9mQcZa", // "admin123"
+		FullName:     "Administrador Lumina",
+		Phone:        "+54 9 11 0000-0000",
+		Role:         "admin",
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	}
 }
