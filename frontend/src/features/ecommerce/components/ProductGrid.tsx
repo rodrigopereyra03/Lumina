@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import type { Product } from '../data/productsData'
-import { PRODUCTS } from '../data/productsData'
 import { productsApi } from '../../../api/productsApi'
 import { useCartStore } from '../../../store/useCartStore'
 
@@ -27,7 +26,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   onClearSearch,
 }) => {
   const { addItem, openDrawer } = useCartStore()
-  const [productList, setProductList] = useState<Product[]>(PRODUCTS)
+  const [productList, setProductList] = useState<Product[]>([])
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -38,8 +37,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             id: p.id,
             title: p.title,
             subtitle: p.subtitle || '',
-            category: p.category_name || 'Electrónica',
-            categorySlug: ((p.category_name?.toLowerCase().includes('moda') ? 'fashion' : 'electronics') as any),
+            category: p.category_name || 'General',
+            categorySlug: p.category_slug || 'general',
             price: p.price,
             originalPrice: p.original_price,
             rating: p.rating || 5.0,
@@ -53,9 +52,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             specs: [{ label: 'Garantía', value: '1 Año' }],
           }))
           setProductList(mapped)
+        } else {
+          setProductList([])
         }
       } catch (e) {
-        // Fallback to static mock products
+        // Handled
       }
     }
     fetchProducts()

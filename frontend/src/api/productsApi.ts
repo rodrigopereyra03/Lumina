@@ -1,5 +1,4 @@
 import { axiosInstance } from './axiosInstance'
-import { PRODUCTS } from '../features/ecommerce/data/productsData'
 
 export interface BackendProductDTO {
   id: string
@@ -24,57 +23,55 @@ export interface ListProductsResponseContent {
 
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
-const getInitialCatalog = (): BackendProductDTO[] => {
-  const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-  if (stored) {
-    try {
-      const parsed = JSON.parse(stored)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
-    } catch (e) {}
-  }
-
-  const initial = PRODUCTS.map((p) => ({
-    id: p.id,
-    title: p.title,
-    subtitle: p.subtitle,
-    description: p.description,
-    price: p.price,
-    original_price: p.originalPrice,
-    stock: p.stock,
-    image: p.image,
-    rating: p.rating,
-    reviews_count: p.reviewsCount,
-    category_name: p.category,
-    category_slug: p.categorySlug,
-  }))
-  localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(initial))
-  return initial
-}
-
 export const productsApi = {
   getProducts: async (categorySlug?: string): Promise<ListProductsResponseContent> => {
-    let localProducts = getInitialCatalog()
-
     try {
       const url = categorySlug && categorySlug !== 'all' ? `/products?category=${categorySlug}` : '/products'
-      const res = await axiosInstance.get(url, { timeout: 2500 })
+      const res = await axiosInstance.get(url, { timeout: 3000 })
       const remote = res.data.content || res.data
       if (remote?.products && Array.isArray(remote.products) && remote.products.length > 0) {
-        // Merge with remote
-        const mergedMap = new Map<string, BackendProductDTO>()
-        remote.products.forEach((p: BackendProductDTO) => mergedMap.set(p.id, p))
-        localProducts.forEach((p: BackendProductDTO) => {
-          if (!mergedMap.has(p.id)) {
-            mergedMap.set(p.id, p)
-          }
-        })
-        const mergedList = Array.from(mergedMap.values())
-        localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mergedList))
-        localProducts = mergedList
+        const mappedRemote: BackendProductDTO[] = remote.products.map((p: any) => ({
+          id: p.id,
+          title: p.title,
+          subtitle: p.subtitle || '',
+          description: p.description || '',
+          price: p.price,
+          original_price: p.original_price,
+          stock: p.stock,
+          image: p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+          rating: p.rating || 5.0,
+          reviews_count: p.reviews_count || 0,
+          category_name: p.category_name || 'General',
+          category_slug:
+            p.category_slug ||
+            (p.category_name
+              ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+              : 'general'),
+        }))
+
+        // Save remote database products directly to local cache
+        localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mappedRemote))
+
+        const filtered = categorySlug && categorySlug !== 'all'
+          ? mappedRemote.filter((p) => {
+              const s = (p.category_slug || p.category_name || '').toLowerCase()
+              const target = categorySlug.toLowerCase()
+              return s.includes(target) || target.includes(s)
+            })
+          : mappedRemote
+
+        return {
+          products: filtered,
+          total: filtered.length,
+        }
       }
     } catch (e) {
-      // Return local synchronized list
+      console.info('Using local product cache...')
     }
+
+    // Fallback to local cache only if backend is unreachable
+    const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
+    const localProducts: BackendProductDTO[] = stored ? JSON.parse(stored) : []
 
     const filtered = categorySlug && categorySlug !== 'all'
       ? localProducts.filter((p) => {
@@ -91,15 +88,15 @@ export const productsApi = {
   },
 
   getProductById: async (id: string): Promise<BackendProductDTO> => {
-    const list = getInitialCatalog()
-    const found = list.find((p) => p.id === id)
-
     try {
       const res = await axiosInstance.get(`/products/${id}`, { timeout: 2500 })
       const remote = res.data.content || res.data
       if (remote?.id) return remote
     } catch (e) {}
 
+    const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
+    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : []
+    const found = list.find((p) => p.id === id)
     return found || list[0]
   },
 
@@ -134,14 +131,18 @@ export const productsApi = {
       reviews_count: 0,
     }
 
-    const list = getInitialCatalog()
-    const updated = [newProd, ...list]
+    const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
+    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : []
+    const updated = [newProd, ...list.filter((p) => p.id !== newProd.id)]
     localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
 
     try {
-      await axiosInstance.post('/products', productData, { timeout: 2500 })
+      const res = await axiosInstance.post('/products', productData, { timeout: 2500 })
+      if (res.data?.content?.id) {
+        return res.data.content
+      }
     } catch (e) {
-      // Handled
+      // Handled locally
     }
 
     return newProd
@@ -159,7 +160,8 @@ export const productsApi = {
       image: string
     }>
   ): Promise<BackendProductDTO> => {
-    const list = getInitialCatalog()
+    const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
+    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : []
     const updated = list.map((p) => {
       if (p.id === id) {
         return {
@@ -187,9 +189,12 @@ export const productsApi = {
   },
 
   deleteProduct: async (id: string): Promise<{ message: string; id: string }> => {
-    const list = getInitialCatalog()
-    const updated = list.filter((p) => p.id !== id)
-    localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
+    const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
+    if (stored) {
+      const list: BackendProductDTO[] = JSON.parse(stored)
+      const updated = list.filter((p) => p.id !== id)
+      localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
+    }
 
     try {
       await axiosInstance.delete(`/products/${id}`, { timeout: 2500 })
