@@ -1,6 +1,7 @@
 package products
 
 import (
+	"context"
 	"sync"
 	"time"
 
@@ -19,8 +20,33 @@ func NewProductsRepository(db *pgxpool.Pool) *ProductsRepository {
 		memory: make(map[string]ProductDAO),
 	}
 
-	if db == nil {
-		repo.seedInMemory()
+	repo.seedInMemory()
+
+	// If DB pool exists, seed test product in postgres
+	if db != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			query := `
+				INSERT INTO products (id, title, subtitle, description, price, stock, image, rating, reviews_count, created_at, updated_at)
+				VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+				ON CONFLICT (id) DO NOTHING
+			`
+			now := time.Now()
+			_, _ = db.Exec(ctx, query,
+				"test-mp-10-ars",
+				"Producto de Prueba Mercado Pago",
+				"Ítem de prueba para validación en vivo de Mercado Pago Checkout",
+				"Producto especial creado para verificar el flujo de compra en vivo con Mercado Pago ($10 ARS), dinero en cuenta y tarjetas.",
+				10.00,
+				999,
+				"https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80",
+				5.0,
+				12,
+				now,
+				now,
+			)
+		}()
 	}
 
 	return repo
