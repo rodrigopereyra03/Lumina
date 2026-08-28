@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { PRODUCTS, COMPLETE_THE_LOOK_ITEMS } from '../data/productsData'
+import { productsApi, type BackendProductDTO } from '../../../api/productsApi'
 import { useCartStore } from '../../../store/useCartStore'
+import type { Product } from '../data/productsData'
 
 interface ProductDetailProps {
   productId: string
@@ -14,23 +15,109 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   onBack,
   onProductClick,
 }) => {
-  const product = PRODUCTS.find((p) => p.id === productId) || PRODUCTS[0]
-  const [selectedImage, setSelectedImage] = useState<string>(product.gallery?.[0] || product.image)
-  const [selectedVariant, setSelectedVariant] = useState<string>(product.variants?.[0]?.name || 'Estándar')
+  const [product, setProduct] = useState<Product | null>(null)
+  const [recommended, setRecommended] = useState<BackendProductDTO[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
+
+  const [selectedImage, setSelectedImage] = useState<string>('')
+  const [selectedVariant, setSelectedVariant] = useState<string>('Estándar')
   const [quantity, setQuantity] = useState<number>(1)
   const [isAdded, setIsAdded] = useState<boolean>(false)
 
   const { addItem, openDrawer } = useCartStore()
 
+  useEffect(() => {
+    const fetchProduct = async () => {
+      setLoading(true)
+      try {
+        const [currentProd, allProdsRes] = await Promise.all([
+          productsApi.getProductById(productId),
+          productsApi.getProducts('all'),
+        ])
+
+        if (currentProd) {
+          const mapped: Product = {
+            id: currentProd.id,
+            title: currentProd.title,
+            subtitle: currentProd.subtitle || '',
+            category: currentProd.category_name || 'Electrónica',
+            categorySlug: (currentProd.category_slug || 'electronics') as any,
+            price: currentProd.price,
+            originalPrice: currentProd.original_price,
+            rating: currentProd.rating || 5.0,
+            reviewsCount: currentProd.reviews_count || 12,
+            stock: currentProd.stock,
+            image: currentProd.image,
+            gallery: [currentProd.image],
+            tags: ['Garantía Oficial', 'Original'],
+            description: currentProd.description,
+            variants: [
+              { id: 'v1', name: 'Estándar', colorClass: 'bg-[#1b1c1c]' },
+              { id: 'v2', name: 'Edición Premium', colorClass: 'bg-[#FF4D4F]' },
+            ],
+            specs: [
+              { label: 'Garantía', value: '1 Año Oficial' },
+              { label: 'Disponibilidad', value: `${currentProd.stock} unidades en stock` },
+              { label: 'Envío', value: 'Express asegurado a todo el país' },
+            ],
+            detailsCards: [
+              {
+                icon: 'verified',
+                title: 'Calidad Premium',
+                text: 'Construido bajo los más altos estándares de calidad y durabilidad Lumina.',
+              },
+              {
+                icon: 'local_shipping',
+                title: 'Despacho Rápido',
+                text: 'Empaquetado y entregado al correo en menos de 24 horas hábiles.',
+              },
+              {
+                icon: 'sync_alt',
+                title: 'Garantía y Devolución',
+                text: '30 días de cambio directo y soporte técnico personalizado.',
+              },
+            ],
+          }
+          setProduct(mapped)
+          setSelectedImage(mapped.gallery[0] || mapped.image)
+          setSelectedVariant(mapped.variants[0]?.name || 'Estándar')
+        }
+
+        if (allProdsRes.products) {
+          const others = allProdsRes.products.filter((p) => p.id !== productId).slice(0, 3)
+          setRecommended(others)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProduct()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }, [productId])
+
   const handleAddToCart = () => {
+    if (!product) return
     addItem({ ...product, variant: selectedVariant }, quantity)
     setIsAdded(true)
     setTimeout(() => setIsAdded(false), 2000)
     openDrawer()
   }
 
+  if (loading || !product) {
+    return (
+      <div className="py-24 text-center text-xs text-[#5b403e] glass-panel rounded-3xl border border-white/70 shadow-sm">
+        <div className="w-10 h-10 border-2 border-[#FF4D4F] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
+        <span>Cargando detalle del producto...</span>
+      </div>
+    )
+  }
+
   return (
     <motion.div
+      key={product.id}
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
@@ -39,7 +126,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     >
       {/* Top Breadcrumb Navigation */}
       <div className="flex items-center gap-2 text-xs text-[#5b403e]">
-        <button onClick={onBack} className="hover:text-[#FF4D4F] transition-colors cursor-pointer">
+        <button onClick={onBack} className="hover:text-[#FF4D4F] transition-colors cursor-pointer font-medium">
           Inicio
         </button>
         <span>/</span>
@@ -68,7 +155,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                   <img
                     src={img}
                     alt={`${product.title} view ${idx}`}
-                    className="w-full h-full object-cover rounded-xl"
+                    className="w-full h-full object-contain rounded-xl"
                   />
                 </button>
               ))}
@@ -76,11 +163,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           )}
 
           {/* Main Selected Image Stage */}
-          <div className="flex-1 aspect-[4/3] md:aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 shadow-sm">
+          <div className="flex-1 aspect-[4/3] md:aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 shadow-sm bg-white/40">
             <img
-              src={selectedImage}
+              src={selectedImage || product.image}
               alt={product.title}
-              className="max-h-full max-w-full object-cover rounded-2xl transition-all duration-300"
+              className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300 mix-blend-multiply"
             />
             {product.tags?.[0] && (
               <span className="absolute top-5 left-5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 text-[#FF4D4F] border border-white shadow-2xs">
@@ -116,21 +203,21 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </div>
               <span className="font-bold text-[#1b1c1c]">{product.rating}</span>
               <span>•</span>
-              <span className="underline cursor-pointer">{product.reviewsCount} opiniones verificadas</span>
+              <span className="text-[#5b403e] font-medium">{product.reviewsCount} valoraciones verificadas</span>
             </div>
           </div>
 
           {/* Price Tag */}
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-extrabold text-[#1b1c1c]">
-              ${product.price.toFixed(2)}
+              ${product.price.toFixed(2)} ARS
             </span>
-            {product.originalPrice && (
+            {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-base line-through text-[#5b403e]">
-                ${product.originalPrice.toFixed(2)}
+                ${product.originalPrice.toFixed(2)} ARS
               </span>
             )}
-            {product.originalPrice && (
+            {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/60 px-2 py-0.5 rounded-full">
                 Ahorras ${(product.originalPrice - product.price).toFixed(2)}
               </span>
@@ -210,7 +297,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/40 border border-white/60">
                 <span className="material-symbols-outlined text-[#FF4D4F] text-[18px]">verified</span>
-                <span>Garantía oficial de 2 años</span>
+                <span>Garantía oficial de 1 año</span>
               </div>
             </div>
           </div>
@@ -240,32 +327,36 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         </div>
       )}
 
-      {/* Complete the Look Section */}
-      <div className="space-y-6 pt-6 border-t border-white/60">
-        <h2 className="text-xl font-bold text-[#1b1c1c] tracking-tight">
-          Completa el Look
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          {COMPLETE_THE_LOOK_ITEMS.map((item) => (
-            <div
-              key={item.id}
-              onClick={() => onProductClick('lumina-pro-camera')}
-              className="glass-card rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border border-white/70 group"
-            >
-              <img
-                src={item.image}
-                alt={item.title}
-                className="w-16 h-16 object-cover rounded-xl group-hover:scale-105 transition-transform"
-              />
-              <div className="flex-1 min-w-0">
-                <span className="text-[10px] text-[#5b403e] uppercase font-bold tracking-wider">{item.category}</span>
-                <h4 className="text-xs font-bold text-[#1b1c1c] truncate">{item.title}</h4>
-                <span className="text-xs font-bold text-[#FF4D4F]">${item.price.toFixed(2)}</span>
+      {/* Recommended / Complete the Look Section */}
+      {recommended.length > 0 && (
+        <div className="space-y-6 pt-6 border-t border-white/60">
+          <h2 className="text-xl font-bold text-[#1b1c1c] tracking-tight">
+            Productos Recomendados
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {recommended.map((item) => (
+              <div
+                key={item.id}
+                onClick={() => onProductClick(item.id)}
+                className="glass-card rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border border-white/70 group"
+              >
+                <img
+                  src={item.image}
+                  alt={item.title}
+                  className="w-16 h-16 object-contain rounded-xl group-hover:scale-105 transition-transform bg-white/70 p-1 mix-blend-multiply"
+                />
+                <div className="flex-1 min-w-0">
+                  <span className="text-[10px] text-[#5b403e] uppercase font-bold tracking-wider">
+                    {item.category_name || 'Lumina'}
+                  </span>
+                  <h4 className="text-xs font-bold text-[#1b1c1c] truncate">{item.title}</h4>
+                  <span className="text-xs font-bold text-[#FF4D4F]">${item.price.toFixed(2)} ARS</span>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </motion.div>
   )
 }
