@@ -5,6 +5,7 @@ export interface BackendProductDTO {
   id: string
   category_id?: string
   category_name?: string
+  category_slug?: string
   title: string
   subtitle?: string
   description: string
@@ -21,107 +22,181 @@ export interface ListProductsResponseContent {
   total: number
 }
 
+const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
+
+const getInitialCatalog = (): BackendProductDTO[] => {
+  const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    } catch (e) {}
+  }
+
+  const initial = PRODUCTS.map((p) => ({
+    id: p.id,
+    title: p.title,
+    subtitle: p.subtitle,
+    description: p.description,
+    price: p.price,
+    original_price: p.originalPrice,
+    stock: p.stock,
+    image: p.image,
+    rating: p.rating,
+    reviews_count: p.reviewsCount,
+    category_name: p.category,
+    category_slug: p.categorySlug,
+  }))
+  localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(initial))
+  return initial
+}
+
 export const productsApi = {
   getProducts: async (categorySlug?: string): Promise<ListProductsResponseContent> => {
+    let localProducts = getInitialCatalog()
+
     try {
       const url = categorySlug && categorySlug !== 'all' ? `/products?category=${categorySlug}` : '/products'
       const res = await axiosInstance.get(url, { timeout: 2500 })
-      return res.data.content || res.data
-    } catch (e) {
-      // Graceful fallback to rich local catalog when backend is offline or unreachable across CDN
-      const filtered = categorySlug && categorySlug !== 'all'
-        ? PRODUCTS.filter((p) => p.categorySlug === categorySlug)
-        : PRODUCTS
-      return {
-        products: filtered.map((p) => ({
-          id: p.id,
-          title: p.title,
-          subtitle: p.subtitle,
-          description: p.description,
-          price: p.price,
-          original_price: p.originalPrice,
-          stock: p.stock,
-          image: p.image,
-          rating: p.rating,
-          reviews_count: p.reviewsCount,
-          category_name: p.category,
-        })),
-        total: filtered.length,
+      const remote = res.data.content || res.data
+      if (remote?.products && Array.isArray(remote.products) && remote.products.length > 0) {
+        // Merge with remote
+        const mergedMap = new Map<string, BackendProductDTO>()
+        remote.products.forEach((p: BackendProductDTO) => mergedMap.set(p.id, p))
+        localProducts.forEach((p: BackendProductDTO) => {
+          if (!mergedMap.has(p.id)) {
+            mergedMap.set(p.id, p)
+          }
+        })
+        const mergedList = Array.from(mergedMap.values())
+        localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mergedList))
+        localProducts = mergedList
       }
+    } catch (e) {
+      // Return local synchronized list
+    }
+
+    const filtered = categorySlug && categorySlug !== 'all'
+      ? localProducts.filter((p) => {
+          const s = (p.category_slug || p.category_name || '').toLowerCase()
+          const target = categorySlug.toLowerCase()
+          return s.includes(target) || target.includes(s)
+        })
+      : localProducts
+
+    return {
+      products: filtered,
+      total: filtered.length,
     }
   },
 
   getProductById: async (id: string): Promise<BackendProductDTO> => {
+    const list = getInitialCatalog()
+    const found = list.find((p) => p.id === id)
+
     try {
       const res = await axiosInstance.get(`/products/${id}`, { timeout: 2500 })
-      return res.data.content || res.data
-    } catch (e) {
-      const p = PRODUCTS.find((x) => x.id === id) || PRODUCTS[0]
-      return {
-        id: p.id,
-        title: p.title,
-        subtitle: p.subtitle,
-        description: p.description,
-        price: p.price,
-        original_price: p.originalPrice,
-        stock: p.stock,
-        image: p.image,
-        rating: p.rating,
-        reviews_count: p.reviewsCount,
-        category_name: p.category,
-      }
-    }
+      const remote = res.data.content || res.data
+      if (remote?.id) return remote
+    } catch (e) {}
+
+    return found || list[0]
   },
 
   createProduct: async (productData: {
     title: string
     category_name: string
+    category_slug?: string
     price: number
     stock: number
     description: string
     image: string
   }): Promise<BackendProductDTO> => {
-    try {
-      const res = await axiosInstance.post('/products', productData)
-      return res.data.content || res.data
-    } catch (e) {
-      return {
-        id: 'prod-' + Date.now(),
-        ...productData,
-      }
+    const slug =
+      productData.category_slug ||
+      productData.category_name
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '-')
+
+    const newProd: BackendProductDTO = {
+      id: 'prod-' + Date.now(),
+      title: productData.title,
+      subtitle: 'Nuevo Ingreso',
+      category_name: productData.category_name,
+      category_slug: slug,
+      price: productData.price,
+      stock: productData.stock,
+      description: productData.description,
+      image: productData.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+      rating: 5.0,
+      reviews_count: 0,
     }
+
+    const list = getInitialCatalog()
+    const updated = [newProd, ...list]
+    localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
+
+    try {
+      await axiosInstance.post('/products', productData, { timeout: 2500 })
+    } catch (e) {
+      // Handled
+    }
+
+    return newProd
   },
 
-  updateProduct: async (id: string, productData: Partial<{
-    title: string
-    category_name: string
-    price: number
-    stock: number
-    description: string
-    image: string
-  }>): Promise<BackendProductDTO> => {
-    try {
-      const res = await axiosInstance.put(`/products/${id}`, productData)
-      return res.data.content || res.data
-    } catch (e) {
-      return {
-        id,
-        title: productData.title || '',
-        category_name: productData.category_name || '',
-        price: productData.price || 0,
-        stock: productData.stock || 0,
-        description: productData.description || '',
-        image: productData.image || '',
+  updateProduct: async (
+    id: string,
+    productData: Partial<{
+      title: string
+      category_name: string
+      category_slug?: string
+      price: number
+      stock: number
+      description: string
+      image: string
+    }>
+  ): Promise<BackendProductDTO> => {
+    const list = getInitialCatalog()
+    const updated = list.map((p) => {
+      if (p.id === id) {
+        return {
+          ...p,
+          ...productData,
+          category_slug:
+            productData.category_slug ||
+            (productData.category_name
+              ? productData.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+              : p.category_slug),
+        }
       }
+      return p
+    })
+    localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
+
+    try {
+      await axiosInstance.put(`/products/${id}`, productData, { timeout: 2500 })
+    } catch (e) {
+      // Handled
     }
+
+    const updatedItem = updated.find((p) => p.id === id)!
+    return updatedItem
   },
 
   deleteProduct: async (id: string): Promise<{ message: string; id: string }> => {
+    const list = getInitialCatalog()
+    const updated = list.filter((p) => p.id !== id)
+    localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
+
     try {
-      const res = await axiosInstance.delete(`/products/${id}`)
-      return res.data.content || res.data
+      await axiosInstance.delete(`/products/${id}`, { timeout: 2500 })
     } catch (e) {
-      return { message: 'Deleted', id }
+      // Handled
     }
+
+    return { message: 'Deleted', id }
   },
 }

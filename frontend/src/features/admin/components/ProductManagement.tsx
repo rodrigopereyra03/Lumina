@@ -1,155 +1,143 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import type { Product } from '../../ecommerce/data/productsData'
-import { PRODUCTS, CATEGORIES } from '../../ecommerce/data/productsData'
-import { productsApi } from '../../../api/productsApi'
+import { productsApi, type BackendProductDTO } from '../../../api/productsApi'
+import { categoriesApi, type BackendCategoryDTO } from '../../../api/categoriesApi'
 
 export const ProductManagement: React.FC = () => {
-  const [productList, setProductList] = useState<Product[]>(PRODUCTS)
+  const [productList, setProductList] = useState<BackendProductDTO[]>([])
+  const [categories, setCategories] = useState<BackendCategoryDTO[]>([])
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
 
-  useEffect(() => {
-    const fetchLiveProducts = async () => {
-      try {
-        const res = await productsApi.getProducts()
-        if (res.products && res.products.length > 0) {
-          const mapped: Product[] = res.products.map((p: any) => ({
-            id: p.id,
-            title: p.title,
-            subtitle: p.subtitle || '',
-            category: p.category_name || 'Electrónica',
-            categorySlug: ((p.category_name?.toLowerCase().includes('moda') ? 'fashion' : 'electronics') as any),
-            price: p.price,
-            originalPrice: p.original_price,
-            rating: p.rating || 5.0,
-            reviewsCount: p.reviews_count || 0,
-            stock: p.stock,
-            image: p.image,
-            gallery: [p.image],
-            tags: ['Nuevo'],
-            description: p.description,
-            variants: [{ id: 'std', name: 'Estándar', colorClass: 'bg-[#1b1c1c]' }],
-            specs: [{ label: 'Garantía', value: '1 Año' }],
-          }))
-          setProductList(mapped)
-        }
-      } catch (e) {
-        // fallback to mock products
-      }
-    }
-    fetchLiveProducts()
-  }, [])
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [editingProduct, setEditingProduct] = useState<BackendProductDTO | null>(null)
 
   // Form states for new/edit product
   const [formTitle, setFormTitle] = useState('')
-  const [formCategory, setFormCategory] = useState('Electrónica')
-  const [formPrice, setFormPrice] = useState('199.00')
+  const [formCategory, setFormCategory] = useState('')
+  const [formPrice, setFormPrice] = useState('')
   const [formStock, setFormStock] = useState('20')
   const [formDesc, setFormDesc] = useState('')
   const [formImage, setFormImage] = useState('')
 
+  const fetchCatalog = async () => {
+    setLoading(true)
+    try {
+      const [prodRes, catRes] = await Promise.all([
+        productsApi.getProducts('all'),
+        categoriesApi.getCategories(),
+      ])
+
+      if (prodRes.products) {
+        setProductList(prodRes.products)
+      }
+      if (catRes.categories) {
+        setCategories(catRes.categories)
+      }
+    } catch (e) {
+      // Handled
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCatalog()
+  }, [])
+
   const filtered = productList.filter((p) => {
-    const matchesSearch = p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.category.toLowerCase().includes(searchTerm.toLowerCase())
-    const matchesCat = selectedCategory === 'all' || p.categorySlug === selectedCategory
+    const matchesSearch =
+      (p.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.category_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+
+    const pSlug = (p.category_slug || p.category_name || '').toLowerCase()
+    const matchesCat =
+      selectedCategory === 'all' ||
+      pSlug === selectedCategory.toLowerCase() ||
+      pSlug.includes(selectedCategory.toLowerCase())
+
     return matchesSearch && matchesCat
   })
 
   const handleOpenAdd = () => {
     setEditingProduct(null)
     setFormTitle('')
-    setFormCategory('Electrónica')
-    setFormPrice('')
+    setFormCategory(categories[0]?.name || 'Electrónica')
+    setFormPrice('199.00')
     setFormStock('15')
     setFormDesc('')
     setFormImage('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80')
     setIsModalOpen(true)
   }
 
-  const handleOpenEdit = (product: Product) => {
+  const handleOpenEdit = (product: BackendProductDTO) => {
     setEditingProduct(product)
     setFormTitle(product.title)
-    setFormCategory(product.category)
+    setFormCategory(product.category_name || 'Electrónica')
     setFormPrice(product.price.toString())
     setFormStock(product.stock.toString())
-    setFormDesc(product.description)
-    setFormImage(product.image)
+    setFormDesc(product.description || '')
+    setFormImage(product.image || '')
     setIsModalOpen(true)
   }
 
-  const handleDelete = async (id: string) => {
-    setProductList(prev => prev.filter(p => p.id !== id))
-    try {
+  const handleDelete = async (id: string, title: string) => {
+    if (confirm(`¿Estás seguro de que deseas eliminar el producto "${title}"?`)) {
+      setProductList((prev) => prev.filter((p) => p.id !== id))
       await productsApi.deleteProduct(id)
-    } catch (e) {
-      // Handled
+      fetchCatalog()
     }
   }
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
-    const targetSlug = (formCategory.toLowerCase().includes('moda') ? 'fashion' : 'electronics') as any
+    if (!formTitle.trim()) return
+
+    const priceNum = parseFloat(formPrice) || 0
+    const stockNum = parseInt(formStock, 10) || 0
+
     if (editingProduct) {
-      setProductList(prev => prev.map(p => p.id === editingProduct.id ? {
-        ...p,
-        title: formTitle,
-        category: formCategory,
-        categorySlug: targetSlug,
-        price: parseFloat(formPrice) || p.price,
-        stock: parseInt(formStock, 10) || p.stock,
-        description: formDesc,
-        image: formImage || p.image,
-      } : p))
+      // Optimistic update
+      setProductList((prev) =>
+        prev.map((p) =>
+          p.id === editingProduct.id
+            ? {
+                ...p,
+                title: formTitle.trim(),
+                category_name: formCategory,
+                price: priceNum,
+                stock: stockNum,
+                description: formDesc.trim(),
+                image: formImage.trim() || p.image,
+              }
+            : p
+        )
+      )
 
-      try {
-        await productsApi.updateProduct(editingProduct.id, {
-          title: formTitle,
-          category_name: formCategory,
-          price: parseFloat(formPrice) || editingProduct.price,
-          stock: parseInt(formStock, 10) || editingProduct.stock,
-          description: formDesc,
-          image: formImage || editingProduct.image,
-        })
-      } catch (e) {
-        // Handled
-      }
+      await productsApi.updateProduct(editingProduct.id, {
+        title: formTitle.trim(),
+        category_name: formCategory,
+        price: priceNum,
+        stock: stockNum,
+        description: formDesc.trim(),
+        image: formImage.trim() || editingProduct.image,
+      })
     } else {
-      const newP: Product = {
-        id: 'prod-' + Date.now(),
-        title: formTitle,
-        subtitle: 'Nuevo Ingreso',
-        category: formCategory,
-        categorySlug: targetSlug,
-        price: parseFloat(formPrice) || 99,
-        rating: 5.0,
-        reviewsCount: 0,
-        image: formImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-        gallery: [formImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80'],
-        tags: ['Nuevo'],
-        description: formDesc || 'Producto de alta gama diseñado para un rendimiento óptimo.',
-        stock: parseInt(formStock, 10) || 10,
-        variants: [{ id: 'std', name: 'Estándar', colorClass: 'bg-[#1b1c1c]' }],
-        specs: [{ label: 'Garantía', value: '1 Año' }],
-      }
-      setProductList(prev => [newP, ...prev])
+      const created = await productsApi.createProduct({
+        title: formTitle.trim(),
+        category_name: formCategory || 'General',
+        price: priceNum,
+        stock: stockNum,
+        description: formDesc.trim() || 'Producto de alta calidad.',
+        image: formImage.trim() || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+      })
 
-      try {
-        await productsApi.createProduct({
-          title: formTitle,
-          category_name: formCategory,
-          price: parseFloat(formPrice) || 99,
-          stock: parseInt(formStock, 10) || 10,
-          description: formDesc || 'Producto nuevo',
-          image: formImage || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-        })
-      } catch (e) {
-        // Handled
-      }
+      setProductList((prev) => [created, ...prev])
     }
+
     setIsModalOpen(false)
+    fetchCatalog()
   }
 
   return (
@@ -159,7 +147,7 @@ export const ProductManagement: React.FC = () => {
         <div>
           <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Gestión de Productos</h1>
           <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
-            Administra el catálogo de la tienda, existencias y precios.
+            Administra el catálogo de la tienda, existencias y precios en tiempo real.
           </p>
         </div>
 
@@ -188,15 +176,17 @@ export const ProductManagement: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-[#5b403e] font-semibold whitespace-nowrap">Categoría:</span>
+          <span className="text-xs text-[#5b403e] font-semibold whitespace-nowrap">Filtrar por Categoría:</span>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
             className="bg-white/70 border border-white/80 rounded-xl px-3 py-2 text-xs text-[#1b1c1c] outline-none cursor-pointer focus:border-[#FF4D4F]"
           >
             <option value="all">Todas las Categorías</option>
-            {CATEGORIES.filter(c => c.slug !== 'all').map(c => (
-              <option key={c.id} value={c.slug}>{c.name}</option>
+            {categories.map((c) => (
+              <option key={c.id || c.slug} value={c.slug || c.name.toLowerCase()}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>
@@ -204,89 +194,114 @@ export const ProductManagement: React.FC = () => {
 
       {/* Product Table Card */}
       <div className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-4">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className="border-b border-white/60 text-[#5b403e]">
-                <th className="pb-3 font-semibold">Producto</th>
-                <th className="pb-3 font-semibold">Categoría</th>
-                <th className="pb-3 font-semibold">Precio</th>
-                <th className="pb-3 font-semibold">Stock</th>
-                <th className="pb-3 font-semibold">Estado</th>
-                <th className="pb-3 font-semibold text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/50">
-              {filtered.map((p) => {
-                const stockStatus = p.stock > 10 ? 'En Stock' : p.stock > 0 ? 'Poco Stock' : 'Sin Stock'
-                const badgeColor = p.stock > 10 
-                  ? 'bg-[#E8F8F0] text-[#1E824C]' 
-                  : p.stock > 0 
-                  ? 'bg-[#ffdad7]/60 text-[#FF4D4F]' 
-                  : 'bg-[#ffdad6] text-[#ba1a1a]'
+        {loading ? (
+          <div className="py-12 text-center text-xs text-[#5b403e]">
+            Cargando catálogo desde la base de datos...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="py-12 text-center space-y-3">
+            <div className="w-14 h-14 rounded-full bg-[#ffdad7]/40 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
+              <span className="material-symbols-outlined text-[28px]">inventory_2</span>
+            </div>
+            <div>
+              <h4 className="text-sm font-bold text-[#1b1c1c]">No se encontraron productos</h4>
+              <p className="text-xs text-[#5b403e] mt-1">
+                {searchTerm || selectedCategory !== 'all'
+                  ? 'No hay productos que coincidan con los filtros aplicados.'
+                  : 'No hay productos en el catálogo todavía.'}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-white/60 text-[#5b403e]">
+                  <th className="pb-3 font-semibold">Producto</th>
+                  <th className="pb-3 font-semibold">Categoría</th>
+                  <th className="pb-3 font-semibold">Precio</th>
+                  <th className="pb-3 font-semibold">Stock</th>
+                  <th className="pb-3 font-semibold">Estado</th>
+                  <th className="pb-3 font-semibold text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-white/50">
+                {filtered.map((p) => {
+                  const stockStatus = p.stock > 10 ? 'En Stock' : p.stock > 0 ? 'Poco Stock' : 'Sin Stock'
+                  const badgeColor =
+                    p.stock > 10
+                      ? 'bg-[#E8F8F0] text-[#1E824C]'
+                      : p.stock > 0
+                      ? 'bg-[#FFF0EB] text-[#D97757]'
+                      : 'bg-[#ffdad6] text-[#ba1a1a]'
 
-                return (
-                  <tr key={p.id} className="hover:bg-white/40 transition-colors">
-                    {/* Product Name & Image */}
-                    <td className="py-3 pr-4">
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={p.image}
-                          alt={p.title}
-                          className="w-11 h-11 rounded-xl object-contain bg-white/70 p-1 border border-white shrink-0 mix-blend-multiply"
-                        />
-                        <div className="min-w-0">
-                          <p className="font-bold text-[#1b1c1c] text-xs truncate max-w-[200px]">{p.title}</p>
-                          <p className="text-[11px] text-[#5b403e] truncate max-w-[200px]">{p.subtitle}</p>
+                  return (
+                    <tr key={p.id} className="hover:bg-white/40 transition-colors">
+                      {/* Product Name & Image */}
+                      <td className="py-3 pr-4">
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={p.image}
+                            alt={p.title}
+                            className="w-11 h-11 rounded-xl object-contain bg-white/70 p-1 border border-white shrink-0 mix-blend-multiply"
+                          />
+                          <div className="min-w-0">
+                            <p className="font-bold text-[#1b1c1c] text-xs truncate max-w-[220px]">{p.title}</p>
+                            <p className="text-[11px] text-[#5b403e] truncate max-w-[220px]">
+                              {p.subtitle || p.description?.slice(0, 30) || 'Producto Lumina'}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
 
-                    {/* Category */}
-                    <td className="py-3 text-[#5b403e] font-medium">{p.category}</td>
+                      {/* Category */}
+                      <td className="py-3 text-[#5b403e] font-medium">{p.category_name || 'General'}</td>
 
-                    {/* Price */}
-                    <td className="py-3 font-bold text-[#1b1c1c]">${p.price.toFixed(2)}</td>
+                      {/* Price */}
+                      <td className="py-3 font-bold text-[#1b1c1c]">${p.price.toFixed(2)}</td>
 
-                    {/* Stock Count */}
-                    <td className="py-3 font-semibold text-[#1b1c1c]">{p.stock} unidades</td>
+                      {/* Stock Count */}
+                      <td className="py-3 font-semibold text-[#1b1c1c]">{p.stock} unidades</td>
 
-                    {/* Stock Status Badge */}
-                    <td className="py-3">
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeColor}`}>
-                        {stockStatus}
-                      </span>
-                    </td>
+                      {/* Stock Status Badge */}
+                      <td className="py-3">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeColor}`}>
+                          {stockStatus}
+                        </span>
+                      </td>
 
-                    {/* Action Buttons */}
-                    <td className="py-3 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => handleOpenEdit(p)}
-                          className="p-1.5 rounded-lg text-[#5b403e] hover:text-[#FF4D4F] hover:bg-white transition-colors cursor-pointer"
-                          title="Editar producto"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">edit</span>
-                        </button>
-                        <button
-                          onClick={() => handleDelete(p.id)}
-                          className="p-1.5 rounded-lg text-[#5b403e] hover:text-[#ba1a1a] hover:bg-white transition-colors cursor-pointer"
-                          title="Eliminar producto"
-                        >
-                          <span className="material-symbols-outlined text-[18px]">delete</span>
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
+                      {/* Action Buttons */}
+                      <td className="py-3 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => handleOpenEdit(p)}
+                            className="p-1.5 rounded-lg text-[#5b403e] hover:text-[#FF4D4F] hover:bg-white transition-colors cursor-pointer"
+                            title="Editar producto"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">edit</span>
+                          </button>
+                          <button
+                            onClick={() => handleDelete(p.id, p.title)}
+                            className="p-1.5 rounded-lg text-[#5b403e] hover:text-[#ba1a1a] hover:bg-white transition-colors cursor-pointer"
+                            title="Eliminar producto"
+                          >
+                            <span className="material-symbols-outlined text-[18px]">delete</span>
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         {/* Footer Summary */}
         <div className="flex justify-between items-center text-xs text-[#5b403e] pt-3 border-t border-white/60">
-          <span>Mostrando {filtered.length} de {productList.length} productos</span>
+          <span>
+            Mostrando {filtered.length} de {productList.length} productos
+          </span>
           <span className="font-semibold text-[#1b1c1c]">Catálogo Lumina</span>
         </div>
       </div>
@@ -337,17 +352,20 @@ export const ProductManagement: React.FC = () => {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="font-bold text-[#5b403e] block mb-1">Categoría</label>
-                    <input
-                      type="text"
-                      required
+                    <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value)}
-                      className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                      placeholder="ej. Electrónica"
-                    />
+                      className="bg-white border border-white/80 rounded-xl px-3 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
+                    >
+                      {categories.map((c) => (
+                        <option key={c.id || c.slug} value={c.name}>
+                          {c.name}
+                        </option>
+                      ))}
+                    </select>
                   </div>
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Precio ($ USD)</label>
+                    <label className="font-bold text-[#5b403e] block mb-1">Precio ($ ARS / USD)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -407,7 +425,7 @@ export const ProductManagement: React.FC = () => {
                     type="submit"
                     className="btn-primary px-5 py-2.5 rounded-xl font-bold cursor-pointer shadow-md"
                   >
-                    Guardar Producto
+                    {editingProduct ? 'Guardar Cambios' : 'Añadir Producto'}
                   </button>
                 </div>
               </form>
