@@ -23,19 +23,8 @@ export interface ListProductsResponseContent {
 
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
-export const TEST_MP_PRODUCT: BackendProductDTO = {
-  id: 'test-mp-10-ars',
-  title: 'Producto de Prueba Mercado Pago',
-  subtitle: 'Ítem de prueba para validación en vivo de Mercado Pago Checkout',
-  description: 'Producto especial creado para verificar el flujo de compra en vivo con Mercado Pago ($10 ARS), dinero en cuenta y tarjetas.',
-  price: 10.0,
-  original_price: 20.0,
-  stock: 999,
-  image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80',
-  rating: 5.0,
-  reviews_count: 12,
-  category_name: 'Electrónica',
-  category_slug: 'electronics',
+const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
+  return list.filter((p) => p.id !== 'test-mp-10-ars')
 }
 
 export const productsApi = {
@@ -45,29 +34,26 @@ export const productsApi = {
       const res = await axiosInstance.get(url, { timeout: 3000 })
       const remote = res.data.content || res.data
       if (remote?.products && Array.isArray(remote.products) && remote.products.length > 0) {
-        let mappedRemote: BackendProductDTO[] = remote.products.map((p: any) => ({
-          id: p.id,
-          title: p.title,
-          subtitle: p.subtitle || '',
-          description: p.description || '',
-          price: p.price,
-          original_price: p.original_price,
-          stock: p.stock,
-          image: p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
-          rating: p.rating || 5.0,
-          reviews_count: p.reviews_count || 0,
-          category_name: p.category_name || 'General',
-          category_slug:
-            p.category_slug ||
-            (p.category_name
-              ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
-              : 'general'),
-        }))
-
-        // Ensure the $10 ARS test product is always available for testing
-        if (!mappedRemote.some((p) => p.id === TEST_MP_PRODUCT.id)) {
-          mappedRemote = [TEST_MP_PRODUCT, ...mappedRemote]
-        }
+        let mappedRemote: BackendProductDTO[] = remote.products
+          .filter((p: any) => p.id !== 'test-mp-10-ars')
+          .map((p: any) => ({
+            id: p.id,
+            title: p.title,
+            subtitle: p.subtitle || '',
+            description: p.description || '',
+            price: p.price,
+            original_price: p.original_price,
+            stock: p.stock,
+            image: p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+            rating: p.rating || 5.0,
+            reviews_count: p.reviews_count || 0,
+            category_name: p.category_name || 'General',
+            category_slug:
+              p.category_slug ||
+              (p.category_name
+                ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+                : 'general'),
+          }))
 
         // Save remote database products directly to local cache
         localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mappedRemote))
@@ -91,10 +77,7 @@ export const productsApi = {
 
     // Fallback to local cache only if backend is unreachable
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-    let localProducts: BackendProductDTO[] = stored ? JSON.parse(stored) : [TEST_MP_PRODUCT]
-    if (!localProducts.some((p) => p.id === TEST_MP_PRODUCT.id)) {
-      localProducts = [TEST_MP_PRODUCT, ...localProducts]
-    }
+    let localProducts: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
 
     const filtered = categorySlug && categorySlug !== 'all'
       ? localProducts.filter((p) => {
@@ -111,8 +94,6 @@ export const productsApi = {
   },
 
   getProductById: async (id: string): Promise<BackendProductDTO> => {
-    if (id === TEST_MP_PRODUCT.id) return TEST_MP_PRODUCT
-
     try {
       const res = await axiosInstance.get(`/products/${id}`, { timeout: 2500 })
       const remote = res.data.content || res.data
@@ -120,7 +101,7 @@ export const productsApi = {
     } catch (e) {}
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : [TEST_MP_PRODUCT]
+    const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
     const found = list.find((p) => p.id === id)
     return found || list[0]
   },
@@ -157,7 +138,7 @@ export const productsApi = {
     }
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : []
+    const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
     const updated = [newProd, ...list.filter((p) => p.id !== newProd.id)]
     localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
 
@@ -186,7 +167,7 @@ export const productsApi = {
     }>
   ): Promise<BackendProductDTO> => {
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : []
+    const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
     const updated = list.map((p) => {
       if (p.id === id) {
         return {
@@ -216,7 +197,7 @@ export const productsApi = {
   deleteProduct: async (id: string): Promise<{ message: string; id: string }> => {
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
     if (stored) {
-      const list: BackendProductDTO[] = JSON.parse(stored)
+      const list: BackendProductDTO[] = cleanProductList(JSON.parse(stored))
       const updated = list.filter((p) => p.id !== id)
       localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
     }
