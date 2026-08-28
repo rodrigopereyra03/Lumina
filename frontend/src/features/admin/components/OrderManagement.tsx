@@ -293,13 +293,13 @@ export const OrderManagement: React.FC = () => {
               {/* Status Changer Actions */}
               <div className="pt-2 flex flex-col gap-2">
                 <span className="text-[11px] font-bold text-[#5b403e]">Cambiar Estado del Pedido:</span>
-                <div className="grid grid-cols-2 gap-2 text-xs">
+                <div className="grid grid-cols-2 gap-2.5 text-xs pt-1">
                   <button
                     onClick={() => handleUpdateStatus('Enviado')}
-                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1 ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Enviado'
-                        ? 'bg-[#FF4D4F] text-white shadow-md'
-                        : 'bg-white/80 text-[#FF4D4F] border border-white hover:bg-[#FF4D4F] hover:text-white shadow-2xs'
+                        ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-sm'
+                        : 'bg-white/90 text-[#FF4D4F] border-[#FF4D4F]/30 hover:bg-[#FF4D4F] hover:text-white shadow-2xs hover:border-[#FF4D4F]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">local_shipping</span>
@@ -308,10 +308,10 @@ export const OrderManagement: React.FC = () => {
 
                   <button
                     onClick={() => handleUpdateStatus('Entregado')}
-                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1 ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Entregado'
-                        ? 'bg-[#1E824C] text-white shadow-md'
-                        : 'bg-white/80 text-[#1E824C] border border-white hover:bg-[#1E824C] hover:text-white shadow-2xs'
+                        ? 'bg-[#1E824C] text-white border-[#1E824C] shadow-sm'
+                        : 'bg-white/90 text-[#1E824C] border-[#1E824C]/30 hover:bg-[#1E824C] hover:text-white shadow-2xs hover:border-[#1E824C]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">check_circle</span>
@@ -320,24 +320,26 @@ export const OrderManagement: React.FC = () => {
 
                   <button
                     onClick={() => handleUpdateStatus('En Proceso')}
-                    className={`py-2 px-2 rounded-xl text-[11px] font-semibold text-center cursor-pointer transition-all ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'En Proceso'
-                        ? 'bg-[#D97757] text-white'
-                        : 'bg-white/60 text-[#5b403e] hover:bg-white'
+                        ? 'bg-[#D97757] text-white border-[#D97757] shadow-sm'
+                        : 'bg-white/90 text-[#D97757] border-[#D97757]/40 hover:bg-[#D97757] hover:text-white shadow-2xs hover:border-[#D97757]'
                     }`}
                   >
-                    En Proceso
+                    <span className="material-symbols-outlined text-[16px]">hourglass_top</span>
+                    <span>En Proceso</span>
                   </button>
 
                   <button
                     onClick={() => handleUpdateStatus('Cancelado')}
-                    className={`py-2 px-2 rounded-xl text-[11px] font-semibold text-center cursor-pointer transition-all ${
+                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Cancelado'
-                        ? 'bg-[#ba1a1a] text-white'
-                        : 'bg-white/60 text-red-500 hover:bg-red-50'
+                        ? 'bg-[#ba1a1a] text-white border-[#ba1a1a] shadow-sm'
+                        : 'bg-white/90 text-[#ba1a1a] border-red-200 hover:bg-[#ba1a1a] hover:text-white shadow-2xs hover:border-[#ba1a1a]'
                     }`}
                   >
-                    Cancelar Orden
+                    <span className="material-symbols-outlined text-[16px]">cancel</span>
+                    <span>Cancelar Orden</span>
                   </button>
                 </div>
               </div>
