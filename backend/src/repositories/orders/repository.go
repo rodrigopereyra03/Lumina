@@ -24,52 +24,7 @@ func NewOrdersRepository(db *pgxpool.Pool) *OrdersRepository {
 		memory: make(map[string]OrderDAO),
 	}
 
-	if db == nil {
-		repo.seedInMemory()
-	}
-
 	return repo
-}
-
-func (r *OrdersRepository) seedInMemory() {
-	demoOrders := []OrderDAO{
-		{
-			ID:              "ord-1",
-			OrderNumber:     "#ORD-9482",
-			CustomerName:    "Juan Pérez",
-			CustomerEmail:   "juan.perez@example.com",
-			CustomerPhone:   "+54 9 11 4455-6677",
-			ShippingAddress: "Av. Santa Fe 2345, Depto 4B, Buenos Aires",
-			Status:          "Pagado",
-			Subtotal:        378.00,
-			ShippingCost:    0,
-			Total:           378.00,
-			Items: []OrderItemDAO{
-				{
-					ID:        "item-1",
-					Title:     "Aura Studio Headphones",
-					Variant:   "Beige Cálido",
-					UnitPrice: 249.00,
-					Quantity:  1,
-					Image:     "https://lh3.googleusercontent.com/aida-public/AB6AXuDRMBqcSAOlGw8fva1sekJfFL1iyNxoOG30EYhsDenxyYzzAF04FxX1FgXEbZTU6SJvW2nVWHnGnBG7LopgiXjLXuwec6EUYzjEhi0vyeTA5_UyOCNKxM69zbbZiACDwI9KWpNKDEFd_KW2XBxPz1leGqc3w4m_9ye_DJiJdmIpiBESuU0NWnNtY1jzrcfkeSWfHS-wTW-dGKnwvrOmHslmo1tbHo2pGx5v07Ac0BaES2eb981u0_c0",
-				},
-				{
-					ID:        "item-2",
-					Title:     "Echo Hub Speaker",
-					Variant:   "Tela Gris Acústica",
-					UnitPrice: 129.00,
-					Quantity:  1,
-					Image:     "https://lh3.googleusercontent.com/aida-public/AB6AXuAGKYxdDdkhw23SLm86Jy80Xw3x-Ka-RX74-P1Aicq2ZMo4-UYh8vCQOQTEzkze35uAAu6_eEKH1Y73GIZNN8H07Eahu3JwdtkcljKHOl-K8Loo_rTuzL52pjsAQdyUBcX90Da4cnvE2F93-B3zfPoAXbsw14DRn5Zb0mAGaGMdi_5N8J7m6QArP8jfzMKlfoLpYt9Pja_iIMp55YheB6z8lqsLXl3FasrryoUUi65f-VWncHWYG-jB",
-				},
-			},
-			CreatedAt: time.Now(),
-			UpdatedAt: time.Now(),
-		},
-	}
-
-	for _, o := range demoOrders {
-		r.memory[o.ID] = o
-	}
 }
 
 func (r *OrdersRepository) Create(ctx context.Context, order orders.Order) (orders.Order, error) {
