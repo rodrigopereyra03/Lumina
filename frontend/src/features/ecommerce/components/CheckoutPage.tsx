@@ -186,6 +186,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
         }
       } catch (mpErr: any) {
         console.error('Mercado Pago Preference Error:', mpErr)
+        alert('Error al conectar con Mercado Pago: ' + (mpErr.message || 'Intente nuevamente'))
+        setLoading(false)
+        return
       }
     }
 

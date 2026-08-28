@@ -41,17 +41,19 @@ export const mercadoPagoApi = {
       const res = await axiosInstance.post<{ content: MPPreferenceResponse }>(
         '/payments/mercadopago/preference',
         payload,
-        { timeout: 3500 }
+        { timeout: 3000 }
       )
       if (res.data?.content?.init_point) {
         return res.data.content
       }
     } catch (backendErr) {
-      console.info('Backend Go not reachable from public CDN, fallbacking directly to official Mercado Pago API...')
+      console.info('Using direct Mercado Pago REST API fallback...')
     }
 
-    // 2. Fallback: Call official Mercado Pago REST API directly
-    const currentOrigin = typeof window !== 'undefined' ? window.location.origin : 'https://lumina-d31.pages.dev'
+    // 2. Direct Mercado Pago REST API call
+    // Note: Mercado Pago requires a valid public HTTPS URL for back_urls when auto_return is enabled
+    const publicBaseUrl = 'https://lumina-d31.pages.dev'
+
     const mpBody = {
       items: payload.items.map((it) => ({
         title: it.title,
@@ -65,9 +67,9 @@ export const mercadoPagoApi = {
         email: payload.payer.email || 'comprador@lumina.com',
       },
       back_urls: {
-        success: `${currentOrigin}/order-success?status=approved`,
-        failure: `${currentOrigin}/checkout?status=failure`,
-        pending: `${currentOrigin}/order-success?status=pending`,
+        success: `${publicBaseUrl}/order-success?status=approved&order_id=${payload.order_id}`,
+        failure: `${publicBaseUrl}/checkout?status=failure&order_id=${payload.order_id}`,
+        pending: `${publicBaseUrl}/order-success?status=pending&order_id=${payload.order_id}`,
       },
       auto_return: 'approved',
       external_reference: payload.order_id,
@@ -85,6 +87,7 @@ export const mercadoPagoApi = {
 
     if (!response.ok) {
       const errData = await response.json()
+      console.error('Mercado Pago API error response:', errData)
       throw new Error(errData.message || 'Error al comunicarse con Mercado Pago')
     }
 
