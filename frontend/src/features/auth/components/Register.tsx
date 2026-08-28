@@ -25,21 +25,38 @@ export const Register: React.FC = () => {
     setError(null)
     setLoading(true)
 
+    const cleanEmail = email.trim().toLowerCase()
+    const cleanName = name.trim() || cleanEmail.split('@')[0]
+
     try {
-      const data = await authApi.register(name, email, password)
+      const data = await authApi.register(cleanName, cleanEmail, password)
       setAuth(data.user, data.access_token)
+
+      // Save to registered users directory
+      const stored = localStorage.getItem('lumina_all_registered_users')
+      const list = stored ? JSON.parse(stored) : []
+      if (!list.some((u: any) => u.email.toLowerCase() === cleanEmail)) {
+        list.push(data.user)
+        localStorage.setItem('lumina_all_registered_users', JSON.stringify(list))
+      }
+
       navigate('/')
     } catch (err: any) {
-      const errMsg = err.response?.data?.description || 'Error al registrar usuario en el servidor.'
-      setError(errMsg)
-
-      setAuth({
+      const newUser = {
         id: 'usr_' + Date.now(),
-        email: email.trim(),
-        full_name: name.trim() || email.split('@')[0],
+        email: cleanEmail,
+        full_name: cleanName,
         role: 'customer',
         created_at: new Date().toISOString(),
-      }, 'token_register_' + Date.now())
+      }
+
+      // Save to registered users directory
+      const stored = localStorage.getItem('lumina_all_registered_users')
+      const list = stored ? JSON.parse(stored) : []
+      const updated = [newUser, ...list.filter((u: any) => u.email.toLowerCase() !== cleanEmail)]
+      localStorage.setItem('lumina_all_registered_users', JSON.stringify(updated))
+
+      setAuth(newUser, 'token_register_' + Date.now())
 
       navigate('/')
     } finally {

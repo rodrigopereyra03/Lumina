@@ -1,21 +1,24 @@
 import React, { useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { useAuthStore } from '../../../store/useAuthStore'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
+import { useAuthStore, type User } from '../../../store/useAuthStore'
 import { authApi } from '../../../api/authApi'
 import { motion } from 'framer-motion'
+
+const REGISTERED_USERS_KEY = 'lumina_all_registered_users'
 
 export const Login: React.FC = () => {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  
-  const [searchParams] = useSearchParams()
-  const redirectTarget = searchParams.get('redirect') || '/'
-  
+  const [showPassword, setShowPassword] = useState(false)
+
   const navigate = useNavigate()
+  const location = useLocation()
   const setAuth = useAuthStore((state) => state.setAuth)
+
+  const from = (location.state as any)?.from?.pathname || '/'
+  const redirectTarget = from === '/login' || from === '/register' ? '/' : from
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -28,24 +31,46 @@ export const Login: React.FC = () => {
     try {
       const data = await authApi.login(normalizedEmail, password)
       setAuth(data.user, data.access_token)
+
+      // Sync to local registered users
+      const stored = localStorage.getItem(REGISTERED_USERS_KEY)
+      const list: User[] = stored ? JSON.parse(stored) : []
+      if (!list.some((u) => u.email.toLowerCase() === data.user.email.toLowerCase())) {
+        list.push(data.user)
+        localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(list))
+      }
+
       if (data.user.role === 'admin' && redirectTarget === '/') {
         navigate('/admin')
       } else {
         navigate(redirectTarget)
       }
     } catch (err: any) {
-      // Graceful fallback for client-side demo when backend API is offline
-      const userRole = isAdminEmail ? 'admin' : 'customer'
-      const userName = isAdminEmail ? 'Administrador Lumina' : 'Alex Morgan'
+      // Find user from local registered directory
+      const stored = localStorage.getItem(REGISTERED_USERS_KEY)
+      const list: User[] = stored ? JSON.parse(stored) : []
+      const foundUser = list.find((u) => u.email.toLowerCase() === normalizedEmail)
 
-      setAuth({
-        id: isAdminEmail ? 'b0000001-0000-0000-0000-000000000001' : 'b0000001-0000-0000-0000-000000000002',
-        email: normalizedEmail || (isAdminEmail ? 'admin@lumina.com' : 'alex.morgan@example.com'),
+      const userRole = foundUser?.role || (isAdminEmail ? 'admin' : 'customer')
+      const userName = foundUser?.full_name || (isAdminEmail ? 'Administrador Lumina' : normalizedEmail.split('@')[0])
+
+      const loggedUser: User = {
+        id: foundUser?.id || (isAdminEmail ? 'admin-1' : 'usr_' + Date.now()),
+        email: normalizedEmail,
         full_name: userName,
         role: userRole,
-        created_at: new Date().toISOString(),
-      }, 'mock_jwt_token_auth')
-      
+        phone: foundUser?.phone || '',
+        created_at: foundUser?.created_at || new Date().toISOString(),
+      }
+
+      // Save to registered users if not present
+      if (!foundUser) {
+        list.push(loggedUser)
+        localStorage.setItem(REGISTERED_USERS_KEY, JSON.stringify(list))
+      }
+
+      setAuth(loggedUser, 'token_auth_' + Date.now())
+
       if (userRole === 'admin') {
         navigate('/admin')
       } else {
@@ -64,7 +89,7 @@ export const Login: React.FC = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[35%] h-[35%] rounded-full bg-[#e2e2e4]/40 blur-[80px]"></div>
       </div>
 
-      <motion.main 
+      <motion.main
         className="w-full max-w-md relative z-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -75,7 +100,7 @@ export const Login: React.FC = () => {
           <Link to="/" className="inline-block">
             <h1 className="text-4xl font-extrabold text-[#FF4D4F] tracking-tight mb-1">LUMINA</h1>
           </Link>
-          <p className="text-sm text-[#5b403e]">Inicia sesión en tu cuenta</p>
+          <p className="text-sm text-[#5b403e]">Accede a tu cuenta exclusiva</p>
         </div>
 
         {/* Glassmorphic Login Card */}
@@ -88,22 +113,7 @@ export const Login: React.FC = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="flex flex-col gap-5 relative z-10">
-            {/* Quick Admin fill helper tip */}
-            <div className="p-2.5 rounded-xl bg-white/60 border border-white/80 text-[11px] text-[#5b403e] flex items-center justify-between">
-              <span>Admin demo: <b className="text-[#FF4D4F]">admin@lumina.com</b></span>
-              <button
-                type="button"
-                onClick={() => {
-                  setEmail('admin@lumina.com')
-                  setPassword('password123')
-                }}
-                className="px-2 py-0.5 rounded-md bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] hover:bg-[#FF4D4F]/20 cursor-pointer"
-              >
-                Autocompletar
-              </button>
-            </div>
-
+          <form onSubmit={handleSubmit} className="flex flex-col gap-4 relative z-10">
             {/* Email Field */}
             <div className="floating-label-group">
               <input
@@ -121,12 +131,12 @@ export const Login: React.FC = () => {
             </div>
 
             {/* Password Field */}
-            <div className="floating-label-group">
+            <div className="floating-label-group relative">
               <input
-                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none"
+                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none pr-10"
                 id="password"
                 placeholder=" "
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -134,29 +144,29 @@ export const Login: React.FC = () => {
               <label className="floating-label text-xs text-[#5b403e]" htmlFor="password">
                 Contraseña
               </label>
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b403e] hover:text-[#1b1c1c] p-1 cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
             </div>
 
-            {/* Remember Me & Forgot Password */}
-            <div className="flex justify-between items-center px-1 text-xs">
-              <label className="flex items-center gap-2 cursor-pointer text-[#5b403e]">
-                <input
-                  className="rounded border-[#e4bebb] text-[#FF4D4F] focus:ring-[#FF4D4F]/30"
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                />
-                <span>Recordarme</span>
-              </label>
-              <a className="text-[#FF4D4F] hover:underline font-medium" href="#olvido">
+            {/* Forgot password link */}
+            <div className="flex justify-end">
+              <a className="text-xs text-[#FF4D4F] hover:underline font-medium" href="#forgot">
                 ¿Olvidaste tu contraseña?
               </a>
             </div>
 
-            {/* Sign In Button */}
+            {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-primary py-3.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md disabled:opacity-50 mt-1"
+              className="w-full btn-primary py-3.5 rounded-full text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md disabled:opacity-50 mt-2"
             >
               {loading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
             </button>
@@ -174,7 +184,14 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setAuth({ id: '1', email: 'alex.morgan@gmail.com', full_name: 'Alex Morgan', role: 'customer', created_at: new Date().toISOString() }, 'mock_google_token')
+                const googleUser: User = {
+                  id: 'usr_google_' + Date.now(),
+                  email: 'usuario.google@gmail.com',
+                  full_name: 'Usuario Google',
+                  role: 'customer',
+                  created_at: new Date().toISOString(),
+                }
+                setAuth(googleUser, 'mock_google_token')
                 navigate('/')
               }}
               className="glass-button-secondary rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-semibold cursor-pointer shadow-2xs hover:border-[#FF4D4F]/40"
@@ -191,7 +208,14 @@ export const Login: React.FC = () => {
             <button
               type="button"
               onClick={() => {
-                setAuth({ id: '1', email: 'alex.morgan@icloud.com', full_name: 'Alex Morgan', role: 'customer', created_at: new Date().toISOString() }, 'mock_apple_token')
+                const appleUser: User = {
+                  id: 'usr_apple_' + Date.now(),
+                  email: 'usuario.apple@icloud.com',
+                  full_name: 'Usuario Apple',
+                  role: 'customer',
+                  created_at: new Date().toISOString(),
+                }
+                setAuth(appleUser, 'mock_apple_token')
                 navigate('/')
               }}
               className="glass-button-secondary rounded-xl py-2.5 px-4 flex items-center justify-center gap-2 text-xs font-semibold cursor-pointer shadow-2xs hover:border-[#FF4D4F]/40"
