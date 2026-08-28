@@ -8,7 +8,7 @@ interface AdminOrderItem {
   phone: string
   address: string
   date: string
-  status: 'Pagado' | 'En Proceso' | 'Enviado' | 'Entregado' | 'Cancelado' | string
+  status: string
   items: { title: string; variant: string; price: number; quantity: number; image: string }[]
   subtotal: number
   shipping: number
@@ -20,11 +20,12 @@ export const OrderManagement: React.FC = () => {
   const [selectedOrder, setSelectedOrder] = useState<AdminOrderItem | null>(null)
   const [filterStatus, setFilterStatus] = useState<string>('Todas')
   const [loading, setLoading] = useState<boolean>(true)
+  const [statusFeedback, setStatusFeedback] = useState<string | null>(null)
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (currentFilter: string) => {
     setLoading(true)
     try {
-      const res = await ordersApi.getOrders(filterStatus)
+      const res = await ordersApi.getOrders(currentFilter)
       if (res.orders) {
         const mapped: AdminOrderItem[] = res.orders.map((o: BackendOrderDTO) => ({
           id: o.order_number || o.id,
@@ -72,22 +73,21 @@ export const OrderManagement: React.FC = () => {
   }
 
   useEffect(() => {
-    fetchOrders()
+    fetchOrders(filterStatus)
   }, [filterStatus])
-
-  const filteredOrders =
-    filterStatus === 'Todas'
-      ? orders
-      : orders.filter((o) => o.status?.toLowerCase() === filterStatus.toLowerCase())
 
   const handleUpdateStatus = async (newStatus: string) => {
     if (!selectedOrder) return
 
+    // 1. Optimistic UI update
     setOrders((prev) =>
       prev.map((o) => (o.id === selectedOrder.id ? { ...o, status: newStatus } : o))
     )
     setSelectedOrder((prev) => (prev ? { ...prev, status: newStatus } : null))
+    setStatusFeedback(`Orden ${selectedOrder.id} actualizada a "${newStatus}"`)
+    setTimeout(() => setStatusFeedback(null), 3000)
 
+    // 2. Persist to storage and backend
     try {
       await ordersApi.updateOrderStatus(selectedOrder.id, newStatus)
     } catch (e) {
@@ -96,20 +96,20 @@ export const OrderManagement: React.FC = () => {
   }
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'Pagado':
-      case 'Aprobado':
-      case 'Entregado':
-        return 'bg-[#E8F8F0] text-[#1E824C]'
-      case 'En Proceso':
-        return 'bg-[#FFF0EB] text-[#D97757]'
-      case 'Enviado':
-        return 'bg-[#ffdad7]/60 text-[#FF4D4F]'
-      case 'Cancelado':
-        return 'bg-[#ffdad6] text-[#ba1a1a]'
-      default:
-        return 'bg-white/80 text-[#5b403e]'
+    const s = (status || '').toLowerCase()
+    if (s === 'pagado' || s === 'aprobado' || s === 'entregado') {
+      return 'bg-[#E8F8F0] text-[#1E824C]'
     }
+    if (s === 'enviado') {
+      return 'bg-[#ffdad7]/80 text-[#FF4D4F]'
+    }
+    if (s === 'en proceso') {
+      return 'bg-[#FFF0EB] text-[#D97757]'
+    }
+    if (s === 'cancelado') {
+      return 'bg-[#ffdad6] text-[#ba1a1a]'
+    }
+    return 'bg-white/80 text-[#5b403e]'
   }
 
   return (
@@ -141,6 +141,13 @@ export const OrderManagement: React.FC = () => {
         </div>
       </div>
 
+      {statusFeedback && (
+        <div className="p-3.5 rounded-xl bg-[#E8F8F0] border border-[#B7E5CD] text-[#1E824C] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+          <span>{statusFeedback}</span>
+        </div>
+      )}
+
       {/* Main Content */}
       {loading ? (
         <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e]">
@@ -152,9 +159,9 @@ export const OrderManagement: React.FC = () => {
             <span className="material-symbols-outlined text-[32px]">receipt_long</span>
           </div>
           <div>
-            <h4 className="text-base font-bold text-[#1b1c1c]">No hay órdenes registradas todavía</h4>
+            <h4 className="text-base font-bold text-[#1b1c1c]">No hay órdenes con estado "{filterStatus}"</h4>
             <p className="text-xs text-[#5b403e] max-w-md mx-auto mt-1">
-              Las compras realizadas por tus clientes mediante Mercado Pago, transferencia o tarjeta aparecerán aquí en tiempo real.
+              Las compras realizadas por tus clientes aparecerán aquí según su estado.
             </p>
           </div>
         </div>
@@ -175,7 +182,7 @@ export const OrderManagement: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/50">
-                  {filteredOrders.map((ord) => {
+                  {orders.map((ord) => {
                     const isSelected = selectedOrder?.id === ord.id
 
                     return (
@@ -183,13 +190,13 @@ export const OrderManagement: React.FC = () => {
                         key={ord.id}
                         onClick={() => setSelectedOrder(ord)}
                         className={`cursor-pointer transition-all ${
-                          isSelected ? 'bg-white/80 font-semibold' : 'hover:bg-white/40'
+                          isSelected ? 'bg-white/80 font-semibold shadow-2xs' : 'hover:bg-white/40'
                         }`}
                       >
                         <td className="py-3.5 font-mono font-bold text-[#FF4D4F]">{ord.id}</td>
                         <td className="py-3.5 text-[#1b1c1c] font-medium">{ord.customer}</td>
                         <td className="py-3.5 text-[#5b403e]">{ord.date}</td>
-                        <td className="py-3.5 font-bold text-[#1b1c1c]">${ord.total.toFixed(2)}</td>
+                        <td className="py-3.5 font-bold text-[#1b1c1c]">${ord.total.toFixed(2)} ARS</td>
                         <td className="py-3.5">
                           <span
                             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(
@@ -200,7 +207,7 @@ export const OrderManagement: React.FC = () => {
                           </span>
                         </td>
                       </tr>
-                    );
+                    )
                   })}
                 </tbody>
               </table>
@@ -208,7 +215,7 @@ export const OrderManagement: React.FC = () => {
 
             <div className="flex justify-between items-center text-xs text-[#5b403e] pt-3 border-t border-white/60">
               <span>
-                Mostrando {filteredOrders.length} de {orders.length} órdenes reales
+                Mostrando {orders.length} órdenes ({filterStatus})
               </span>
               <span className="font-semibold text-[#1b1c1c]">Base de Datos Lumina</span>
             </div>
@@ -279,25 +286,58 @@ export const OrderManagement: React.FC = () => {
                 </div>
                 <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">
                   <span>Total</span>
-                  <span className="text-lg font-bold text-[#FF4D4F]">${selectedOrder.total.toFixed(2)}</span>
+                  <span className="text-lg font-bold text-[#FF4D4F]">${selectedOrder.total.toFixed(2)} ARS</span>
                 </div>
               </div>
 
               {/* Status Changer Actions */}
               <div className="pt-2 flex flex-col gap-2">
-                <span className="text-[11px] font-bold text-[#5b403e]">Actualizar Estado:</span>
-                <div className="grid grid-cols-2 gap-2">
+                <span className="text-[11px] font-bold text-[#5b403e]">Cambiar Estado del Pedido:</span>
+                <div className="grid grid-cols-2 gap-2 text-xs">
                   <button
                     onClick={() => handleUpdateStatus('Enviado')}
-                    className="btn-primary py-2.5 rounded-xl text-xs font-bold text-center cursor-pointer shadow-xs"
+                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1 ${
+                      selectedOrder.status === 'Enviado'
+                        ? 'bg-[#FF4D4F] text-white shadow-md'
+                        : 'bg-white/80 text-[#FF4D4F] border border-white hover:bg-[#FF4D4F] hover:text-white shadow-2xs'
+                    }`}
                   >
-                    Marcar como Enviado
+                    <span className="material-symbols-outlined text-[16px]">local_shipping</span>
+                    <span>Marcar Enviado</span>
                   </button>
+
                   <button
                     onClick={() => handleUpdateStatus('Entregado')}
-                    className="glass-button-secondary py-2.5 rounded-xl text-xs font-semibold text-center cursor-pointer"
+                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1 ${
+                      selectedOrder.status === 'Entregado'
+                        ? 'bg-[#1E824C] text-white shadow-md'
+                        : 'bg-white/80 text-[#1E824C] border border-white hover:bg-[#1E824C] hover:text-white shadow-2xs'
+                    }`}
                   >
-                    Marcar como Entregado
+                    <span className="material-symbols-outlined text-[16px]">check_circle</span>
+                    <span>Marcar Entregado</span>
+                  </button>
+
+                  <button
+                    onClick={() => handleUpdateStatus('En Proceso')}
+                    className={`py-2 px-2 rounded-xl text-[11px] font-semibold text-center cursor-pointer transition-all ${
+                      selectedOrder.status === 'En Proceso'
+                        ? 'bg-[#D97757] text-white'
+                        : 'bg-white/60 text-[#5b403e] hover:bg-white'
+                    }`}
+                  >
+                    En Proceso
+                  </button>
+
+                  <button
+                    onClick={() => handleUpdateStatus('Cancelado')}
+                    className={`py-2 px-2 rounded-xl text-[11px] font-semibold text-center cursor-pointer transition-all ${
+                      selectedOrder.status === 'Cancelado'
+                        ? 'bg-[#ba1a1a] text-white'
+                        : 'bg-white/60 text-red-500 hover:bg-red-50'
+                    }`}
+                  >
+                    Cancelar Orden
                   </button>
                 </div>
               </div>

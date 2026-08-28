@@ -78,7 +78,7 @@ export const ordersApi = {
     return { order: newOrder }
   },
 
-  getOrders: async (status?: string): Promise<{ orders: BackendOrderDTO[]; total: number }> => {
+  getOrders: async (statusFilter?: string): Promise<{ orders: BackendOrderDTO[]; total: number }> => {
     const stored = localStorage.getItem(SYSTEM_ORDERS_KEY)
     let localOrders: BackendOrderDTO[] = stored ? JSON.parse(stored) : []
 
@@ -91,7 +91,8 @@ export const ordersApi = {
           if (userOrdersRaw) {
             const userOrders = JSON.parse(userOrdersRaw)
             userOrders.forEach((uo: any) => {
-              if (!localOrders.some((lo) => lo.order_number === uo.order_number)) {
+              const existing = localOrders.find((lo) => lo.order_number === uo.order_number || lo.id === uo.id)
+              if (!existing) {
                 localOrders.push({
                   id: uo.id || 'ord_' + Date.now(),
                   order_number: uo.order_number,
@@ -120,7 +121,7 @@ export const ordersApi = {
     }
 
     try {
-      const url = status && status !== 'Todas' && status !== 'All' ? `/orders?status=${status}` : '/orders'
+      const url = statusFilter && statusFilter !== 'Todas' && statusFilter !== 'All' ? `/orders?status=${statusFilter}` : '/orders'
       const res = await axiosInstance.get(url, { timeout: 2500 })
       const remote = res.data.content || res.data
       if (remote?.orders && Array.isArray(remote.orders)) {
@@ -139,8 +140,18 @@ export const ordersApi = {
       // Use local orders
     }
 
-    const filtered = status && status !== 'Todas' && status !== 'All'
-      ? localOrders.filter((o) => o.status?.toLowerCase() === status.toLowerCase())
+    // Save back unified list
+    localStorage.setItem(SYSTEM_ORDERS_KEY, JSON.stringify(localOrders))
+
+    const filtered = statusFilter && statusFilter !== 'Todas' && statusFilter !== 'All'
+      ? localOrders.filter((o) => {
+          const s = (o.status || '').toLowerCase()
+          const f = statusFilter.toLowerCase()
+          if (f === 'pagado') {
+            return s === 'pagado' || s === 'aprobado'
+          }
+          return s === f
+        })
       : localOrders
 
     return {
@@ -150,6 +161,7 @@ export const ordersApi = {
   },
 
   updateOrderStatus: async (orderId: string, newStatus: string): Promise<{ message: string; status: string }> => {
+    // 1. Update in system orders
     const stored = localStorage.getItem(SYSTEM_ORDERS_KEY)
     if (stored) {
       const list: BackendOrderDTO[] = JSON.parse(stored)
@@ -162,6 +174,38 @@ export const ordersApi = {
       localStorage.setItem(SYSTEM_ORDERS_KEY, JSON.stringify(updated))
     }
 
+    // 2. Sync to user specific order stores
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)
+      if (key && key.startsWith('lumina_orders_')) {
+        try {
+          const userOrdersRaw = localStorage.getItem(key)
+          if (userOrdersRaw) {
+            const userOrders = JSON.parse(userOrdersRaw)
+            const updatedUserOrders = userOrders.map((uo: any) => {
+              if (uo.order_number === orderId || uo.id === orderId) {
+                return {
+                  ...uo,
+                  status: newStatus,
+                  status_color:
+                    newStatus === 'Entregado'
+                      ? 'bg-[#E8F8F0] text-[#1E824C]'
+                      : newStatus === 'Enviado'
+                      ? 'bg-[#ffdad7]/60 text-[#FF4D4F]'
+                      : newStatus === 'En Proceso'
+                      ? 'bg-[#FFF0EB] text-[#D97757]'
+                      : 'bg-white/80 text-[#5b403e]',
+                }
+              }
+              return uo
+            })
+            localStorage.setItem(key, JSON.stringify(updatedUserOrders))
+          }
+        } catch (err) {}
+      }
+    }
+
+    // 3. Update in backend Go API
     try {
       await axiosInstance.patch(`/orders/${orderId}/status`, { status: newStatus }, { timeout: 2500 })
     } catch (e) {
