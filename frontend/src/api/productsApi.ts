@@ -23,6 +23,21 @@ export interface ListProductsResponseContent {
 
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
+export const TEST_MP_PRODUCT: BackendProductDTO = {
+  id: 'test-mp-10-ars',
+  title: 'Producto de Prueba Mercado Pago',
+  subtitle: 'Ítem de prueba para validación en vivo de Mercado Pago Checkout',
+  description: 'Producto especial creado para verificar el flujo de compra en vivo con Mercado Pago ($10 ARS), dinero en cuenta y tarjetas.',
+  price: 10.0,
+  original_price: 20.0,
+  stock: 999,
+  image: 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80',
+  rating: 5.0,
+  reviews_count: 12,
+  category_name: 'Electrónica',
+  category_slug: 'electronics',
+}
+
 export const productsApi = {
   getProducts: async (categorySlug?: string): Promise<ListProductsResponseContent> => {
     try {
@@ -30,7 +45,7 @@ export const productsApi = {
       const res = await axiosInstance.get(url, { timeout: 3000 })
       const remote = res.data.content || res.data
       if (remote?.products && Array.isArray(remote.products) && remote.products.length > 0) {
-        const mappedRemote: BackendProductDTO[] = remote.products.map((p: any) => ({
+        let mappedRemote: BackendProductDTO[] = remote.products.map((p: any) => ({
           id: p.id,
           title: p.title,
           subtitle: p.subtitle || '',
@@ -48,6 +63,11 @@ export const productsApi = {
               ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
               : 'general'),
         }))
+
+        // Ensure the $10 ARS test product is always available for testing
+        if (!mappedRemote.some((p) => p.id === TEST_MP_PRODUCT.id)) {
+          mappedRemote = [TEST_MP_PRODUCT, ...mappedRemote]
+        }
 
         // Save remote database products directly to local cache
         localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mappedRemote))
@@ -71,7 +91,10 @@ export const productsApi = {
 
     // Fallback to local cache only if backend is unreachable
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-    const localProducts: BackendProductDTO[] = stored ? JSON.parse(stored) : []
+    let localProducts: BackendProductDTO[] = stored ? JSON.parse(stored) : [TEST_MP_PRODUCT]
+    if (!localProducts.some((p) => p.id === TEST_MP_PRODUCT.id)) {
+      localProducts = [TEST_MP_PRODUCT, ...localProducts]
+    }
 
     const filtered = categorySlug && categorySlug !== 'all'
       ? localProducts.filter((p) => {
@@ -88,6 +111,8 @@ export const productsApi = {
   },
 
   getProductById: async (id: string): Promise<BackendProductDTO> => {
+    if (id === TEST_MP_PRODUCT.id) return TEST_MP_PRODUCT
+
     try {
       const res = await axiosInstance.get(`/products/${id}`, { timeout: 2500 })
       const remote = res.data.content || res.data
@@ -95,7 +120,7 @@ export const productsApi = {
     } catch (e) {}
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
-    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : []
+    const list: BackendProductDTO[] = stored ? JSON.parse(stored) : [TEST_MP_PRODUCT]
     const found = list.find((p) => p.id === id)
     return found || list[0]
   },

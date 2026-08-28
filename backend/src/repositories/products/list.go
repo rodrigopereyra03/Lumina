@@ -30,10 +30,11 @@ func (r *ProductsRepository) List(ctx context.Context, categorySlug string) ([]p
 	}
 
 	query := `
-		SELECT id, COALESCE(category_id::text, ''), '', title, subtitle, description, price, original_price, stock, image, rating, reviews_count, created_at, updated_at, deleted_at
-		FROM products
-		WHERE deleted_at IS NULL
-		ORDER BY created_at DESC
+		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Electrónica'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
+		FROM products p
+		LEFT JOIN categories c ON p.category_id = c.id
+		WHERE p.deleted_at IS NULL
+		ORDER BY p.price ASC, p.created_at DESC
 	`
 	rows, err := r.db.Query(ctx, query)
 	if err != nil {
@@ -66,9 +67,10 @@ func (r *ProductsRepository) GetByID(ctx context.Context, id string) (products.P
 	}
 
 	query := `
-		SELECT id, COALESCE(category_id::text, ''), '', title, subtitle, description, price, original_price, stock, image, rating, reviews_count, created_at, updated_at, deleted_at
-		FROM products
-		WHERE id = $1 AND deleted_at IS NULL
+		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Electrónica'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
+		FROM products p
+		LEFT JOIN categories c ON p.category_id = c.id
+		WHERE p.id = $1 AND p.deleted_at IS NULL
 	`
 	var dao ProductDAO
 	err := r.db.QueryRow(ctx, query, id).Scan(
