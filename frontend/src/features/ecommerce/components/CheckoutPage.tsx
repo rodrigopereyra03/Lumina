@@ -6,6 +6,7 @@ import { useUserDataStore } from '../../../store/useUserDataStore'
 import { ordersApi } from '../../../api/ordersApi'
 import { paymentsApi } from '../../../api/paymentsApi'
 import { mercadoPagoApi } from '../../../api/mercadoPagoApi'
+import { settingsApi, type PaymentSettingsDTO, DEFAULT_PAYMENT_SETTINGS } from '../../../api/settingsApi'
 import { OrderSuccess } from './OrderSuccess'
 
 interface CheckoutPageProps {
@@ -26,10 +27,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
   const { user, isAuthenticated } = useAuthStore()
   const { addresses, cards, loadUserData, addAddress, addCard, addOrder } = useUserDataStore()
 
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettingsDTO>(DEFAULT_PAYMENT_SETTINGS)
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('mercadopago')
+
   const subtotal = getSubtotal()
   const discountAmount = getDiscountAmount()
 
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethodType>('mercadopago')
   const [fullName, setFullName] = useState(user?.full_name || '')
   const [email, setEmail] = useState(user?.email || '')
   const [phone, setPhone] = useState(user?.phone || '')
@@ -53,6 +56,29 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
   const [completedSubtotal, setCompletedSubtotal] = useState(0)
   const [completedTotal, setCompletedTotal] = useState(0)
 
+  // Load payment settings and adjust active method
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const s = await settingsApi.getPaymentSettings()
+        if (s) {
+          setPaymentSettings(s)
+          // Set initial payment method based on what's active
+          if (s.mp_active) {
+            setPaymentMethod('mercadopago')
+          } else if (s.transfer_active) {
+            setPaymentMethod('transfer')
+          } else if (s.card_active) {
+            setPaymentMethod('card')
+          }
+        }
+      } catch (e) {
+        // Fallback default
+      }
+    }
+    fetchSettings()
+  }, [])
+
   useEffect(() => {
     if (user?.email) {
       loadUserData(user.email)
@@ -71,8 +97,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     }
   }, [addresses])
 
-  // Transfer discount (10%)
-  const transferDiscount = paymentMethod === 'transfer' ? subtotal * 0.1 : 0
+  // Dynamic transfer discount from settings
+  const transferDiscount =
+    paymentMethod === 'transfer' && paymentSettings.transfer_active
+      ? subtotal * ((paymentSettings.transfer_discount || 0) / 100)
+      : 0
   const total = Math.max(0, getTotal() - transferDiscount)
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -270,6 +299,11 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     )
   }
 
+  const activeMethodsCount =
+    (paymentSettings.mp_active ? 1 : 0) +
+    (paymentSettings.card_active ? 1 : 0) +
+    (paymentSettings.transfer_active ? 1 : 0)
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 15 }}
@@ -408,50 +442,62 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
             <div className="space-y-3 pt-4 border-t border-white/60">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">2. Método de Pago</h3>
               
-              {/* Payment Tabs Selector */}
-              <div className="grid grid-cols-3 gap-2 p-1.5 glass-panel rounded-2xl border border-white/70">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('mercadopago')}
-                  className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                    paymentMethod === 'mercadopago'
-                      ? 'bg-[#009EE3] text-white shadow-md'
-                      : 'text-[#5b403e] hover:bg-white/40'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
-                  <span className="text-[11px] leading-tight text-center">Mercado Pago</span>
-                </button>
+              {activeMethodsCount === 0 ? (
+                <div className="p-4 rounded-2xl bg-[#ffdad6]/60 border border-[#ffdad6] text-[#ba1a1a] text-xs text-center font-semibold">
+                  No hay medios de pago habilitados en este momento. Por favor contacte con administración.
+                </div>
+              ) : (
+                /* Payment Tabs Selector based on Admin Settings */
+                <div className={`grid grid-cols-${activeMethodsCount} gap-2 p-1.5 glass-panel rounded-2xl border border-white/70`}>
+                  {paymentSettings.mp_active && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('mercadopago')}
+                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                        paymentMethod === 'mercadopago'
+                          ? 'bg-[#009EE3] text-white shadow-md'
+                          : 'text-[#5b403e] hover:bg-white/40'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                      <span className="text-[11px] leading-tight text-center">Mercado Pago</span>
+                    </button>
+                  )}
 
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('card')}
-                  className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                    paymentMethod === 'card'
-                      ? 'bg-[#FF4D4F] text-white shadow-md'
-                      : 'text-[#5b403e] hover:bg-white/40'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">credit_card</span>
-                  <span className="text-[11px] leading-tight text-center">Tarjeta Directa</span>
-                </button>
+                  {paymentSettings.card_active && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('card')}
+                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                        paymentMethod === 'card'
+                          ? 'bg-[#FF4D4F] text-white shadow-md'
+                          : 'text-[#5b403e] hover:bg-white/40'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">credit_card</span>
+                      <span className="text-[11px] leading-tight text-center">Tarjeta Directa</span>
+                    </button>
+                  )}
 
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('transfer')}
-                  className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
-                    paymentMethod === 'transfer'
-                      ? 'bg-[#1E824C] text-white shadow-md'
-                      : 'text-[#5b403e] hover:bg-white/40'
-                  }`}
-                >
-                  <span className="material-symbols-outlined text-[18px]">account_balance</span>
-                  <span className="text-[11px] leading-tight text-center">Transferencia</span>
-                </button>
-              </div>
+                  {paymentSettings.transfer_active && (
+                    <button
+                      type="button"
+                      onClick={() => setPaymentMethod('transfer')}
+                      className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
+                        paymentMethod === 'transfer'
+                          ? 'bg-[#1E824C] text-white shadow-md'
+                          : 'text-[#5b403e] hover:bg-white/40'
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[18px]">account_balance</span>
+                      <span className="text-[11px] leading-tight text-center">Transferencia</span>
+                    </button>
+                  )}
+                </div>
+              )}
 
               {/* Dynamic Content Based on Payment Selection */}
-              {paymentMethod === 'mercadopago' && (
+              {paymentMethod === 'mercadopago' && paymentSettings.mp_active && (
                 <div className="p-4 rounded-2xl bg-[#009EE3]/10 border border-[#009EE3]/20 space-y-3">
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-[#009EE3] text-white flex items-center justify-center font-bold text-xs">
@@ -460,7 +506,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                     <div>
                       <h4 className="text-xs font-bold text-[#1b1c1c]">Checkout Pro de Mercado Pago</h4>
                       <p className="text-[11px] text-[#5b403e]">
-                        Paga con Dinero en Cuenta, Débito, Crédito o hasta 6 Cuotas sin interés.
+                        Paga con Dinero en Cuenta, Débito, Crédito o hasta {paymentSettings.mp_installments || 6} Cuotas sin interés.
                       </p>
                     </div>
                   </div>
@@ -470,7 +516,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {paymentMethod === 'card' && (
+              {paymentMethod === 'card' && paymentSettings.card_active && (
                 <div className="space-y-3 p-4 glass-panel rounded-2xl border border-white/80">
                   <div>
                     <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Número de Tarjeta</label>
@@ -530,22 +576,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                 </div>
               )}
 
-              {paymentMethod === 'transfer' && (
+              {paymentMethod === 'transfer' && paymentSettings.transfer_active && (
                 <div className="p-4 rounded-2xl bg-[#1E824C]/10 border border-[#1E824C]/20 space-y-3 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-[#1E824C] flex items-center gap-1">
                       <span className="material-symbols-outlined text-[16px]">percent</span>
-                      10% de Descuento Aplicado
+                      {paymentSettings.transfer_discount || 10}% de Descuento Aplicado
                     </span>
                     <span className="px-2 py-0.5 rounded-full bg-[#1E824C] text-white text-[10px] font-bold">
-                      Ahorras ${(subtotal * 0.1).toFixed(2)}
+                      Ahorras ${transferDiscount.toFixed(2)}
                     </span>
                   </div>
                   <div className="p-3 bg-white/70 rounded-xl space-y-1 text-[#5b403e] text-[11px] font-mono">
-                    <p><b>Banco:</b> Banco Santander</p>
-                    <p><b>Titular:</b> Lumina Retail S.A.</p>
-                    <p><b>CBU:</b> 0000003100010000849201</p>
-                    <p><b>Alias:</b> <span className="text-[#FF4D4F] font-bold">LUMINA.PAGOS.OFICIAL</span></p>
+                    <p><b>Banco:</b> {paymentSettings.transfer_bank || 'Banco Santander'}</p>
+                    <p><b>Titular:</b> {paymentSettings.transfer_holder || 'Lumina Retail S.A.'}</p>
+                    <p><b>CBU:</b> {paymentSettings.transfer_cbu || '0000003100010000849201'}</p>
+                    <p><b>Alias:</b> <span className="text-[#FF4D4F] font-bold">{paymentSettings.transfer_alias || 'LUMINA.PAGOS.OFICIAL'}</span></p>
                   </div>
                   <p className="text-[11px] text-[#5b403e]">
                     Envía el comprobante por WhatsApp o correo para despacho prioritario.
@@ -557,7 +603,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || items.length === 0}
+              disabled={loading || items.length === 0 || activeMethodsCount === 0}
               className={`w-full py-3.5 rounded-full text-xs font-bold shadow-md cursor-pointer disabled:opacity-50 mt-4 transition-all text-white ${
                 paymentMethod === 'mercadopago'
                   ? 'bg-[#009EE3] hover:bg-[#0082ba]'
@@ -619,10 +665,10 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               </div>
             )}
 
-            {paymentMethod === 'transfer' && (
+            {paymentMethod === 'transfer' && paymentSettings.transfer_active && transferDiscount > 0 && (
               <div className="flex justify-between text-[#1E824C]">
-                <span>Descuento Transferencia (10%)</span>
-                <span className="font-semibold">-${(subtotal * 0.1).toFixed(2)}</span>
+                <span>Descuento Transferencia ({paymentSettings.transfer_discount}%)</span>
+                <span className="font-semibold">-${transferDiscount.toFixed(2)}</span>
               </div>
             )}
 
