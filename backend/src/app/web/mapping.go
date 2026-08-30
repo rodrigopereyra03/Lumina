@@ -33,6 +33,12 @@ func MapRoutes(r *gin.Engine, c *dependencies.Container) {
 			coupons.POST("/validate", c.ValidateCouponHandler.Handle())
 		}
 
+		// Shipping Routes (Envíopack Quotes)
+		shippingGroup := v1.Group("/shipping")
+		{
+			shippingGroup.POST("/quote", c.ShippingHandler.HandleQuote())
+		}
+
 		// Payments Routes
 		payments := v1.Group("/payments")
 		{

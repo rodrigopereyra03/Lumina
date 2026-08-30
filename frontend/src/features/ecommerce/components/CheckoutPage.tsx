@@ -4,6 +4,7 @@ import { useCartStore } from '../../../store/useCartStore'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { useUserDataStore } from '../../../store/useUserDataStore'
 import { ordersApi } from '../../../api/ordersApi'
+import { ShippingSection, type ShippingRate } from './ShippingSection'
 import { paymentsApi } from '../../../api/paymentsApi'
 import { mercadoPagoApi } from '../../../api/mercadoPagoApi'
 import { settingsApi, type PaymentSettingsDTO, DEFAULT_PAYMENT_SETTINGS } from '../../../api/settingsApi'
@@ -97,12 +98,15 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     }
   }, [addresses])
 
+  const [shippingRate, setShippingRate] = useState<ShippingRate | null>(null)
+
   // Dynamic transfer discount from settings
   const transferDiscount =
     paymentMethod === 'transfer' && paymentSettings.transfer_active
       ? subtotal * ((paymentSettings.transfer_discount || 0) / 100)
       : 0
-  const total = Math.max(0, getTotal() - transferDiscount)
+  const shippingCost = shippingRate ? shippingRate.cost : 0
+  const total = Math.max(0, getTotal() - transferDiscount + shippingCost)
 
   const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/\D/g, '').slice(0, 16)
@@ -450,9 +454,20 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               )}
             </div>
 
-            {/* 2. Método de Pago */}
+            {/* 2. Método de Envío (Envíopack & WhatsApp) */}
+            <div className="pt-2">
+              <ShippingSection
+                cartItems={items}
+                subtotal={subtotal}
+                selectedRate={shippingRate}
+                onSelectShippingRate={setShippingRate}
+                sellerWhatsAppPhone="5491122334455"
+              />
+            </div>
+
+            {/* 3. Método de Pago */}
             <div className="space-y-3 pt-4 border-t border-white/60">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">2. Método de Pago</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">3. Método de Pago</h3>
               
               {activeMethodsCount === 0 ? (
                 <div className="p-4 rounded-2xl bg-[#ffdad6]/60 border border-[#ffdad6] text-[#ba1a1a] text-xs text-center font-semibold">
@@ -686,7 +701,9 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
 
             <div className="flex justify-between">
               <span>Costo de Envío</span>
-              <span className="font-semibold text-[#1E824C]">Gratis</span>
+              <span className={`font-semibold ${shippingCost > 0 ? 'text-[#FF4D4F]' : 'text-[#1E824C]'}`}>
+                {shippingCost > 0 ? `$${shippingCost.toFixed(2)} ARS` : shippingRate === null ? 'A coordinar / WhatsApp' : 'Gratis'}
+              </span>
             </div>
 
             <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">

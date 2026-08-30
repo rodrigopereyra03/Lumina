@@ -30,7 +30,10 @@ import (
 	paymentHandlers "ecommerce-ganador/backend/src/entrypoints/rest/payments"
 	productHandlers "ecommerce-ganador/backend/src/entrypoints/rest/products"
 	settingHandlers "ecommerce-ganador/backend/src/entrypoints/rest/settings"
+	shippingHandlers "ecommerce-ganador/backend/src/entrypoints/rest/shipping"
 	userHandlers "ecommerce-ganador/backend/src/entrypoints/rest/users"
+
+	shippingInfra "ecommerce-ganador/backend/src/infrastructure/shipping"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -59,10 +62,12 @@ type Container struct {
 	ProcessPaymentHandler  paymentHandlers.ProcessPaymentHandler
 	PaymentSettingsHandler settingHandlers.PaymentSettingsHandler
 	MercadoPagoHandler     paymentHandlers.MercadoPagoHandler
+	ShippingHandler        shippingHandlers.ShippingHandler
 
 	// Services
-	JWTService   *jwt.JWTService
-	EmailService *notifInfra.ResendEmailService
+	JWTService       *jwt.JWTService
+	EmailService     *notifInfra.ResendEmailService
+	EnvioPackService *shippingInfra.EnvioPackService
 }
 
 func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
@@ -111,6 +116,8 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 	getSettingsUc := settingUsecases.NewGetPaymentSettingsImpl(settingRepo)
 	updateSettingsUc := settingUsecases.NewUpdatePaymentSettingsImpl(settingRepo)
 
+	envioPackService := shippingInfra.NewEnvioPackService("")
+
 	// Handlers
 	return &Container{
 		RegisterUserHandler:      userHandlers.NewRegisterUserHandler(registerUserUc),
@@ -134,8 +141,10 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 		ProcessPaymentHandler:  paymentHandlers.NewProcessPaymentHandler(processPaymentUc),
 		PaymentSettingsHandler: settingHandlers.NewPaymentSettingsHandler(getSettingsUc, updateSettingsUc),
 		MercadoPagoHandler:     paymentHandlers.NewMercadoPagoHandler(createMPPrefUc, handleMPWebhookUc),
+		ShippingHandler:        shippingHandlers.NewShippingHandler(envioPackService),
 
-		JWTService:   jwtService,
-		EmailService: emailService,
+		JWTService:       jwtService,
+		EmailService:     emailService,
+		EnvioPackService: envioPackService,
 	}
 }
