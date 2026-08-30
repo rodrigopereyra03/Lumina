@@ -36,11 +36,18 @@ const DEFAULT_MP_PUBLIC_KEY = 'APP_USR-09e00df2-06bc-4d0e-b5de-13aaffd650d2'
 
 export const mercadoPagoApi = {
   createPreference: async (payload: CreateMPPreferencePayload): Promise<MPPreferenceResponse> => {
-    // 1. First try calling our backend Go API
+    // 1. Sanitize order ID by removing '#' to avoid URL hash fragment breaking Mercado Pago's router
+    const cleanOrderId = (payload.order_id || '').replace(/#/g, '').trim()
+    const sanitizedPayload = {
+      ...payload,
+      order_id: cleanOrderId,
+    }
+
+    // 2. First try calling our backend Go API
     try {
       const res = await axiosInstance.post<{ content: MPPreferenceResponse }>(
         '/payments/mercadopago/preference',
-        payload,
+        sanitizedPayload,
         { timeout: 3000 }
       )
       if (res.data?.content?.init_point) {
@@ -50,7 +57,7 @@ export const mercadoPagoApi = {
       console.info('Using direct Mercado Pago REST API fallback...')
     }
 
-    // 2. Direct Mercado Pago REST API call
+    // 3. Direct Mercado Pago REST API call
     const baseUrl = payload.back_url || (typeof window !== 'undefined' ? window.location.origin : 'https://lumina-d31.pages.dev')
 
     const mpBody = {
@@ -66,12 +73,12 @@ export const mercadoPagoApi = {
         email: payload.payer.email || 'comprador@lumina.com',
       },
       back_urls: {
-        success: `${baseUrl}/order-success?status=approved&order_id=${payload.order_id}`,
-        failure: `${baseUrl}/checkout?status=failure&order_id=${payload.order_id}`,
-        pending: `${baseUrl}/order-success?status=pending&order_id=${payload.order_id}`,
+        success: `${baseUrl}/order-success?status=approved&order_id=${cleanOrderId}`,
+        failure: `${baseUrl}/checkout?status=failure&order_id=${cleanOrderId}`,
+        pending: `${baseUrl}/order-success?status=pending&order_id=${cleanOrderId}`,
       },
       auto_return: 'approved',
-      external_reference: payload.order_id,
+      external_reference: cleanOrderId,
       statement_descriptor: 'LUMINA STORE',
     }
 
@@ -103,7 +110,6 @@ export const mercadoPagoApi = {
     paymentId: string
   ): Promise<{ success: boolean; message: string; refund_id?: string }> => {
     try {
-      // Direct call to Mercado Pago Refund API
       const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
         method: 'POST',
         headers: {

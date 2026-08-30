@@ -106,20 +106,21 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 		backURL = "http://localhost:5173"
 	}
 
+	// Clean order ID: remove special characters like '#' to prevent URL fragment corruption
+	cleanOrderID := strings.ReplaceAll(strings.TrimSpace(input.OrderID), "#", "")
+
 	payload := MPPreferencePayload{
 		Items: input.Items,
 		Payer: input.Payer,
 		BackURLs: MPBackURLsPayload{
-			Success: fmt.Sprintf("%s/order-success?order_id=%s&status=approved", backURL, input.OrderID),
-			Failure: fmt.Sprintf("%s/checkout?order_id=%s&status=failure", backURL, input.OrderID),
-			Pending: fmt.Sprintf("%s/order-success?order_id=%s&status=pending", backURL, input.OrderID),
+			Success: fmt.Sprintf("%s/order-success?order_id=%s&status=approved", backURL, cleanOrderID),
+			Failure: fmt.Sprintf("%s/checkout?order_id=%s&status=failure", backURL, cleanOrderID),
+			Pending: fmt.Sprintf("%s/order-success?order_id=%s&status=pending", backURL, cleanOrderID),
 		},
-		ExternalReference:   input.OrderID,
+		AutoReturn:          "approved",
+		ExternalReference:   cleanOrderID,
 		StatementDescriptor: "LUMINA STORE",
 	}
-
-	// Set auto_return so Mercado Pago immediately redirects the user back to the store
-	payload.AutoReturn = "approved"
 
 	// If valid Mercado Pago Access Token is present, call real Mercado Pago REST API
 	if settings.MPAccessToken != "" && !strings.Contains(settings.MPAccessToken, "APP_USR-948201948201948201948201-948201") {
@@ -166,7 +167,7 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 	}
 
 	// Fallback URL if API key invalid
-	simulatedPrefID := fmt.Sprintf("PREF-%d-%s", time.Now().Unix(), input.OrderID)
+	simulatedPrefID := fmt.Sprintf("PREF-%d-%s", time.Now().Unix(), cleanOrderID)
 	simulatedInitPoint := fmt.Sprintf("https://www.mercadopago.com.ar/checkout/v1/redirect?pref_id=%s", simulatedPrefID)
 
 	return CreateMPPreferenceOutput{
