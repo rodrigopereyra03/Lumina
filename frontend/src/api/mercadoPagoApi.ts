@@ -37,6 +37,9 @@ const DEFAULT_MP_PUBLIC_KEY = 'APP_USR-09e00df2-06bc-4d0e-b5de-13aaffd650d2'
 
 export const mercadoPagoApi = {
   createPreference: async (payload: CreateMPPreferencePayload): Promise<MPPreferenceResponse> => {
+    console.group('🔵 [MERCADO PAGO] Creando Preferencia de Pago')
+    console.log('📦 Payload inicial recibido:', payload)
+
     // 1. Sanitize order ID by removing '#' to avoid URL hash fragment breaking Mercado Pago's router
     const cleanOrderId = (payload.order_id || '').replace(/#/g, '').trim()
 
@@ -56,18 +59,23 @@ export const mercadoPagoApi = {
       items: sanitizedItems,
     }
 
+    console.log('✨ Payload sanitizado:', sanitizedPayload)
+
     // 2. First try calling our backend Go API
     try {
+      console.log('🚀 Intentando crear preferencia mediante Backend Go (/api/v1/payments/mercadopago/preference)...')
       const res = await axiosInstance.post<{ content: MPPreferenceResponse }>(
         '/payments/mercadopago/preference',
         sanitizedPayload,
-        { timeout: 3000 }
+        { timeout: 4000 }
       )
       if (res.data?.content?.init_point) {
+        console.log('✅ Preferencia generada por Backend Go:', res.data.content)
+        console.groupEnd()
         return res.data.content
       }
-    } catch (backendErr) {
-      console.info('Using direct Mercado Pago REST API fallback...')
+    } catch (backendErr: any) {
+      console.warn('⚠️ Fallback a API directa de Mercado Pago:', backendErr?.message || backendErr)
     }
 
     // 3. Direct Mercado Pago REST API call
@@ -90,6 +98,8 @@ export const mercadoPagoApi = {
       statement_descriptor: 'LUMINA STORE',
     }
 
+    console.log('📡 Enviando petición directa a https://api.mercadopago.com/checkout/preferences:', mpBody)
+
     const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
@@ -101,11 +111,19 @@ export const mercadoPagoApi = {
 
     if (!response.ok) {
       const errData = await response.json()
-      console.error('Mercado Pago API error response:', errData)
+      console.error('❌ Error devuelto por Mercado Pago API:', errData)
+      console.groupEnd()
       throw new Error(errData.message || 'Error al comunicarse con Mercado Pago')
     }
 
     const data = await response.json()
+    console.log('🎉 Preferencia creada con éxito en Mercado Pago:', {
+      id: data.id,
+      init_point: data.init_point,
+      sandbox_init_point: data.sandbox_init_point,
+    })
+    console.groupEnd()
+
     return {
       preference_id: data.id,
       init_point: data.init_point,

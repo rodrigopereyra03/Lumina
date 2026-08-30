@@ -221,10 +221,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
     if (paymentMethod === 'mercadopago') {
       const finalOrderId = createdBackendOrder?.order_number || createdBackendOrder?.id || generatedOrderId
       try {
+        console.log('🛒 [Checkout] Solicitando preferencia para orden:', finalOrderId)
         const pref = await mercadoPagoApi.createPreference({
           order_id: finalOrderId,
           items: currentOrderItems.map((it) => ({
+            id: it.id,
             title: it.title,
+            description: it.title,
             quantity: it.quantity,
             unit_price: it.price,
             currency_id: 'ARS',
@@ -241,12 +244,14 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
         })
 
         const targetUrl = paymentSettings.mp_sandbox && pref.sandbox_init_point ? pref.sandbox_init_point : pref.init_point
+        console.log('🔗 [Checkout] Redirigiendo a pasarela Mercado Pago:', targetUrl)
         if (targetUrl) {
           setMpRedirectUrl(targetUrl)
           clearCart()
           // Open Mercado Pago in a new window / tab so store remains open
           const mpWindow = window.open(targetUrl, '_blank')
           if (!mpWindow) {
+            console.warn('⚠️ Popup bloqueado por el navegador, redirigiendo en la misma pestaña...')
             window.location.href = targetUrl
           }
           setOrderSuccess(true)
