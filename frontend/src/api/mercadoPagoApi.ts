@@ -1,6 +1,7 @@
 import { axiosInstance } from './axiosInstance'
 
 export interface CreateMPPreferenceItem {
+  id?: string
   title: string
   quantity: number
   unit_price: number
@@ -38,9 +39,21 @@ export const mercadoPagoApi = {
   createPreference: async (payload: CreateMPPreferencePayload): Promise<MPPreferenceResponse> => {
     // 1. Sanitize order ID by removing '#' to avoid URL hash fragment breaking Mercado Pago's router
     const cleanOrderId = (payload.order_id || '').replace(/#/g, '').trim()
+
+    const sanitizedItems = payload.items.map((it, idx) => ({
+      id: it.id || `item-${idx + 1}`,
+      title: it.title || 'Producto Lumina',
+      description: it.description || it.title || 'Producto de Lumina Store',
+      picture_url: it.picture_url || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80',
+      quantity: Math.max(1, it.quantity || 1),
+      unit_price: Number(it.unit_price) > 0 ? Number(it.unit_price) : 10.0,
+      currency_id: it.currency_id || 'ARS',
+    }))
+
     const sanitizedPayload = {
       ...payload,
       order_id: cleanOrderId,
+      items: sanitizedItems,
     }
 
     // 2. First try calling our backend Go API
@@ -61,12 +74,7 @@ export const mercadoPagoApi = {
     const baseUrl = payload.back_url || (typeof window !== 'undefined' ? window.location.origin : 'https://lumina-d31.pages.dev')
 
     const mpBody = {
-      items: payload.items.map((it) => ({
-        title: it.title,
-        quantity: it.quantity,
-        unit_price: it.unit_price,
-        currency_id: it.currency_id || 'ARS',
-      })),
+      items: sanitizedItems,
       payer: {
         name: payload.payer.name || 'Cliente',
         surname: payload.payer.surname || 'Lumina',

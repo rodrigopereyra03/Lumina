@@ -16,9 +16,9 @@ import (
 )
 
 type MPItemPayload struct {
-	ID          string  `json:"id,omitempty"`
+	ID          string  `json:"id"`
 	Title       string  `json:"title"`
-	Description string  `json:"description,omitempty"`
+	Description string  `json:"description"`
 	PictureURL  string  `json:"picture_url,omitempty"`
 	CategoryID  string  `json:"category_id,omitempty"`
 	Quantity    int     `json:"quantity"`
@@ -26,10 +26,23 @@ type MPItemPayload struct {
 	UnitPrice   float64 `json:"unit_price"`
 }
 
+type MPPhonePayload struct {
+	AreaCode string `json:"area_code,omitempty"`
+	Number   int    `json:"number,omitempty"`
+}
+
+type MPAddressPayload struct {
+	StreetName   string `json:"street_name,omitempty"`
+	StreetNumber int    `json:"street_number,omitempty"`
+	ZipCode      string `json:"zip_code,omitempty"`
+}
+
 type MPPayerPayload struct {
-	Name    string `json:"name,omitempty"`
-	Surname string `json:"surname,omitempty"`
-	Email   string `json:"email"`
+	Name    string            `json:"name,omitempty"`
+	Surname string            `json:"surname,omitempty"`
+	Email   string            `json:"email"`
+	Phone   *MPPhonePayload   `json:"phone,omitempty"`
+	Address *MPAddressPayload `json:"address,omitempty"`
 }
 
 type MPBackURLsPayload struct {
@@ -95,22 +108,45 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 	}
 
 	currencyID := "ARS"
-	for i := range input.Items {
-		if input.Items[i].CurrencyID == "" {
-			input.Items[i].CurrencyID = currencyID
+	var validatedItems []MPItemPayload
+	for idx, it := range input.Items {
+		itemID := it.ID
+		if itemID == "" {
+			itemID = fmt.Sprintf("item-%d", idx+1)
 		}
+		itemDesc := it.Description
+		if itemDesc == "" {
+			itemDesc = it.Title
+		}
+		itemQty := it.Quantity
+		if itemQty <= 0 {
+			itemQty = 1
+		}
+		itemPrice := it.UnitPrice
+		if itemPrice <= 0 {
+			itemPrice = 10.00
+		}
+		validatedItems = append(validatedItems, MPItemPayload{
+			ID:          itemID,
+			Title:       it.Title,
+			Description: itemDesc,
+			PictureURL:  it.PictureURL,
+			Quantity:    itemQty,
+			CurrencyID:  currencyID,
+			UnitPrice:   itemPrice,
+		})
 	}
 
 	backURL := strings.TrimRight(input.BackURL, "/")
 	if backURL == "" {
-		backURL = "http://localhost:5173"
+		backURL = "https://lumina-d31.pages.dev"
 	}
 
 	// Clean order ID: remove special characters like '#' to prevent URL fragment corruption
 	cleanOrderID := strings.ReplaceAll(strings.TrimSpace(input.OrderID), "#", "")
 
 	payload := MPPreferencePayload{
-		Items: input.Items,
+		Items: validatedItems,
 		Payer: input.Payer,
 		BackURLs: MPBackURLsPayload{
 			Success: fmt.Sprintf("%s/order-success?order_id=%s&status=approved", backURL, cleanOrderID),
