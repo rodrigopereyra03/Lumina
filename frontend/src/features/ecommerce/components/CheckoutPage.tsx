@@ -239,8 +239,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
         if (pref.init_point) {
           setMpRedirectUrl(pref.init_point)
           clearCart()
-          // Redirect directly to Mercado Pago Web / Mobile App
-          window.location.href = pref.init_point
+          // Open Mercado Pago in a new window / tab so store remains open
+          const mpWindow = window.open(pref.init_point, '_blank')
+          if (!mpWindow) {
+            window.location.href = pref.init_point
+          }
+          setOrderSuccess(true)
+          setLoading(false)
           return
         }
       } catch (mpErr: any) {
