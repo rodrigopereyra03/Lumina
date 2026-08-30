@@ -118,10 +118,8 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 		StatementDescriptor: "LUMINA STORE",
 	}
 
-	// Only set auto_return if URL is public https
-	if strings.HasPrefix(backURL, "https://") {
-		payload.AutoReturn = "approved"
-	}
+	// Set auto_return so Mercado Pago immediately redirects the user back to the store
+	payload.AutoReturn = "approved"
 
 	// If valid Mercado Pago Access Token is present, call real Mercado Pago REST API
 	if settings.MPAccessToken != "" && !strings.Contains(settings.MPAccessToken, "APP_USR-948201948201948201948201-948201") {

@@ -184,11 +184,41 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
       })
     }
 
-    // 1. If paying with Mercado Pago, request preference and redirect immediately
+    // 1. Create order in backend (which persists to PostgreSQL and triggers SendOrderCreatedEmail!)
+    let createdBackendOrder: any = null
+    try {
+      const orderPayload = {
+        customer_name: fullName || user?.full_name || 'Cliente',
+        customer_email: email || user?.email || 'comprador@lumina.com',
+        customer_phone: phone || '+54 9 11 4455-6677',
+        shipping_address: `${address}, ${city}`,
+        items: currentOrderItems.map((it) => ({
+          product_id: it.id,
+          title: it.title,
+          variant: it.variant,
+          unit_price: it.price,
+          quantity: it.quantity,
+          image: it.image,
+        })),
+      }
+
+      const res = await ordersApi.createOrder(orderPayload)
+      if (res?.order) {
+        createdBackendOrder = res.order
+        if (res.order.order_number) {
+          setOrderId(res.order.order_number)
+        }
+      }
+    } catch (err) {
+      console.warn('Backend order recording fallback:', err)
+    }
+
+    // 2. If paying with Mercado Pago, request preference with created order ID and redirect
     if (paymentMethod === 'mercadopago') {
+      const finalOrderId = createdBackendOrder?.order_number || createdBackendOrder?.id || generatedOrderId
       try {
         const pref = await mercadoPagoApi.createPreference({
-          order_id: generatedOrderId,
+          order_id: finalOrderId,
           items: currentOrderItems.map((it) => ({
             title: it.title,
             quantity: it.quantity,
@@ -221,48 +251,24 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
       }
     }
 
-    // 2. Try recording order in backend
-    try {
-      const orderPayload = {
-        customer_name: fullName,
-        customer_email: email,
-        customer_phone: phone,
-        shipping_address: `${address}, ${city}`,
-        items: currentOrderItems.map((it) => ({
-          product_id: it.id,
-          title: it.title,
-          variant: it.variant,
-          unit_price: it.price,
-          quantity: it.quantity,
-          image: it.image,
-        })),
+    // 3. For Manual methods (transfer/card), process payment
+    if (paymentMethod !== 'mercadopago' && createdBackendOrder?.id) {
+      try {
+        await paymentsApi.processPayment({
+          order_id: createdBackendOrder.id,
+          payment_method: paymentMethod,
+          amount: currentTotal,
+          token: 'tok_manual_' + paymentMethod,
+          installments: 1,
+        })
+      } catch (pErr) {
+        // Processed
       }
-
-      const res = await ordersApi.createOrder(orderPayload)
-      if (res?.order?.order_number) {
-        setOrderId(res.order.order_number)
-      }
-
-      if (paymentMethod !== 'mercadopago') {
-        try {
-          await paymentsApi.processPayment({
-            order_id: res.order.id,
-            payment_method: paymentMethod,
-            amount: currentTotal,
-            token: 'tok_manual_' + paymentMethod,
-            installments: 1,
-          })
-        } catch (pErr) {
-          // Processed
-        }
-      }
-    } catch (err) {
-      // Backend offline fallback handled gracefully
-    } finally {
-      setOrderSuccess(true)
-      clearCart()
-      setLoading(false)
     }
+
+    setOrderSuccess(true)
+    clearCart()
+    setLoading(false)
   }
 
   if (orderSuccess) {

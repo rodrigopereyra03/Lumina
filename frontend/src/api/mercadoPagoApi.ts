@@ -51,7 +51,7 @@ export const mercadoPagoApi = {
     }
 
     // 2. Direct Mercado Pago REST API call
-    const publicBaseUrl = 'https://lumina-d31.pages.dev'
+    const baseUrl = payload.back_url || (typeof window !== 'undefined' ? window.location.origin : 'https://lumina-d31.pages.dev')
 
     const mpBody = {
       items: payload.items.map((it) => ({
@@ -66,9 +66,9 @@ export const mercadoPagoApi = {
         email: payload.payer.email || 'comprador@lumina.com',
       },
       back_urls: {
-        success: `${publicBaseUrl}/order-success?status=approved&order_id=${payload.order_id}`,
-        failure: `${publicBaseUrl}/checkout?status=failure&order_id=${payload.order_id}`,
-        pending: `${publicBaseUrl}/order-success?status=pending&order_id=${payload.order_id}`,
+        success: `${baseUrl}/order-success?status=approved&order_id=${payload.order_id}`,
+        failure: `${baseUrl}/checkout?status=failure&order_id=${payload.order_id}`,
+        pending: `${baseUrl}/order-success?status=pending&order_id=${payload.order_id}`,
       },
       auto_return: 'approved',
       external_reference: payload.order_id,
