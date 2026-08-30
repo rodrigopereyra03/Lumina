@@ -43,8 +43,7 @@ export const ShippingSection: React.FC<ShippingSectionProps> = ({
   const [customZone, setCustomZone] = useState('')
 
   // 1. Cotizar con Envíopack API
-  const handleQuoteShipping = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleQuoteShipping = async () => {
     if (!postalCode.trim()) return
 
     setLoadingQuotes(true)
@@ -148,16 +147,24 @@ ${itemsText}
       {/* Opción A: Envíopack */}
       {shippingMethod === 'enviopack' && (
         <div className="space-y-4">
-          <form onSubmit={handleQuoteShipping} className="flex gap-2.5">
+          <div className="flex gap-2.5">
             <input
               type="text"
               placeholder="Ingresá tu Código Postal (ej: 1414, 1000)"
               value={postalCode}
               onChange={(e) => setPostalCode(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  handleQuoteShipping()
+                }
+              }}
               className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-white/80 bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 shadow-2xs"
             />
             <button
-              type="submit"
+              type="button"
+              onClick={handleQuoteShipping}
               disabled={loadingQuotes || !postalCode.trim()}
               className="btn-primary px-5 py-2.5 rounded-xl text-xs font-bold disabled:opacity-50 transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
             >
@@ -173,7 +180,7 @@ ${itemsText}
                 </>
               )}
             </button>
-          </form>
+          </div>
 
           {quoteError && <p className="text-xs text-red-500 font-medium">{quoteError}</p>}
 

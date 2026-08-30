@@ -20,7 +20,7 @@ type SettingsRepository struct {
 func NewSettingsRepository(db *pgxpool.Pool) *SettingsRepository {
 	mpPub := os.Getenv("MP_PUBLIC_KEY")
 	if mpPub == "" {
-		mpPub = "APP_USR-49281039-4821-4820-9102-849201849201"
+		mpPub = "APP_USR-09e00df2-06bc-4d0e-b5de-13aaffd650d2"
 	}
 
 	mpToken := os.Getenv("MP_ACCESS_TOKEN")
@@ -28,7 +28,7 @@ func NewSettingsRepository(db *pgxpool.Pool) *SettingsRepository {
 		mpToken = os.Getenv("MERCADOPAGO_ACCESS_TOKEN")
 	}
 	if mpToken == "" {
-		mpToken = "APP_USR-948201948201948201948201-948201"
+		mpToken = "APP_USR-1887517460534002-082719-20e9045bc921801c6df09603e8ed153f-3644485241"
 	}
 
 	repo := &SettingsRepository{
