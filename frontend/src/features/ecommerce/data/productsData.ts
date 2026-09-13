@@ -31,11 +31,23 @@ export interface Product {
 
 export const CATEGORIES = [
   { id: 'all', name: 'Todos los Productos', slug: 'all' },
-  { id: 'perfumes', name: 'Perfumería', slug: 'perfumes' },
-  { id: 'fragancias-masculinas', name: 'Fragancias Masculinas', slug: 'fragancias-masculinas' },
-  { id: 'fragancias-femeninas', name: 'Fragancias Femeninas', slug: 'fragancias-femeninas' },
-  { id: 'nicho-unisex', name: 'Nicho & Unisex', slug: 'nicho-unisex' },
-  { id: 'decants-testers', name: 'Decants & Testers', slug: 'decants-testers' },
+  { id: 'perfumes', name: 'Perfumes', slug: 'perfumes' },
+] as const
+
+export const PERFUME_SUBCATEGORIES = [
+  { id: 'all', label: 'Todos los Perfumes' },
+  { id: 'arabes', label: 'Perfumes Árabes' },
+  { id: 'disenador', label: 'Diseñador / Importados' },
+  { id: 'nicho', label: 'Perfumería Nicho' },
+  { id: 'testers', label: 'Testers' },
+  { id: 'decants', label: 'Decants' },
+] as const
+
+export const GENDER_FILTERS = [
+  { id: 'all', label: 'Todos los Géneros' },
+  { id: 'hombre', label: 'Hombre' },
+  { id: 'mujer', label: 'Mujer' },
+  { id: 'unisex', label: 'Unisex' },
 ] as const
 
 export const PRODUCTS: Product[] = []

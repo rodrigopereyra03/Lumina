@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { CATEGORIES } from '../../features/ecommerce/data/productsData'
+import { categoriesApi } from '../../api/categoriesApi'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
 
@@ -22,8 +22,33 @@ export const Header: React.FC<HeaderProps> = ({
   const { items, openDrawer } = useCartStore()
   const { user, isAuthenticated, clearAuth } = useAuthStore()
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
+  const [categories, setCategories] = useState<{ id: string; name: string; slug: string }[]>([
+    { id: 'all', name: 'Todos los Productos', slug: 'all' },
+    { id: 'perfumes', name: 'Perfumes', slug: 'perfumes' },
+  ])
   const menuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await categoriesApi.getCategories()
+        if (res.categories && res.categories.length > 0) {
+          setCategories([
+            { id: 'all', name: 'Todos los Productos', slug: 'all' },
+            ...res.categories.map((c) => ({
+              id: c.id || c.slug,
+              name: c.name,
+              slug: c.slug || c.name.toLowerCase(),
+            })),
+          ])
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+    loadCategories()
+  }, [])
 
   const totalItemsCount = items.reduce((acc, item) => acc + item.quantity, 0)
   const isAdmin = isAuthenticated && user?.role === 'admin'
@@ -60,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
               onSearchSubmit()
             }
           }}
-          placeholder="Buscar productos de alta gama, cámaras, audio..."
+          placeholder="Buscar perfumes, fragancias árabes, nicho, testers..."
           className="w-full bg-white/70 border border-white/80 rounded-full py-2 pl-10 pr-9 text-xs placeholder:text-[#5b403e]/70 focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 transition-all text-[#1b1c1c]"
         />
         {searchQuery && (
@@ -77,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Category Pills (Desktop) */}
       <div className="hidden xl:flex items-center gap-1.5 mx-4">
-        {CATEGORIES.map((cat) => {
+        {categories.map((cat) => {
           const isActive = selectedCategorySlug === cat.slug
 
           return (

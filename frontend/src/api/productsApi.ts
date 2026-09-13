@@ -124,6 +124,7 @@ export const productsApi = {
 
   createProduct: async (productData: {
     title: string
+    subtitle?: string
     category_name: string
     category_slug?: string
     price: number
@@ -142,7 +143,7 @@ export const productsApi = {
     const newProd: BackendProductDTO = {
       id: 'prod-' + Date.now(),
       title: productData.title,
-      subtitle: 'Nuevo Ingreso',
+      subtitle: productData.subtitle || 'Perfumes Árabes • Unisex',
       category_name: productData.category_name,
       category_slug: slug,
       price: productData.price,
@@ -174,6 +175,7 @@ export const productsApi = {
     id: string,
     productData: Partial<{
       title: string
+      subtitle: string
       category_name: string
       category_slug?: string
       price: number

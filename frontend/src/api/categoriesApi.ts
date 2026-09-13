@@ -15,38 +15,46 @@ export interface ListCategoriesResponseContent {
 
 const CUSTOM_CATEGORIES_KEY = 'lumina_custom_categories'
 
+const OLD_CAT_SLUGS = ['electronics', 'fashion', 'home', 'beauty', 'sports']
+
+const DEFAULT_PERFUME_CATEGORY: BackendCategoryDTO = {
+  id: 'cat-perfumes',
+  name: 'Perfumes',
+  slug: 'perfumes',
+  icon: 'spa',
+  products_count: 0,
+}
+
 export const categoriesApi = {
   getCategories: async (): Promise<ListCategoriesResponseContent> => {
-    // 1. Check local custom categories
-    const stored = localStorage.getItem(CUSTOM_CATEGORIES_KEY)
-    let localCategories: BackendCategoryDTO[] = stored
-      ? JSON.parse(stored)
-      : CATEGORIES.filter((c) => c.slug !== 'all').map((c) => ({
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          icon: (c as any).icon || 'category',
-        }))
-
+    // 1. Fetch from backend API
     try {
-      const res = await axiosInstance.get('/categories', { timeout: 2500 })
+      const res = await axiosInstance.get('/categories', { timeout: 3000 })
       const remote = res.data.content || res.data
-      if (remote?.categories && Array.isArray(remote.categories) && remote.categories.length > 0) {
-        const mergedMap = new Map<string, BackendCategoryDTO>()
-        remote.categories.forEach((c: BackendCategoryDTO) => mergedMap.set(c.slug || c.id, c))
-        localCategories.forEach((c: BackendCategoryDTO) => {
-          if (!mergedMap.has(c.slug) && !mergedMap.has(c.id)) {
-            mergedMap.set(c.slug || c.id, c)
-          }
-        })
-        const mergedList = Array.from(mergedMap.values())
-        localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(mergedList))
-        return { categories: mergedList }
+      if (remote?.categories && Array.isArray(remote.categories)) {
+        const cleanRemote = remote.categories
+          .filter((c: BackendCategoryDTO) => !OLD_CAT_SLUGS.includes(c.slug))
+        
+        if (cleanRemote.length > 0) {
+          localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(cleanRemote))
+          return { categories: cleanRemote }
+        }
       }
     } catch (e) {
-      // Return local synchronized list
+      console.info('Using local categories cache...')
     }
 
+    // 2. Read local stored categories without old demo categories
+    const stored = localStorage.getItem(CUSTOM_CATEGORIES_KEY)
+    let localCategories: BackendCategoryDTO[] = stored
+      ? JSON.parse(stored).filter((c: any) => !OLD_CAT_SLUGS.includes(c.slug))
+      : [DEFAULT_PERFUME_CATEGORY]
+
+    if (localCategories.length === 0) {
+      localCategories = [DEFAULT_PERFUME_CATEGORY]
+    }
+
+    localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(localCategories))
     return { categories: localCategories }
   },
 

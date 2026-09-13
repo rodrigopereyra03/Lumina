@@ -30,7 +30,7 @@ func (r *ProductsRepository) List(ctx context.Context, categorySlug string) ([]p
 	}
 
 	query := `
-		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Electrónica'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
+		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Perfumes'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
 		WHERE p.deleted_at IS NULL
@@ -67,7 +67,7 @@ func (r *ProductsRepository) GetByID(ctx context.Context, id string) (products.P
 	}
 
 	query := `
-		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Electrónica'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
+		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Perfumes'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
 		WHERE p.id = $1 AND p.deleted_at IS NULL

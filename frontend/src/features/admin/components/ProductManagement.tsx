@@ -17,12 +17,24 @@ export const ProductManagement: React.FC = () => {
   // Form states for new/edit product
   const [formTitle, setFormTitle] = useState('')
   const [formCategory, setFormCategory] = useState('')
+  const [formSubcategory, setFormSubcategory] = useState('Perfumes Árabes')
+  const [formGender, setFormGender] = useState('Unisex')
   const [formPrice, setFormPrice] = useState('')
   const [formStock, setFormStock] = useState('20')
   const [formDesc, setFormDesc] = useState('')
   const [formImage, setFormImage] = useState('')
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const SUBCATEGORY_OPTIONS = [
+    'Perfumes Árabes',
+    'Diseñador / Importados',
+    'Perfumería Nicho',
+    'Testers',
+    'Decants',
+  ]
+
+  const GENDER_OPTIONS = ['Unisex', 'Hombre', 'Mujer']
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -76,6 +88,7 @@ export const ProductManagement: React.FC = () => {
   const filtered = productList.filter((p) => {
     const matchesSearch =
       (p.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.subtitle || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (p.category_name || '').toLowerCase().includes(searchTerm.toLowerCase())
 
     const pSlug = (p.category_slug || p.category_name || '').toLowerCase()
@@ -90,22 +103,42 @@ export const ProductManagement: React.FC = () => {
   const handleOpenAdd = () => {
     setEditingProduct(null)
     setFormTitle('')
-    setFormCategory(categories[0]?.name || 'Electrónica')
-    setFormPrice('199.00')
+    setFormCategory(categories[0]?.name || 'Perfumes')
+    setFormSubcategory('Perfumes Árabes')
+    setFormGender('Unisex')
+    setFormPrice('45000.00')
     setFormStock('15')
     setFormDesc('')
-    setFormImage('https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80')
+    setFormImage('https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&q=80')
     setIsModalOpen(true)
   }
 
   const handleOpenEdit = (product: BackendProductDTO) => {
     setEditingProduct(product)
     setFormTitle(product.title)
-    setFormCategory(product.category_name || 'Electrónica')
+    setFormCategory(product.category_name || 'Perfumes')
     setFormPrice(product.price.toString())
     setFormStock(product.stock.toString())
     setFormDesc(product.description || '')
     setFormImage(product.image || '')
+
+    if (product.subtitle) {
+      const parts = product.subtitle.split('•').map((s) => s.trim())
+      if (parts.length >= 2) {
+        setFormSubcategory(parts[0])
+        setFormGender(parts[1])
+      } else if (['Hombre', 'Mujer', 'Unisex'].includes(parts[0])) {
+        setFormGender(parts[0])
+        setFormSubcategory('Perfumes Árabes')
+      } else {
+        setFormSubcategory(parts[0] || 'Perfumes Árabes')
+        setFormGender('Unisex')
+      }
+    } else {
+      setFormSubcategory('Perfumes Árabes')
+      setFormGender('Unisex')
+    }
+
     setIsModalOpen(true)
   }
 
@@ -123,6 +156,7 @@ export const ProductManagement: React.FC = () => {
 
     const priceNum = parseFloat(formPrice) || 0
     const stockNum = parseInt(formStock, 10) || 0
+    const combinedSubtitle = `${formSubcategory} • ${formGender}`
 
     if (editingProduct) {
       // Optimistic update
@@ -132,6 +166,7 @@ export const ProductManagement: React.FC = () => {
             ? {
                 ...p,
                 title: formTitle.trim(),
+                subtitle: combinedSubtitle,
                 category_name: formCategory,
                 price: priceNum,
                 stock: stockNum,
@@ -144,6 +179,7 @@ export const ProductManagement: React.FC = () => {
 
       await productsApi.updateProduct(editingProduct.id, {
         title: formTitle.trim(),
+        subtitle: combinedSubtitle,
         category_name: formCategory,
         price: priceNum,
         stock: stockNum,
@@ -153,11 +189,12 @@ export const ProductManagement: React.FC = () => {
     } else {
       const created = await productsApi.createProduct({
         title: formTitle.trim(),
-        category_name: formCategory || 'General',
+        subtitle: combinedSubtitle,
+        category_name: formCategory || 'Perfumes',
         price: priceNum,
         stock: stockNum,
-        description: formDesc.trim() || 'Producto de alta calidad.',
-        image: formImage.trim() || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+        description: formDesc.trim() || 'Fragancia exclusiva de alta duración.',
+        image: formImage.trim() || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&q=80',
       })
 
       setProductList((prev) => [created, ...prev])
@@ -246,6 +283,7 @@ export const ProductManagement: React.FC = () => {
                 <tr className="border-b border-white/60 text-[#5b403e]">
                   <th className="pb-3 font-semibold">Producto</th>
                   <th className="pb-3 font-semibold">Categoría</th>
+                  <th className="pb-3 font-semibold">Subcategoría & Género</th>
                   <th className="pb-3 font-semibold">Precio</th>
                   <th className="pb-3 font-semibold">Stock</th>
                   <th className="pb-3 font-semibold">Estado</th>
@@ -275,20 +313,32 @@ export const ProductManagement: React.FC = () => {
                           <div className="min-w-0">
                             <p className="font-bold text-[#1b1c1c] text-xs truncate max-w-[220px]">{p.title}</p>
                             <p className="text-[11px] text-[#5b403e] truncate max-w-[220px]">
-                              {p.subtitle || p.description?.slice(0, 30) || 'Producto Lumina'}
+                              {p.subtitle || p.description?.slice(0, 30) || 'Perfume Lumina'}
                             </p>
                           </div>
                         </div>
                       </td>
 
                       {/* Category */}
-                      <td className="py-3 text-[#5b403e] font-medium">{p.category_name || 'General'}</td>
+                      <td className="py-3 text-[#5b403e] font-semibold">{p.category_name || 'Perfumes'}</td>
+
+                      {/* Subcategoría & Género */}
+                      <td className="py-3">
+                        <div className="flex flex-col gap-1 items-start">
+                          <span className="px-2 py-0.5 rounded-md bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px]">
+                            {p.subtitle?.split('•')?.[0]?.trim() || 'Perfumes Árabes'}
+                          </span>
+                          <span className="px-2 py-0.5 rounded-md bg-white/80 text-[#5b403e] border border-white font-medium text-[10px]">
+                            {p.subtitle?.split('•')?.[1]?.trim() || 'Unisex'}
+                          </span>
+                        </div>
+                      </td>
 
                       {/* Price */}
                       <td className="py-3 font-bold text-[#1b1c1c]">${p.price.toFixed(2)}</td>
 
                       {/* Stock Count */}
-                      <td className="py-3 font-semibold text-[#1b1c1c]">{p.stock} unidades</td>
+                      <td className="py-3 font-semibold text-[#1b1c1c]">{p.stock} u.</td>
 
                       {/* Stock Status Badge */}
                       <td className="py-3">
@@ -365,20 +415,20 @@ export const ProductManagement: React.FC = () => {
 
               <form onSubmit={handleSave} className="space-y-4 text-xs">
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Título del Producto</label>
+                  <label className="font-bold text-[#5b403e] block mb-1">Nombre / Título de la Fragancia</label>
                   <input
                     type="text"
                     required
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
                     className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                    placeholder="ej. Auriculares Lumina Pro"
+                    placeholder="ej. Club de Nuit Intense Man EDT 105ml"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Categoría</label>
+                    <label className="font-bold text-[#5b403e] block mb-1">Categoría Principal</label>
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value)}
@@ -391,8 +441,41 @@ export const ProductManagement: React.FC = () => {
                       ))}
                     </select>
                   </div>
+
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Precio ($ ARS / USD)</label>
+                    <label className="font-bold text-[#5b403e] block mb-1">Subcategoría</label>
+                    <select
+                      value={formSubcategory}
+                      onChange={(e) => setFormSubcategory(e.target.value)}
+                      className="bg-white border border-white/80 rounded-xl px-3 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
+                    >
+                      {SUBCATEGORY_OPTIONS.map((sub) => (
+                        <option key={sub} value={sub}>
+                          {sub}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="font-bold text-[#5b403e] block mb-1">Público / Género</label>
+                    <select
+                      value={formGender}
+                      onChange={(e) => setFormGender(e.target.value)}
+                      className="bg-white border border-white/80 rounded-xl px-3 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
+                    >
+                      {GENDER_OPTIONS.map((g) => (
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="font-bold text-[#5b403e] block mb-1">Precio ($ ARS)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -400,12 +483,9 @@ export const ProductManagement: React.FC = () => {
                       value={formPrice}
                       onChange={(e) => setFormPrice(e.target.value)}
                       className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                      placeholder="189.00"
+                      placeholder="45000.00"
                     />
                   </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="font-bold text-[#5b403e] block mb-1">Cantidad en Stock</label>
                     <input
@@ -414,9 +494,10 @@ export const ProductManagement: React.FC = () => {
                       value={formStock}
                       onChange={(e) => setFormStock(e.target.value)}
                       className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                      placeholder="25"
+                      placeholder="20"
                     />
                   </div>
+                </div>
                   <div>
                     <label className="font-bold text-[#5b403e] block mb-1">Imagen del Producto</label>
                     <div className="space-y-2">
@@ -454,7 +535,6 @@ export const ProductManagement: React.FC = () => {
                       {uploadError && <p className="text-[10px] text-red-500">{uploadError}</p>}
                     </div>
                   </div>
-                </div>
 
                 <div>
                   <label className="font-bold text-[#5b403e] block mb-1">Descripción Detallada</label>

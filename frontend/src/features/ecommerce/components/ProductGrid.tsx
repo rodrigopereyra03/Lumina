@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import type { Product } from '../data/productsData'
+import { PERFUME_SUBCATEGORIES, GENDER_FILTERS, type Product } from '../data/productsData'
 import { productsApi } from '../../../api/productsApi'
 import { useCartStore } from '../../../store/useCartStore'
 
@@ -27,6 +27,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 }) => {
   const { addItem, openDrawer } = useCartStore()
   const [productList, setProductList] = useState<Product[]>([])
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string>('all')
+  const [selectedGender, setSelectedGender] = useState<string>('all')
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -37,8 +39,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             id: p.id,
             title: p.title,
             subtitle: p.subtitle || '',
-            category: p.category_name || 'General',
-            categorySlug: p.category_slug || 'general',
+            category: p.category_name || 'Perfumes',
+            categorySlug: p.category_slug || 'perfumes',
             price: p.price,
             originalPrice: p.original_price,
             rating: p.rating || 5.0,
@@ -46,10 +48,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             stock: p.stock,
             image: p.image,
             gallery: [p.image],
-            tags: ['Nuevo'],
+            tags: ['Garantía Oficial'],
             description: p.description,
             variants: [{ id: 'std', name: 'Estándar', colorClass: 'bg-[#1b1c1c]' }],
-            specs: [{ label: 'Garantía', value: '1 Año' }],
+            specs: [{ label: 'Garantía', value: '100% Original' }],
           }))
           setProductList(mapped)
         } else {
@@ -71,7 +73,25 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
     if (!categoryMatches) return false
 
-    // 2. Search query match
+    // 2. Subcategory match
+    if (selectedSubcategory !== 'all') {
+      const pText = normalizeText(`${p.subtitle} ${p.title} ${p.description}`)
+      if (selectedSubcategory === 'arabes' && !pText.includes('arabe')) return false
+      if (selectedSubcategory === 'disenador' && !pText.includes('disenador') && !pText.includes('importad')) return false
+      if (selectedSubcategory === 'nicho' && !pText.includes('nicho')) return false
+      if (selectedSubcategory === 'testers' && !pText.includes('tester')) return false
+      if (selectedSubcategory === 'decants' && !pText.includes('decant')) return false
+    }
+
+    // 3. Gender filter match
+    if (selectedGender !== 'all') {
+      const pText = normalizeText(`${p.subtitle} ${p.title} ${p.description}`)
+      if (selectedGender === 'hombre' && !pText.includes('hombre') && !pText.includes('masculin')) return false
+      if (selectedGender === 'mujer' && !pText.includes('mujer') && !pText.includes('femenin')) return false
+      if (selectedGender === 'unisex' && !pText.includes('unisex')) return false
+    }
+
+    // 4. Search query match
     if (!searchQuery || !searchQuery.trim()) return true
 
     const queryNorm = normalizeText(searchQuery.trim())
@@ -143,6 +163,88 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             </button>
           )}
         </div>
+      </div>
+
+      {/* Luxury Subcategories & Gender Filters Bar */}
+      <div className="glass-panel p-4 md:p-5 rounded-3xl border border-white/80 shadow-xs space-y-3.5">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          {/* Subcategories Scrollable Chips */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-1.5 lg:pb-0 scrollbar-none">
+            <span className="text-xs font-bold text-[#5b403e] whitespace-nowrap mr-1 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[17px] text-[#FF4D4F]">category</span>
+              <span>Subcategoría:</span>
+            </span>
+            {PERFUME_SUBCATEGORIES.map((sub) => {
+              const active = selectedSubcategory === sub.id
+              return (
+                <button
+                  key={sub.id}
+                  onClick={() => setSelectedSubcategory(sub.id)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    active
+                      ? 'bg-[#1b1c1c] text-white shadow-sm'
+                      : 'bg-white/70 text-[#5b403e] hover:bg-white hover:text-[#1b1c1c] border border-white/80'
+                  }`}
+                >
+                  {sub.label}
+                </button>
+              )
+            })}
+          </div>
+
+          {/* Gender Filter Pills */}
+          <div className="flex items-center gap-2 overflow-x-auto pt-2 lg:pt-0 border-t lg:border-t-0 border-white/50">
+            <span className="text-xs font-bold text-[#5b403e] whitespace-nowrap mr-1 flex items-center gap-1.5">
+              <span className="material-symbols-outlined text-[17px] text-[#FF4D4F]">tune</span>
+              <span>Público:</span>
+            </span>
+            {GENDER_FILTERS.map((g) => {
+              const active = selectedGender === g.id
+              return (
+                <button
+                  key={g.id}
+                  onClick={() => setSelectedGender(g.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold whitespace-nowrap transition-all duration-200 cursor-pointer ${
+                    active
+                      ? 'bg-[#FF4D4F] text-white shadow-xs'
+                      : 'bg-white/70 text-[#5b403e] hover:bg-white hover:text-[#1b1c1c] border border-white/80'
+                  }`}
+                >
+                  {g.label}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Active Filters Summary if filtered */}
+        {(selectedSubcategory !== 'all' || selectedGender !== 'all') && (
+          <div className="flex items-center justify-between text-xs pt-2 border-t border-white/50">
+            <div className="flex items-center gap-2 text-[#5b403e] flex-wrap">
+              <span className="font-semibold">Filtros aplicados:</span>
+              {selectedSubcategory !== 'all' && (
+                <span className="px-2.5 py-0.5 rounded-md bg-[#1b1c1c]/10 font-bold text-[#1b1c1c]">
+                  {PERFUME_SUBCATEGORIES.find((s) => s.id === selectedSubcategory)?.label}
+                </span>
+              )}
+              {selectedGender !== 'all' && (
+                <span className="px-2.5 py-0.5 rounded-md bg-[#FF4D4F]/10 font-bold text-[#FF4D4F]">
+                  {GENDER_FILTERS.find((g) => g.id === selectedGender)?.label}
+                </span>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setSelectedSubcategory('all')
+                setSelectedGender('all')
+              }}
+              className="text-[#FF4D4F] font-bold hover:underline cursor-pointer text-xs flex items-center gap-1"
+            >
+              <span className="material-symbols-outlined text-[15px]">refresh</span>
+              <span>Restablecer</span>
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Empty State */}

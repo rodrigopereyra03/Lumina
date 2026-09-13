@@ -24,8 +24,21 @@ func NewCategoriesRepository(db *pgxpool.Pool) *CategoriesRepository {
 		memory: make(map[string]CategoryDAO),
 	}
 
-	if db == nil {
-		repo.seedInMemory()
+	repo.seedInMemory()
+
+	if db != nil {
+		go func() {
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+
+			// Clean old electronics categories and ensure "Perfumes" exists
+			_, _ = db.Exec(ctx, `
+				DELETE FROM categories WHERE slug IN ('electronics', 'fashion', 'home', 'sports');
+				INSERT INTO categories (id, name, slug, icon, created_at, updated_at)
+				VALUES ('a0000001-0000-0000-0000-000000000001', 'Perfumes', 'perfumes', 'spa', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+				ON CONFLICT (slug) DO NOTHING;
+			`)
+		}()
 	}
 
 	return repo
@@ -33,11 +46,15 @@ func NewCategoriesRepository(db *pgxpool.Pool) *CategoriesRepository {
 
 func (r *CategoriesRepository) seedInMemory() {
 	demoCats := []CategoryDAO{
-		{ ID: "cat-1", Name: "Electrónica", Slug: "electronics", Icon: "devices", ProductsCount: 14, CreatedAt: time.Now(), UpdatedAt: time.Now() },
-		{ ID: "cat-2", Name: "Moda", Slug: "fashion", Icon: "checkroom", ProductsCount: 12, CreatedAt: time.Now(), UpdatedAt: time.Now() },
-		{ ID: "cat-3", Name: "Hogar & Confort", Slug: "home", Icon: "home", ProductsCount: 8, CreatedAt: time.Now(), UpdatedAt: time.Now() },
-		{ ID: "cat-4", Name: "Belleza", Slug: "beauty", Icon: "spa", ProductsCount: 6, CreatedAt: time.Now(), UpdatedAt: time.Now() },
-		{ ID: "cat-5", Name: "Deportes", Slug: "sports", Icon: "fitness_center", ProductsCount: 8, CreatedAt: time.Now(), UpdatedAt: time.Now() },
+		{
+			ID:            "cat-perfumes",
+			Name:          "Perfumes",
+			Slug:          "perfumes",
+			Icon:          "spa",
+			ProductsCount: 0,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
 	}
 	for _, c := range demoCats {
 		r.memory[c.ID] = c
@@ -78,6 +95,19 @@ func (r *CategoriesRepository) List(ctx context.Context) ([]categories.Category,
 		daos = append(daos, dao)
 	}
 
+	if len(daos) == 0 {
+		// Fallback in-memory category
+		r.mu.RLock()
+		defer r.mu.RUnlock()
+		var list []categories.Category
+		for _, c := range r.memory {
+			if c.DeletedAt == nil {
+				list = append(list, c.ToEntity())
+			}
+		}
+		return list, nil
+	}
+
 	return ToEntities(daos), nil
 }
 
@@ -105,31 +135,25 @@ func (r *CategoriesRepository) Create(ctx context.Context, category categories.C
 	if category.ID == "" {
 		category.ID = uuid.NewString()
 	}
-	if category.CreatedAt.IsZero() {
-		category.CreatedAt = time.Now()
-	}
-	category.UpdatedAt = time.Now()
-	dao := ToDAO(category)
+	now := time.Now()
+	category.CreatedAt = now
+	category.UpdatedAt = now
 
 	if r.db == nil {
 		r.mu.Lock()
 		defer r.mu.Unlock()
-		r.memory[dao.ID] = dao
-		return dao.ToEntity(), nil
+		r.memory[category.ID] = ToDAO(category)
+		return category, nil
 	}
 
 	query := `
 		INSERT INTO categories (id, name, slug, icon, created_at, updated_at)
 		VALUES ($1, $2, $3, $4, $5, $6)
-		RETURNING id, name, slug, icon, created_at, updated_at
 	`
-	var created CategoryDAO
-	err := r.db.QueryRow(ctx, query, dao.ID, dao.Name, dao.Slug, dao.Icon, dao.CreatedAt, dao.UpdatedAt).Scan(
-		&created.ID, &created.Name, &created.Slug, &created.Icon, &created.CreatedAt, &created.UpdatedAt,
-	)
+	_, err := r.db.Exec(ctx, query, category.ID, category.Name, category.Slug, category.Icon, category.CreatedAt, category.UpdatedAt)
 	if err != nil {
 		return categories.Category{}, fmt.Errorf("failed to create category: %w", err)
 	}
 
-	return created.ToEntity(), nil
+	return category, nil
 }
