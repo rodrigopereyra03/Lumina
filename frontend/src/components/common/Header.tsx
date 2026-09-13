@@ -100,8 +100,8 @@ export const Header: React.FC<HeaderProps> = ({
         )}
       </div>
 
-      {/* Category Pills (Desktop) */}
-      <div className="hidden xl:flex items-center gap-1.5 mx-4">
+      {/* Category Pills */}
+      <div className="flex items-center gap-1.5 mx-2 md:mx-4 overflow-x-auto py-1 scrollbar-none shrink-0">
         {categories.map((cat) => {
           const isActive = selectedCategorySlug === cat.slug
 
