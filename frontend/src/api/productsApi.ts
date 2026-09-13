@@ -21,10 +21,26 @@ export interface ListProductsResponseContent {
   total: number
 }
 
+const MOCK_IDS = [
+  'lumina-pro-camera',
+  'aura-headphones',
+  'lumina-smartwatch',
+  'minimalist-tote',
+  'echo-hub-speaker',
+  'zenith-mechanical-board',
+  'test-mp-10-ars',
+  'c0000001-0000-0000-0000-000000000001',
+  'c0000001-0000-0000-0000-000000000002',
+  'c0000001-0000-0000-0000-000000000003',
+  'c0000001-0000-0000-0000-000000000004',
+  'c0000001-0000-0000-0000-000000000005',
+  'c0000001-0000-0000-0000-000000000006',
+]
+
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
 const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
-  return list.filter((p) => p.id !== 'test-mp-10-ars')
+  return list.filter((p) => !MOCK_IDS.includes(p.id))
 }
 
 export const productsApi = {
@@ -33,9 +49,9 @@ export const productsApi = {
       const url = categorySlug && categorySlug !== 'all' ? `/products?category=${categorySlug}` : '/products'
       const res = await axiosInstance.get(url, { timeout: 3000 })
       const remote = res.data.content || res.data
-      if (remote?.products && Array.isArray(remote.products) && remote.products.length > 0) {
+      if (remote && Array.isArray(remote.products)) {
         let mappedRemote: BackendProductDTO[] = remote.products
-          .filter((p: any) => p.id !== 'test-mp-10-ars')
+          .filter((p: any) => !MOCK_IDS.includes(p.id))
           .map((p: any) => ({
             id: p.id,
             title: p.title,
@@ -44,7 +60,7 @@ export const productsApi = {
             price: p.price,
             original_price: p.original_price,
             stock: p.stock,
-            image: p.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+            image: p.image || '',
             rating: p.rating || 5.0,
             reviews_count: p.reviews_count || 0,
             category_name: p.category_name || 'General',
@@ -72,7 +88,7 @@ export const productsApi = {
         }
       }
     } catch (e) {
-      console.info('Using local product cache...')
+      console.info('Backend unreachable, checking clean local product cache...')
     }
 
     // Fallback to local cache only if backend is unreachable

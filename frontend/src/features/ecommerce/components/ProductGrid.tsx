@@ -145,21 +145,27 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         </div>
       </div>
 
-      {/* Empty Search Results State */}
+      {/* Empty State */}
       {displayedProducts.length === 0 ? (
         <div className="glass-panel rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto border border-white/70 shadow-sm my-8">
           <div className="w-16 h-16 rounded-full bg-[#ffdad7]/50 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
-            <span className="material-symbols-outlined text-[36px]">search_off</span>
+            <span className="material-symbols-outlined text-[36px]">
+              {searchQuery ? 'search_off' : 'inventory_2'}
+            </span>
           </div>
           <div>
             <h3 className="text-lg font-bold text-[#1b1c1c]">
-              No encontramos productos para "{searchQuery}"
+              {searchQuery
+                ? `No encontramos productos para "${searchQuery}"`
+                : 'Catálogo Listo para Nuevos Productos'}
             </h3>
             <p className="text-xs text-[#5b403e] mt-1.5 leading-relaxed">
-              Verifica la ortografía o intenta con palabras más generales como <b>cámara</b>, <b>auriculares</b>, <b>reloj</b>, <b>bolso</b> o <b>prueba</b>.
+              {searchQuery
+                ? 'Verifica la ortografía o intenta con palabras más generales.'
+                : 'Todos los datos de prueba han sido eliminados. Tu tienda está limpia para comenzar a publicar tus fragancias y perfumes reales.'}
             </p>
           </div>
-          {onClearSearch && (
+          {searchQuery && onClearSearch ? (
             <button
               onClick={onClearSearch}
               className="btn-primary py-2.5 px-6 rounded-full text-xs font-bold shadow-md cursor-pointer inline-flex items-center gap-1.5"
@@ -167,6 +173,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               <span className="material-symbols-outlined text-[16px]">restart_alt</span>
               <span>Ver todos los productos</span>
             </button>
+          ) : (
+            <a
+              href="/admin"
+              className="btn-primary py-2.5 px-6 rounded-full text-xs font-bold shadow-md cursor-pointer inline-flex items-center gap-1.5"
+            >
+              <span className="material-symbols-outlined text-[16px]">add_circle</span>
+              <span>Cargar Primer Producto en Admin</span>
+            </a>
           )}
         </div>
       ) : (
