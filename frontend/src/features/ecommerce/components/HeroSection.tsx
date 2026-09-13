@@ -1,161 +1,163 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { productsApi, type BackendProductDTO } from '../../../api/productsApi'
-import { useCartStore } from '../../../store/useCartStore'
 
 interface HeroSectionProps {
   onProductClick: (id: string) => void
 }
 
-export const HeroSection: React.FC<HeroSectionProps> = ({ onProductClick }) => {
-  const [featuredProduct, setFeaturedProduct] = useState<BackendProductDTO | null>(null)
-  const { addItem, openDrawer } = useCartStore()
+const PERFUME_BANNER_VIDEO_URL =
+  'https://dxxoxzaowyaxpxphqpsd.supabase.co/storage/v1/object/public/product-images/A_luxury_PM_perfume_bottle_s.mp4'
 
-  useEffect(() => {
-    const loadFeatured = async () => {
-      try {
-        const res = await productsApi.getProducts('all')
-        if (res.products && res.products.length > 0) {
-          setFeaturedProduct(res.products[0])
-        } else {
-          setFeaturedProduct(null)
-        }
-      } catch (e) {
-        setFeaturedProduct(null)
-      }
+export const HeroSection: React.FC<HeroSectionProps> = ({ onProductClick: _onProductClick }) => {
+  const [isMuted, setIsMuted] = useState(true)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  const toggleSound = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
     }
-    loadFeatured()
-  }, [])
-
-  const handleBuyNow = (e: React.MouseEvent) => {
-    e.stopPropagation()
-    if (!featuredProduct) return
-    addItem(
-      {
-        id: featuredProduct.id,
-        title: featuredProduct.title,
-        category: featuredProduct.category_name || 'Perfumes',
-        price: featuredProduct.price,
-        originalPrice: featuredProduct.original_price,
-        image: featuredProduct.image,
-        variant: 'Original',
-      },
-      1
-    )
-    openDrawer()
   }
 
-  // If no products loaded yet, render a luxury fragrance teaser hero banner
-  if (!featuredProduct) {
-    return (
-      <section className="relative w-full rounded-3xl overflow-hidden glass-card p-6 md:p-12 shadow-sm font-body border border-white/60">
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[#ffdad7]/30 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
-        <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-[#e2e2e4]/40 rounded-full blur-3xl pointer-events-none -mb-20"></div>
-
-        <div className="relative z-10 max-w-2xl flex flex-col gap-5">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#ffdad7]/70 border border-[#ffdad7] w-fit shadow-2xs">
-            <span className="w-2 h-2 rounded-full bg-[#FF4D4F] animate-pulse"></span>
-            <span className="text-[11px] font-bold text-[#FF4D4F] uppercase tracking-wider">
-              Alta Perfumería • Fragancias de Autor
-            </span>
-          </div>
-
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1b1c1c] tracking-tight leading-[1.1]">
-            El Arte de Dejar una <span className="text-[#FF4D4F]">Huella</span>.
-          </h1>
-
-          <p className="text-xs md:text-sm text-[#5b403e] leading-relaxed">
-            Descubre aromas cautivadores, notas refinadas y fijación excepcional. Explora nuestras selecciones exclusivas y encuentra la fragancia que define tu esencia.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            <a
-              href="/admin"
-              className="btn-primary px-7 py-3 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
-            >
-              <span className="material-symbols-outlined text-[18px]">add_circle</span>
-              <span>Cargar Nuevos Perfumes (Panel Admin)</span>
-            </a>
-          </div>
-        </div>
-      </section>
-    )
+  const scrollToCatalog = () => {
+    const catalogElement = document.getElementById('catalog-section')
+    if (catalogElement) {
+      catalogElement.scrollIntoView({ behavior: 'smooth' })
+    } else {
+      window.scrollTo({ top: 600, behavior: 'smooth' })
+    }
   }
 
   return (
-    <section className="relative w-full rounded-3xl overflow-hidden glass-card p-6 md:p-12 shadow-sm font-body border border-white/60">
-      {/* Background Soft Glow Orbs */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-[#ffdad7]/30 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20"></div>
-      <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-[#e2e2e4]/40 rounded-full blur-3xl pointer-events-none -mb-20"></div>
+    <section className="relative w-full rounded-3xl overflow-hidden shadow-2xl font-body border border-white/40 min-h-[480px] md:min-h-[540px] flex items-center">
+      {/* 1. Cinematic Background Video */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
+        <video
+          ref={videoRef}
+          src={PERFUME_BANNER_VIDEO_URL}
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+          className="w-full h-full object-cover object-center scale-105 filter brightness-90 contrast-105"
+        />
 
-      <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        {/* Left Text Column */}
-        <div className="lg:col-span-7 flex flex-col gap-5">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#ffdad7]/60 border border-[#ffdad7] w-fit shadow-2xs">
+        {/* Cinematic Multi-layer Gradient Overlays for Luxury Contrast */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-black/25"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30"></div>
+      </div>
+
+      {/* 2. Floating Ambient Glow Orbs */}
+      <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#FF4D4F]/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      {/* 3. Hero Content Container */}
+      <div className="relative z-10 w-full p-6 md:p-14 lg:p-16 flex flex-col justify-between h-full">
+        <div className="max-w-2xl flex flex-col gap-5">
+          {/* Luxury Badge */}
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 w-fit shadow-lg"
+          >
             <span className="w-2 h-2 rounded-full bg-[#FF4D4F] animate-pulse"></span>
-            <span className="text-[11px] font-bold text-[#FF4D4F] uppercase tracking-wider">
-              Destacado • {featuredProduct.category_name || 'Fragancias'}
+            <span className="text-[11px] font-bold text-white tracking-[0.2em] uppercase">
+              Alta Perfumería • Luxury Fragrances
             </span>
-          </div>
+          </motion.div>
 
-          {/* Heading */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#1b1c1c] tracking-tight leading-[1.1]">
-            {featuredProduct.title}
-          </h1>
+          {/* Title */}
+          <motion.h1
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.1 }}
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold text-white tracking-tight leading-[1.05] drop-shadow-md"
+          >
+            La Esencia de la <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF7875] via-[#FF4D4F] to-[#FF9C6E]">Distinción</span>.
+          </motion.h1>
 
           {/* Subtitle */}
-          <p className="text-xs md:text-sm text-[#5b403e] leading-relaxed max-w-xl">
-            {featuredProduct.subtitle || featuredProduct.description}
-          </p>
+          <motion.p
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-xs sm:text-sm md:text-base text-gray-200 leading-relaxed font-normal max-w-xl drop-shadow-sm"
+          >
+            Fragancias de autor con notas envolventes, fijación duradera y acordes inolvidables. Una experiencia sensorial creada para quienes dejan su impronta en cada paso.
+          </motion.p>
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
+          {/* Action Buttons */}
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.3 }}
+            className="flex flex-wrap items-center gap-4 pt-3"
+          >
             <button
-              onClick={handleBuyNow}
-              className="btn-primary px-8 py-3.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2 cursor-pointer shadow-md"
+              onClick={scrollToCatalog}
+              className="bg-gradient-to-r from-[#FF4D4F] to-[#d9363e] hover:from-[#ff5e60] hover:to-[#e0434b] text-white px-8 py-3.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2.5 shadow-xl shadow-[#FF4D4F]/30 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
-              <span>Comprar Ahora — ${featuredProduct.price.toFixed(2)}</span>
-              <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+              <span>Explorar Fragancias</span>
+              <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
             </button>
 
-            <button
-              onClick={() => onProductClick(featuredProduct.id)}
-              className="btn-secondary px-6 py-3.5 text-xs font-semibold flex items-center gap-2 cursor-pointer"
+            <a
+              href="https://wa.me/5491122334455?text=%C2%A1Hola!%20Quisiera%20asesoramiento%20sobre%20sus%20perfumes%20y%20fragancias%20disponibles."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white px-6 py-3.5 rounded-full text-xs font-semibold flex items-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer"
             >
-              <span>Ver Detalles</span>
-              <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-            </button>
-          </div>
+              <span className="material-symbols-outlined text-[18px] text-[#25D366]">chat</span>
+              <span>Asesoramiento en WhatsApp</span>
+            </a>
+          </motion.div>
+
+          {/* Features Highlights Row */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="grid grid-cols-3 gap-4 pt-6 border-t border-white/20 max-w-lg mt-2 text-white"
+          >
+            <div>
+              <span className="text-[10px] text-gray-300 uppercase font-bold tracking-wider block">
+                Fijación
+              </span>
+              <span className="text-xs font-bold text-white flex items-center gap-1">
+                <span>Intensa 8-12h</span>
+                <span className="material-symbols-outlined text-[14px] text-[#FF4D4F]">timer</span>
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-300 uppercase font-bold tracking-wider block">
+                Concentración
+              </span>
+              <span className="text-xs font-bold text-white">Eau de Parfum</span>
+            </div>
+            <div>
+              <span className="text-[10px] text-gray-300 uppercase font-bold tracking-wider block">
+                Envíos
+              </span>
+              <span className="text-xs font-bold text-white flex items-center gap-1">
+                <span>Todo el país</span>
+                <span className="material-symbols-outlined text-[14px] text-[#25D366]">local_shipping</span>
+              </span>
+            </div>
+          </motion.div>
         </div>
 
-        {/* Right Floating Product Column */}
-        <div
-          onClick={() => onProductClick(featuredProduct.id)}
-          className="lg:col-span-5 relative flex justify-center items-center cursor-pointer group"
-        >
-          <motion.div
-            animate={{ y: [-8, 8, -8] }}
-            transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-            className="relative w-full max-w-[420px] aspect-square flex items-center justify-center"
+        {/* 4. Controls: Audio Mute/Unmute toggle on bottom-right */}
+        <div className="absolute bottom-6 right-6 z-20">
+          <button
+            type="button"
+            onClick={toggleSound}
+            className="p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 shadow-lg transition-all hover:scale-110 cursor-pointer flex items-center justify-center group"
+            title={isMuted ? 'Activar sonido del video' : 'Silenciar video'}
           >
-            {/* Ambient Background Circle */}
-            <div className="absolute inset-4 rounded-full bg-gradient-to-tr from-white/80 to-white/20 backdrop-blur-xl border border-white/80 shadow-2xl"></div>
-
-            {/* Product Image */}
-            {featuredProduct.image ? (
-              <img
-                src={featuredProduct.image}
-                alt={featuredProduct.title}
-                className="relative z-10 w-[85%] h-[85%] object-contain mix-blend-multiply drop-shadow-2xl group-hover:scale-105 transition-transform duration-500"
-              />
-            ) : (
-              <div className="relative z-10 flex flex-col items-center justify-center text-[#5b403e]/40">
-                <span className="material-symbols-outlined text-6xl">spa</span>
-                <span className="text-xs font-bold mt-2">Sin imagen</span>
-              </div>
-            )}
-          </motion.div>
+            <span className="material-symbols-outlined text-[20px]">
+              {isMuted ? 'volume_off' : 'volume_up'}
+            </span>
+          </button>
         </div>
       </div>
     </section>

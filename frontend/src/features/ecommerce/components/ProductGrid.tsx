@@ -92,7 +92,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <section className="space-y-6 font-body text-[#1b1c1c]">
+    <section id="catalog-section" className="space-y-6 font-body text-[#1b1c1c]">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
         <div>
