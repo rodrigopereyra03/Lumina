@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { productsApi, type BackendProductDTO } from '../../../api/productsApi'
 import { categoriesApi, type BackendCategoryDTO } from '../../../api/categoriesApi'
+import { storageApi } from '../../../api/storageApi'
 
 export const ProductManagement: React.FC = () => {
   const [productList, setProductList] = useState<BackendProductDTO[]>([])
@@ -20,6 +21,32 @@ export const ProductManagement: React.FC = () => {
   const [formStock, setFormStock] = useState('20')
   const [formDesc, setFormDesc] = useState('')
   const [formImage, setFormImage] = useState('')
+  const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setUploadError(null)
+    try {
+      const publicUrl = await storageApi.uploadProductImage(file)
+      setFormImage(publicUrl)
+    } catch (err: any) {
+      console.warn('Storage upload notice:', err)
+      // Read as base64 preview as resilient fallback
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setFormImage(event.target.result as string)
+        }
+      }
+      reader.readAsDataURL(file)
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const fetchCatalog = async () => {
     setLoading(true)
@@ -391,14 +418,41 @@ export const ProductManagement: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">URL de Imagen</label>
-                    <input
-                      type="text"
-                      value={formImage}
-                      onChange={(e) => setFormImage(e.target.value)}
-                      className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                      placeholder="https://..."
-                    />
+                    <label className="font-bold text-[#5b403e] block mb-1">Imagen del Producto</label>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 hover:bg-[#ffdad7]/40 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
+                          <span className="material-symbols-outlined text-[18px]">
+                            {uploading ? 'sync' : 'add_photo_alternate'}
+                          </span>
+                          <span>{uploading ? 'Subiendo a Supabase...' : 'Subir Foto de tu PC'}</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFileSelect}
+                            disabled={uploading}
+                            className="hidden"
+                          />
+                        </label>
+                        {formImage && (
+                          <div className="w-10 h-10 rounded-lg bg-white border border-white/80 p-0.5 shrink-0 overflow-hidden shadow-2xs">
+                            <img
+                              src={formImage}
+                              alt="Vista previa"
+                              className="w-full h-full object-contain"
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={formImage}
+                        onChange={(e) => setFormImage(e.target.value)}
+                        className="glass-input w-full px-3 py-1.5 rounded-xl text-[11px] outline-none font-mono"
+                        placeholder="O pega una URL: https://..."
+                      />
+                      {uploadError && <p className="text-[10px] text-red-500">{uploadError}</p>}
+                    </div>
                   </div>
                 </div>
 
