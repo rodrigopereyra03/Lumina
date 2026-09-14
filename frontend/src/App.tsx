@@ -68,7 +68,7 @@ function MainStore() {
   }
 
   return (
-    <div className="bg-[#fbf9f8] text-[#1b1c1c] font-body min-h-screen antialiased flex">
+    <div className="bg-[#fbf9f8] dark:bg-[#0e1015] text-[#1b1c1c] dark:text-[#f9fafb] font-body min-h-screen antialiased flex transition-colors duration-300">
       {/* SideNavBar (Desktop Fixed Left) */}
       <Sidebar currentTab={currentTab} onTabChange={handleTabChange} />
 

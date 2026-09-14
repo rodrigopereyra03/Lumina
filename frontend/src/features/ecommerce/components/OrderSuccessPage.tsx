@@ -16,7 +16,7 @@ export const OrderSuccessPage: React.FC = () => {
   const isApproved = status === 'approved'
 
   return (
-    <div className="bg-[#fbf9f8] text-[#1b1c1c] font-body min-h-screen antialiased flex flex-col justify-between">
+    <div className="bg-[#fbf9f8] dark:bg-[#0e1015] text-[#1b1c1c] dark:text-[#f9fafb] font-body min-h-screen antialiased flex flex-col justify-between transition-colors duration-300">
       <Header />
 
       <main className="flex-1 p-4 md:p-12 flex items-center justify-center">
@@ -28,8 +28,8 @@ export const OrderSuccessPage: React.FC = () => {
         >
           {/* Header Section */}
           <div className="text-center mb-8 w-full flex flex-col items-center">
-            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-5 shadow-sm border border-white/60 ${
-              isApproved ? 'bg-[#E8F8F0] text-[#1E824C]' : 'bg-[#FFF4E5] text-[#D97706]'
+            <div className={`w-20 h-20 rounded-full flex items-center justify-center mb-5 shadow-sm border border-white/60 dark:border-white/10 ${
+              isApproved ? 'bg-[#E8F8F0] dark:bg-[#1E824C]/20 text-[#1E824C]' : 'bg-[#FFF4E5] dark:bg-[#D97706]/20 text-[#D97706]'
             }`}>
               <span
                 className="material-symbols-outlined text-[44px]"
@@ -39,10 +39,10 @@ export const OrderSuccessPage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-3xl sm:text-4xl font-bold text-[#1b1c1c] mb-2 tracking-tight">
+            <h1 className="text-3xl sm:text-4xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] mb-2 tracking-tight">
               {isApproved ? '¡Pago Aprobado por Mercado Pago!' : '¡Pedido en Proceso!'}
             </h1>
-            <p className="text-xs sm:text-sm text-[#5b403e] max-w-md mx-auto">
+            <p className="text-xs sm:text-sm text-[#5b403e] dark:text-gray-400 max-w-md mx-auto">
               {isApproved
                 ? 'Tu pago de $10.00 ARS fue acreditado con éxito a través de Mercado Pago y el pedido está listo para despacho.'
                 : 'Estamos esperando la confirmación de pago de Mercado Pago.'}
@@ -50,15 +50,15 @@ export const OrderSuccessPage: React.FC = () => {
           </div>
 
           {/* Order Details Glass Card */}
-          <div className="glass-panel rounded-2xl p-6 sm:p-8 w-full mb-8 border border-white/70 shadow-lg space-y-5">
+          <div className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-6 sm:p-8 w-full mb-8 border border-white/70 shadow-lg space-y-5">
             {/* Header with IDs */}
-            <div className="flex justify-between items-center pb-4 border-b border-white/60 text-xs">
+            <div className="flex justify-between items-center pb-4 border-b border-white/60 dark:border-white/10 text-xs">
               <div>
-                <p className="text-[10px] text-[#5b403e] uppercase tracking-widest font-bold">N° de Orden</p>
+                <p className="text-[10px] text-[#5b403e] dark:text-gray-400 uppercase tracking-widest font-bold">N° de Orden</p>
                 <p className="font-mono font-bold text-sm text-[#FF4D4F]">{externalRef}</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] text-[#5b403e] uppercase tracking-widest font-bold">Transacción Mercado Pago</p>
+                <p className="text-[10px] text-[#5b403e] dark:text-gray-400 uppercase tracking-widest font-bold">Transacción Mercado Pago</p>
                 <p className="font-mono font-semibold text-xs text-[#009EE3]">#{paymentId}</p>
               </div>
             </div>
@@ -66,36 +66,36 @@ export const OrderSuccessPage: React.FC = () => {
             {/* Product Purchased */}
             <div className="py-2 space-y-3">
               <div className="flex gap-4 items-center">
-                <div className="w-14 h-14 rounded-xl bg-white/70 border border-white p-1 flex items-center justify-center shrink-0 shadow-2xs">
+                <div className="w-14 h-14 rounded-xl bg-white/70 dark:bg-white/10 border border-white dark:border-white/10 p-1 flex items-center justify-center shrink-0 shadow-2xs">
                   <img
-                    className="max-h-full max-w-full object-contain"
+                    className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal"
                     alt="Producto de Prueba Mercado Pago"
                     src="https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80"
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h4 className="text-xs font-bold text-[#1b1c1c] truncate">Producto de Prueba Mercado Pago</h4>
-                  <p className="text-[11px] text-[#5b403e]">
+                  <h4 className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">Producto de Prueba Mercado Pago</h4>
+                  <p className="text-[11px] text-[#5b403e] dark:text-gray-400">
                     Medio: <span className="capitalize font-semibold text-[#009EE3]">{paymentType.replace('_', ' ')}</span> • Cant: 1
                   </p>
                 </div>
-                <span className="text-xs font-bold text-[#1b1c1c]">$10.00 ARS</span>
+                <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb]">$10.00 ARS</span>
               </div>
             </div>
 
             {/* Totals Breakdown */}
-            <div className="space-y-2 pt-4 border-t border-white/60 text-xs text-[#5b403e]">
+            <div className="space-y-2 pt-4 border-t border-white/60 dark:border-white/10 text-xs text-[#5b403e] dark:text-gray-400">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span className="font-semibold text-[#1b1c1c]">$10.00 ARS</span>
+                <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">$10.00 ARS</span>
               </div>
               <div className="flex justify-between">
                 <span>Estado de Pago</span>
-                <span className="font-bold text-[#1E824C] uppercase text-[10px] px-2 py-0.5 bg-[#E8F8F0] rounded-full">
+                <span className="font-bold text-[#1E824C] uppercase text-[10px] px-2 py-0.5 bg-[#E8F8F0] dark:bg-[#1E824C]/20 rounded-full">
                   Acreditado
                 </span>
               </div>
-              <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">
+              <div className="flex justify-between items-baseline pt-2 border-t border-white/80 dark:border-white/10 text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
                 <span>Total Abonado</span>
                 <span className="text-xl font-bold text-[#FF4D4F]">$10.00 ARS</span>
               </div>

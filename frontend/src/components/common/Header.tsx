@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { categoriesApi } from '../../api/categoriesApi'
 import { useCartStore } from '../../store/useCartStore'
 import { useAuthStore } from '../../store/useAuthStore'
+import { ThemeToggle } from './ThemeToggle'
 
 interface HeaderProps {
   selectedCategorySlug?: string
@@ -70,10 +71,10 @@ export const Header: React.FC<HeaderProps> = ({
   }
 
   return (
-    <header className="sticky top-0 z-30 border-b border-white/50 shadow-[0_10px_30px_rgba(0,0,0,0.03)] bg-[#fbf9f8]/85 backdrop-blur-[20px] flex justify-between items-center px-4 md:px-12 py-3.5 w-full font-body text-[#1b1c1c]">
+    <header className="sticky top-0 z-30 border-b border-white/50 dark:border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.03)] dark:shadow-[0_10px_30px_rgba(0,0,0,0.3)] bg-[#fbf9f8]/85 dark:bg-[#0e1015]/85 backdrop-blur-[20px] flex justify-between items-center px-4 md:px-12 py-3.5 w-full font-body text-[#1b1c1c] dark:text-[#f9fafb] transition-colors">
       {/* Search Input */}
-      <div className="relative flex-1 max-w-md">
-        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5b403e] text-[18px]">
+      <div className="relative flex-1 max-w-xs md:max-w-md">
+        <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[#5b403e] dark:text-[#9ca3af] text-[18px]">
           search
         </span>
         <input
@@ -85,14 +86,14 @@ export const Header: React.FC<HeaderProps> = ({
               onSearchSubmit()
             }
           }}
-          placeholder="Buscar perfumes, fragancias árabes, nicho, testers..."
-          className="w-full bg-white/70 border border-white/80 rounded-full py-2 pl-10 pr-9 text-xs placeholder:text-[#5b403e]/70 focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 transition-all text-[#1b1c1c]"
+          placeholder="Buscar perfumes, fragancias..."
+          className="w-full bg-white/70 dark:bg-white/[0.05] border border-white/80 dark:border-white/10 rounded-full py-2 pl-10 pr-9 text-xs placeholder:text-[#5b403e]/70 dark:placeholder:text-[#9ca3af] focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 transition-all text-[#1b1c1c] dark:text-[#f9fafb]"
         />
         {searchQuery && (
           <button
             type="button"
             onClick={() => onSearchChange('')}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b403e] hover:text-[#FF4D4F] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center cursor-pointer transition-colors"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center cursor-pointer transition-colors"
             title="Limpiar búsqueda"
           >
             ✕
@@ -112,7 +113,7 @@ export const Header: React.FC<HeaderProps> = ({
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 cursor-pointer ${
                 isActive
                   ? 'bg-[#FF4D4F] text-white shadow-sm shadow-[#FF4D4F]/30'
-                  : 'text-[#5b403e] hover:bg-white/60 hover:text-[#1b1c1c]'
+                  : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/60 dark:hover:bg-white/10 hover:text-[#1b1c1c] dark:hover:text-white'
               }`}
             >
               {cat.name}
@@ -122,7 +123,10 @@ export const Header: React.FC<HeaderProps> = ({
       </div>
 
       {/* Right Controls: Cart & Profile */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        {/* Dark Mode Toggle */}
+        <ThemeToggle />
+
         {/* Admin Quick Button (ONLY VISIBLE TO ADMINS) */}
         {isAdmin && (
           <Link
@@ -138,7 +142,7 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Cart Trigger */}
         <button
           onClick={openDrawer}
-          className="relative p-2.5 rounded-full bg-white/70 hover:bg-white border border-white/80 shadow-2xs text-[#1b1c1c] transition-all cursor-pointer hover:scale-105"
+          className="relative p-2.5 rounded-full bg-white/70 dark:bg-white/[0.05] hover:bg-white dark:hover:bg-white/10 border border-white/80 dark:border-white/10 shadow-2xs text-[#1b1c1c] dark:text-[#f9fafb] transition-all cursor-pointer hover:scale-105"
           title="Abrir Carrito"
         >
           <span className="material-symbols-outlined text-[20px]">shopping_cart</span>

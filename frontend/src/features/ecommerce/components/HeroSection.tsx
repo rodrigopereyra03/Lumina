@@ -29,7 +29,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onProductClick: _onPro
   }
 
   return (
-    <section className="relative w-full rounded-3xl overflow-hidden shadow-2xl font-body border border-white/40 min-h-[480px] md:min-h-[540px] flex items-center">
+    <section className="relative w-full rounded-3xl overflow-hidden shadow-2xl font-body border border-white/40 dark:border-white/10 min-h-[480px] md:min-h-[540px] flex items-center">
       {/* 1. Cinematic Background Video */}
       <div className="absolute inset-0 w-full h-full overflow-hidden bg-black">
         <video

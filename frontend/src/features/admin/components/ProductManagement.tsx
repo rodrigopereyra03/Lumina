@@ -169,12 +169,12 @@ export const ProductManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-body text-[#1b1c1c]">
+    <div className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Gestión de Productos</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
+          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Gestión de Productos</h1>
+          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5">
             Administra el catálogo de la tienda, existencias y precios en tiempo real.
           </p>
         </div>
@@ -189,9 +189,9 @@ export const ProductManagement: React.FC = () => {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between glass-panel p-3.5 rounded-2xl border border-white/70 shadow-xs">
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between glass-panel p-3.5 rounded-2xl border border-white/70 dark:border-white/10 shadow-xs">
         <div className="relative w-full sm:w-80">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5b403e] text-[18px]">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5b403e] dark:text-[#9ca3af] text-[18px]">
             search
           </span>
           <input
@@ -199,20 +199,20 @@ export const ProductManagement: React.FC = () => {
             placeholder="Buscar productos por nombre o categoría..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white/70 border border-white/80 rounded-xl py-2 pl-9 pr-4 text-xs text-[#1b1c1c] placeholder:text-[#5b403e]/70 outline-none focus:border-[#FF4D4F]"
+            className="w-full bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-[#1b1c1c] dark:text-[#f9fafb] placeholder:text-[#5b403e]/70 dark:placeholder:text-[#9ca3af]/60 outline-none focus:border-[#FF4D4F]"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-[#5b403e] font-semibold whitespace-nowrap">Filtrar por Categoría:</span>
+          <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-semibold whitespace-nowrap">Filtrar por Categoría:</span>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-white/70 border border-white/80 rounded-xl px-3 py-2 text-xs text-[#1b1c1c] outline-none cursor-pointer focus:border-[#FF4D4F]"
+            className="bg-white/70 dark:bg-[#181c26] border border-white/80 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-[#1b1c1c] dark:text-[#f9fafb] outline-none cursor-pointer focus:border-[#FF4D4F]"
           >
-            <option value="all">Todas las Categorías</option>
+            <option value="all" className="dark:bg-[#181c26]">Todas las Categorías</option>
             {categories.map((c) => (
-              <option key={c.id || c.slug} value={c.slug || c.name.toLowerCase()}>
+              <option key={c.id || c.slug} value={c.slug || c.name.toLowerCase()} className="dark:bg-[#181c26]">
                 {c.name}
               </option>
             ))}
@@ -221,19 +221,19 @@ export const ProductManagement: React.FC = () => {
       </div>
 
       {/* Product Table Card */}
-      <div className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-4">
+      <div className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-4">
         {loading ? (
-          <div className="py-12 text-center text-xs text-[#5b403e]">
+          <div className="py-12 text-center text-xs text-[#5b403e] dark:text-[#9ca3af]">
             Cargando catálogo desde la base de datos...
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center space-y-3">
-            <div className="w-14 h-14 rounded-full bg-[#ffdad7]/40 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
+            <div className="w-14 h-14 rounded-full bg-[#ffdad7]/40 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
               <span className="material-symbols-outlined text-[28px]">inventory_2</span>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-[#1b1c1c]">No se encontraron productos</h4>
-              <p className="text-xs text-[#5b403e] mt-1">
+              <h4 className="text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">No se encontraron productos</h4>
+              <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] mt-1">
                 {searchTerm || selectedCategory !== 'all'
                   ? 'No hay productos que coincidan con los filtros aplicados.'
                   : 'No hay productos en el catálogo todavía.'}
@@ -244,7 +244,7 @@ export const ProductManagement: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-white/60 text-[#5b403e]">
+                <tr className="border-b border-white/60 dark:border-white/10 text-[#5b403e] dark:text-[#9ca3af]">
                   <th className="pb-3 font-semibold">Producto</th>
                   <th className="pb-3 font-semibold">Categoría</th>
                   <th className="pb-3 font-semibold">Precio</th>
@@ -253,29 +253,29 @@ export const ProductManagement: React.FC = () => {
                   <th className="pb-3 font-semibold text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/50">
+              <tbody className="divide-y divide-white/50 dark:divide-white/10">
                 {filtered.map((p) => {
                   const stockStatus = p.stock > 10 ? 'En Stock' : p.stock > 0 ? 'Poco Stock' : 'Sin Stock'
                   const badgeColor =
                     p.stock > 10
-                      ? 'bg-[#E8F8F0] text-[#1E824C]'
+                      ? 'bg-[#E8F8F0] dark:bg-[#4ade80]/15 text-[#1E824C] dark:text-[#4ade80]'
                       : p.stock > 0
-                      ? 'bg-[#FFF0EB] text-[#D97757]'
-                      : 'bg-[#ffdad6] text-[#ba1a1a]'
+                      ? 'bg-[#FFF0EB] dark:bg-[#D97757]/15 text-[#D97757]'
+                      : 'bg-[#ffdad6] dark:bg-[#ff4d4f]/20 text-[#ba1a1a] dark:text-[#ff8a80]'
 
                   return (
-                    <tr key={p.id} className="hover:bg-white/40 transition-colors">
+                    <tr key={p.id} className="hover:bg-white/40 dark:hover:bg-white/5 transition-colors">
                       {/* Product Name & Image */}
                       <td className="py-3 pr-4">
                         <div className="flex items-center gap-3">
                           <img
                             src={p.image}
                             alt={p.title}
-                            className="w-11 h-11 rounded-xl object-contain bg-white/70 p-1 border border-white shrink-0 mix-blend-multiply"
+                            className="w-11 h-11 rounded-xl object-contain bg-white/70 dark:bg-white/10 p-1 border border-white dark:border-white/10 shrink-0 mix-blend-multiply dark:mix-blend-normal"
                           />
                           <div className="min-w-0">
-                            <p className="font-bold text-[#1b1c1c] text-xs truncate max-w-[220px]">{p.title}</p>
-                            <p className="text-[11px] text-[#5b403e] truncate max-w-[220px]">
+                            <p className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] text-xs truncate max-w-[220px]">{p.title}</p>
+                            <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] truncate max-w-[220px]">
                               {p.subtitle || p.description?.slice(0, 30) || 'Perfume Lumina'}
                             </p>
                           </div>
@@ -283,13 +283,13 @@ export const ProductManagement: React.FC = () => {
                       </td>
 
                       {/* Category */}
-                      <td className="py-3 text-[#5b403e] font-semibold">{p.category_name || 'Perfumes'}</td>
+                      <td className="py-3 text-[#5b403e] dark:text-[#9ca3af] font-semibold">{p.category_name || 'Perfumes'}</td>
 
                       {/* Price */}
-                      <td className="py-3 font-bold text-[#1b1c1c]">${p.price.toFixed(2)}</td>
+                      <td className="py-3 font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${p.price.toFixed(2)}</td>
 
                       {/* Stock Count */}
-                      <td className="py-3 font-semibold text-[#1b1c1c]">{p.stock} u.</td>
+                      <td className="py-3 font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">{p.stock} u.</td>
 
                       {/* Stock Status Badge */}
                       <td className="py-3">
@@ -303,14 +303,14 @@ export const ProductManagement: React.FC = () => {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(p)}
-                            className="p-1.5 rounded-lg text-[#5b403e] hover:text-[#FF4D4F] hover:bg-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] dark:hover:text-[#FF4D4F] hover:bg-white dark:hover:bg-white/10 transition-colors cursor-pointer"
                             title="Editar producto"
                           >
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                           </button>
                           <button
                             onClick={() => handleDelete(p.id, p.title)}
-                            className="p-1.5 rounded-lg text-[#5b403e] hover:text-[#ba1a1a] hover:bg-white transition-colors cursor-pointer"
+                            className="p-1.5 rounded-lg text-[#5b403e] dark:text-[#9ca3af] hover:text-[#ba1a1a] dark:hover:text-[#ff8a80] hover:bg-white dark:hover:bg-white/10 transition-colors cursor-pointer"
                             title="Eliminar producto"
                           >
                             <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -326,11 +326,11 @@ export const ProductManagement: React.FC = () => {
         )}
 
         {/* Footer Summary */}
-        <div className="flex justify-between items-center text-xs text-[#5b403e] pt-3 border-t border-white/60">
+        <div className="flex justify-between items-center text-xs text-[#5b403e] dark:text-[#9ca3af] pt-3 border-t border-white/60 dark:border-white/10">
           <span>
             Mostrando {filtered.length} de {productList.length} productos
           </span>
-          <span className="font-semibold text-[#1b1c1c]">Catálogo Lumina</span>
+          <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">Catálogo Lumina</span>
         </div>
       </div>
 
@@ -343,22 +343,22 @@ export const ProductManagement: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-xs cursor-pointer"
+              className="absolute inset-0 bg-[#0e1015]/70 backdrop-blur-xs cursor-pointer"
             />
 
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-lg bg-[#fbf9f8] glass-panel rounded-3xl p-7 shadow-2xl border border-white/80 space-y-5 z-10"
+              className="relative w-full max-w-lg bg-[#fbf9f8] dark:bg-[#12151c] glass-panel rounded-3xl p-7 shadow-2xl border border-white/80 dark:border-white/10 space-y-5 z-10"
             >
-              <div className="flex justify-between items-center border-b border-white/60 pb-3">
-                <h3 className="text-lg font-bold text-[#1b1c1c]">
+              <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
+                <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
                   {editingProduct ? 'Editar Producto' : 'Añadir Nuevo Producto'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1 text-[#5b403e] hover:text-[#1b1c1c] rounded-lg cursor-pointer"
+                  className="p-1 text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] rounded-lg cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
@@ -366,7 +366,7 @@ export const ProductManagement: React.FC = () => {
 
               <form onSubmit={handleSave} className="space-y-4 text-xs">
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Nombre / Título de la Fragancia</label>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Nombre / Título de la Fragancia</label>
                   <input
                     type="text"
                     required
@@ -379,14 +379,14 @@ export const ProductManagement: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Categoría</label>
+                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Categoría</label>
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value)}
-                      className="bg-white border border-white/80 rounded-xl px-3 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
+                      className="bg-white dark:bg-[#181c26] text-[#1b1c1c] dark:text-[#f9fafb] border border-white/80 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
                     >
                       {categories.map((c) => (
-                        <option key={c.id || c.slug} value={c.name}>
+                        <option key={c.id || c.slug} value={c.name} className="dark:bg-[#181c26]">
                           {c.name}
                         </option>
                       ))}
@@ -394,7 +394,7 @@ export const ProductManagement: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Precio ($ ARS)</label>
+                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Precio ($ ARS)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -407,7 +407,7 @@ export const ProductManagement: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Cantidad en Stock</label>
+                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Cantidad en Stock</label>
                     <input
                       type="number"
                       required
@@ -419,10 +419,10 @@ export const ProductManagement: React.FC = () => {
                   </div>
                 </div>
                   <div>
-                    <label className="font-bold text-[#5b403e] block mb-1">Imagen del Producto</label>
+                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Imagen del Producto</label>
                     <div className="space-y-2">
                       <div className="flex items-center gap-2">
-                        <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 hover:bg-[#ffdad7]/40 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
+                        <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 dark:bg-[#FF4D4F]/10 hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
                           <span className="material-symbols-outlined text-[18px]">
                             {uploading ? 'sync' : 'add_photo_alternate'}
                           </span>
@@ -436,7 +436,7 @@ export const ProductManagement: React.FC = () => {
                           />
                         </label>
                         {formImage && (
-                          <div className="w-10 h-10 rounded-lg bg-white border border-white/80 p-0.5 shrink-0 overflow-hidden shadow-2xs">
+                          <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#181c26] border border-white/80 dark:border-white/10 p-0.5 shrink-0 overflow-hidden shadow-2xs">
                             <img
                               src={formImage}
                               alt="Vista previa"
@@ -457,7 +457,7 @@ export const ProductManagement: React.FC = () => {
                   </div>
 
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Descripción Detallada</label>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Descripción Detallada</label>
                   <textarea
                     rows={3}
                     value={formDesc}
@@ -467,7 +467,7 @@ export const ProductManagement: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2.5 pt-3 border-t border-white/60">
+                <div className="flex justify-end gap-2.5 pt-3 border-t border-white/60 dark:border-white/10">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}

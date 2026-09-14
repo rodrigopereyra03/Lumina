@@ -65,11 +65,11 @@ export const Register: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbf9f8] flex items-center justify-center p-4 relative overflow-hidden font-body text-[#1b1c1c]">
+    <div className="min-h-screen bg-[#fbf9f8] dark:bg-[#0e1015] flex items-center justify-center p-4 relative overflow-hidden font-body text-[#1b1c1c] dark:text-[#f9fafb] transition-colors duration-300">
       {/* Background blobs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-[#ffdad7]/25 blur-[100px]"></div>
-        <div className="absolute bottom-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-[#e2e2e4]/40 blur-[80px]"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[45%] h-[45%] rounded-full bg-[#ffdad7]/25 dark:bg-[#FF4D4F]/10 blur-[100px]"></div>
+        <div className="absolute bottom-[-10%] left-[-10%] w-[35%] h-[35%] rounded-full bg-[#e2e2e4]/40 dark:bg-[#FF4D4F]/5 blur-[80px]"></div>
       </div>
 
       <motion.main 
@@ -83,15 +83,15 @@ export const Register: React.FC = () => {
           <Link to="/" className="inline-block">
             <h1 className="text-4xl font-extrabold text-[#FF4D4F] tracking-tight mb-1">LUMINA</h1>
           </Link>
-          <p className="text-sm text-[#5b403e]">Únete a nuestra experiencia exclusiva</p>
+          <p className="text-sm text-[#5b403e] dark:text-gray-400">Únete a nuestra experiencia exclusiva</p>
         </div>
 
         {/* Glassmorphic Register Card */}
-        <div className="glass-panel rounded-2xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col gap-6 relative overflow-hidden border border-white/60">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ffdad7]/35 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col gap-6 relative overflow-hidden border border-white/60">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ffdad7]/35 dark:bg-[#FF4D4F]/10 rounded-full blur-2xl pointer-events-none"></div>
 
           {error && (
-            <div className="p-3 rounded-xl bg-[#ffdad6]/60 border border-[#ffdad6] text-[#ba1a1a] text-xs text-center font-semibold">
+            <div className="p-3 rounded-xl bg-[#ffdad6]/60 dark:bg-red-900/30 border border-[#ffdad6] dark:border-red-800 text-[#ba1a1a] dark:text-red-300 text-xs text-center font-semibold">
               {error}
             </div>
           )}
@@ -100,7 +100,7 @@ export const Register: React.FC = () => {
             {/* Full Name */}
             <div className="floating-label-group">
               <input
-                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none"
+                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] dark:text-[#f9fafb] outline-none"
                 id="name"
                 placeholder=" "
                 type="text"
@@ -108,7 +108,7 @@ export const Register: React.FC = () => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
               />
-              <label className="floating-label text-xs text-[#5b403e]" htmlFor="name">
+              <label className="floating-label text-xs text-[#5b403e] dark:text-gray-400" htmlFor="name">
                 Nombre Completo
               </label>
             </div>
@@ -116,7 +116,7 @@ export const Register: React.FC = () => {
             {/* Email */}
             <div className="floating-label-group">
               <input
-                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none"
+                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] dark:text-[#f9fafb] outline-none"
                 id="email"
                 placeholder=" "
                 type="email"
@@ -124,7 +124,7 @@ export const Register: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <label className="floating-label text-xs text-[#5b403e]" htmlFor="email">
+              <label className="floating-label text-xs text-[#5b403e] dark:text-gray-400" htmlFor="email">
                 Correo Electrónico
               </label>
             </div>
@@ -132,7 +132,7 @@ export const Register: React.FC = () => {
             {/* Password */}
             <div className="floating-label-group">
               <input
-                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none"
+                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] dark:text-[#f9fafb] outline-none"
                 id="password"
                 placeholder=" "
                 type="password"
@@ -141,15 +141,15 @@ export const Register: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <label className="floating-label text-xs text-[#5b403e]" htmlFor="password">
+              <label className="floating-label text-xs text-[#5b403e] dark:text-gray-400" htmlFor="password">
                 Contraseña (mínimo 6 caracteres)
               </label>
             </div>
 
             {/* Terms checkbox */}
-            <div className="flex items-start gap-2 px-1 text-xs text-[#5b403e]">
+            <div className="flex items-start gap-2 px-1 text-xs text-[#5b403e] dark:text-gray-400">
               <input
-                className="rounded border-[#e4bebb] text-[#FF4D4F] focus:ring-[#FF4D4F]/30 mt-0.5"
+                className="rounded border-[#e4bebb] dark:border-gray-600 text-[#FF4D4F] focus:ring-[#FF4D4F]/30 mt-0.5"
                 id="terms"
                 type="checkbox"
                 checked={acceptTerms}
@@ -178,7 +178,7 @@ export const Register: React.FC = () => {
           </form>
 
           {/* Login Link */}
-          <div className="text-center text-xs text-[#5b403e] pt-2 border-t border-white/60">
+          <div className="text-center text-xs text-[#5b403e] dark:text-gray-400 pt-2 border-t border-white/60 dark:border-white/10">
             ¿Ya tienes una cuenta?{' '}
             <Link to="/login" className="text-[#FF4D4F] hover:underline font-bold">
               Iniciar Sesión
@@ -188,7 +188,7 @@ export const Register: React.FC = () => {
 
         {/* Back to Home Link */}
         <div className="text-center mt-6">
-          <Link to="/" className="text-xs text-[#5b403e] hover:text-[#FF4D4F] transition-colors inline-flex items-center gap-1 font-medium">
+          <Link to="/" className="text-xs text-[#5b403e] dark:text-gray-400 hover:text-[#FF4D4F] transition-colors inline-flex items-center gap-1 font-medium">
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span>Volver a la Tienda Lumina</span>
           </Link>

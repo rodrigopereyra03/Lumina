@@ -117,13 +117,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="max-w-md mx-auto py-16 text-center space-y-6 font-body text-[#1b1c1c]">
-        <div className="w-20 h-20 rounded-full bg-[#ffdad7]/50 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-sm">
+      <div className="max-w-md mx-auto py-16 text-center space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
+        <div className="w-20 h-20 rounded-full bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-sm">
           <span className="material-symbols-outlined text-[40px]">person_off</span>
         </div>
         <div>
-          <h2 className="text-2xl font-bold text-[#1b1c1c]">Inicia Sesión para ver tu Cuenta</h2>
-          <p className="text-xs text-[#5b403e] mt-1">
+          <h2 className="text-2xl font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Inicia Sesión para ver tu Cuenta</h2>
+          <p className="text-xs text-[#5b403e] dark:text-gray-400 mt-1">
             Accede a tus datos personales, direcciones de envío y pedidos realizados.
           </p>
         </div>
@@ -143,29 +143,29 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.35 }}
-      className="space-y-8 font-body text-[#1b1c1c] max-w-6xl mx-auto"
+      className="space-y-8 font-body text-[#1b1c1c] dark:text-[#f9fafb] max-w-6xl mx-auto"
     >
       {/* Breadcrumb & Welcome Title */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/60 pb-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-white/60 dark:border-white/10 pb-6">
         <div>
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#FF4D4F] transition-colors mb-2 cursor-pointer"
+            className="inline-flex items-center gap-1 text-xs text-[#5b403e] dark:text-gray-400 hover:text-[#FF4D4F] transition-colors mb-2 cursor-pointer"
           >
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span>Volver a la Tienda</span>
           </button>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1c1c] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
             Bienvenido de nuevo, {userName.split(' ')[0]}
           </h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
+          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-gray-400 mt-0.5">
             Gestiona tus datos, domicilios de entrega y compras realizadas.
           </p>
         </div>
 
         <button
           onClick={clearAuth}
-          className="px-4 py-2 rounded-full glass-button-secondary text-xs font-bold text-[#FF4D4F] hover:bg-[#ffdad7]/40 cursor-pointer transition-colors"
+          className="px-4 py-2 rounded-full glass-button-secondary text-xs font-bold text-[#FF4D4F] hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 cursor-pointer transition-colors"
         >
           Cerrar Sesión
         </button>
@@ -174,13 +174,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
       {/* Main Grid: Left Tabs & Right Content */}
       <div className="grid lg:grid-cols-12 gap-8 items-start">
         {/* Left Tabs Nav */}
-        <div className="lg:col-span-4 glass-panel rounded-2xl p-3 sm:p-4 shadow-sm space-y-1.5 border border-white/60">
+        <div className="lg:col-span-4 glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-3 sm:p-4 shadow-sm space-y-1.5 border border-white/60">
           <button
             onClick={() => setActiveTab('profile')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'profile'
-                ? 'bg-white text-[#FF4D4F] shadow-sm font-bold'
-                : 'text-[#5b403e] hover:bg-white/40'
+                ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
+                : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -194,8 +194,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
             onClick={() => setActiveTab('addresses')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'addresses'
-                ? 'bg-white text-[#FF4D4F] shadow-sm font-bold'
-                : 'text-[#5b403e] hover:bg-white/40'
+                ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
+                : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -213,8 +213,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
             onClick={() => setActiveTab('payment')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'payment'
-                ? 'bg-white text-[#FF4D4F] shadow-sm font-bold'
-                : 'text-[#5b403e] hover:bg-white/40'
+                ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
+                : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -232,8 +232,8 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
             onClick={() => setActiveTab('orders')}
             className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
               activeTab === 'orders'
-                ? 'bg-white text-[#FF4D4F] shadow-sm font-bold'
-                : 'text-[#5b403e] hover:bg-white/40'
+                ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
+                : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
             <div className="flex items-center gap-3">
@@ -268,12 +268,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="glass-panel rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
+                className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
               >
-                <div className="flex justify-between items-center border-b border-white/60 pb-4">
+                <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-4">
                   <div>
-                    <h3 className="text-base font-bold text-[#1b1c1c]">Información Personal</h3>
-                    <p className="text-xs text-[#5b403e]">Tus credenciales y datos de contacto registrados</p>
+                    <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Información Personal</h3>
+                    <p className="text-xs text-[#5b403e] dark:text-gray-400">Tus credenciales y datos de contacto registrados</p>
                   </div>
                   <button
                     onClick={() => setIsEditProfileOpen(true)}
@@ -285,36 +285,36 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 </div>
 
                 <div className="flex flex-col sm:flex-row items-center gap-6">
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FF6B5B] to-[#FF4D4F] text-white text-2xl font-bold flex items-center justify-center shadow-md border-2 border-white shrink-0">
+                  <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-[#FF6B5B] to-[#FF4D4F] text-white text-2xl font-bold flex items-center justify-center shadow-md border-2 border-white dark:border-white/10 shrink-0">
                     {userName.charAt(0).toUpperCase()}
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1 text-xs w-full">
-                    <div className="p-3 bg-white/50 rounded-xl border border-white/70">
-                      <span className="text-[#5b403e] block font-medium text-[11px]">Nombre Completo</span>
-                      <span className="font-bold text-[#1b1c1c] text-sm">{userName}</span>
+                    <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-white/70 dark:border-white/10">
+                      <span className="text-[#5b403e] dark:text-gray-400 block font-medium text-[11px]">Nombre Completo</span>
+                      <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] text-sm">{userName}</span>
                     </div>
 
-                    <div className="p-3 bg-white/50 rounded-xl border border-white/70">
-                      <span className="text-[#5b403e] block font-medium text-[11px]">Correo Electrónico</span>
-                      <span className="font-bold text-[#1b1c1c] text-sm truncate block">{userEmail}</span>
+                    <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-white/70 dark:border-white/10">
+                      <span className="text-[#5b403e] dark:text-gray-400 block font-medium text-[11px]">Correo Electrónico</span>
+                      <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] text-sm truncate block">{userEmail}</span>
                     </div>
 
-                    <div className="p-3 bg-white/50 rounded-xl border border-white/70">
-                      <span className="text-[#5b403e] block font-medium text-[11px]">Teléfono de Contacto</span>
-                      <span className="font-bold text-[#1b1c1c] text-sm">{user?.phone || '+54 9 11 4455-6677'}</span>
+                    <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-white/70 dark:border-white/10">
+                      <span className="text-[#5b403e] dark:text-gray-400 block font-medium text-[11px]">Teléfono de Contacto</span>
+                      <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] text-sm">{user?.phone || '+54 9 11 4455-6677'}</span>
                     </div>
 
-                    <div className="p-3 bg-white/50 rounded-xl border border-white/70">
-                      <span className="text-[#5b403e] block font-medium text-[11px]">Rol de Usuario</span>
+                    <div className="p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-white/70 dark:border-white/10">
+                      <span className="text-[#5b403e] dark:text-gray-400 block font-medium text-[11px]">Rol de Usuario</span>
                       <span className="font-bold text-[#FF4D4F] text-sm uppercase tracking-wider">{userRole}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="pt-4 border-t border-white/60 text-xs text-[#5b403e] flex justify-between items-center">
+                <div className="pt-4 border-t border-white/60 dark:border-white/10 text-xs text-[#5b403e] dark:text-gray-400 flex justify-between items-center">
                   <span>Miembro desde: <b>{memberSince}</b></span>
-                  <span className="px-2.5 py-1 rounded-full bg-[#E8F8F0] text-[#1E824C] font-bold text-[10px]">
+                  <span className="px-2.5 py-1 rounded-full bg-[#E8F8F0] dark:bg-[#1E824C]/20 text-[#1E824C] font-bold text-[10px]">
                     Cuenta Verificada
                   </span>
                 </div>
@@ -328,12 +328,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="glass-panel rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
+                className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/60 pb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/60 dark:border-white/10 pb-4">
                   <div>
-                    <h3 className="text-base font-bold text-[#1b1c1c]">Direcciones de Envío</h3>
-                    <p className="text-xs text-[#5b403e]">Gestiona tus domicilios de entrega para despachos rápidos</p>
+                    <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Direcciones de Envío</h3>
+                    <p className="text-xs text-[#5b403e] dark:text-gray-400">Gestiona tus domicilios de entrega para despachos rápidos</p>
                   </div>
                   <button
                     onClick={() => setIsAddAddressOpen(true)}
@@ -346,18 +346,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
                 {addresses.length === 0 ? (
                   <div className="py-12 text-center space-y-3">
-                    <div className="w-16 h-16 rounded-full bg-[#f0eded] text-[#5b403e] flex items-center justify-center mx-auto shadow-xs">
+                    <div className="w-16 h-16 rounded-full bg-[#f0eded] dark:bg-white/10 text-[#5b403e] dark:text-gray-400 flex items-center justify-center mx-auto shadow-xs">
                       <span className="material-symbols-outlined text-[32px]">location_off</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-[#1b1c1c]">No tienes direcciones guardadas</h4>
-                      <p className="text-xs text-[#5b403e] max-w-sm mx-auto mt-1">
+                      <h4 className="text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">No tienes direcciones guardadas</h4>
+                      <p className="text-xs text-[#5b403e] dark:text-gray-400 max-w-sm mx-auto mt-1">
                         Cuando realices tu primera compra podrás guardar tu domicilio, o puedes agregarlo ahora mismo.
                       </p>
                     </div>
                     <button
                       onClick={() => setIsAddAddressOpen(true)}
-                      className="px-5 py-2.5 bg-white/80 hover:bg-white text-[#FF4D4F] border border-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                      className="px-5 py-2.5 bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-[#FF4D4F] border border-white dark:border-white/10 rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                     >
                       + Agregar Mi Domicilio
                     </button>
@@ -367,10 +367,10 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                     {addresses.map((addr) => (
                       <div
                         key={addr.id}
-                        className="p-4 rounded-2xl bg-white/70 border border-white shadow-xs space-y-2 relative group"
+                        className="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-white dark:border-white/10 shadow-xs space-y-2 relative group"
                       >
                         <div className="flex justify-between items-center">
-                          <span className="text-xs font-bold text-[#1b1c1c] flex items-center gap-1.5">
+                          <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] flex items-center gap-1.5">
                             <span className="material-symbols-outlined text-[18px] text-[#FF4D4F]">home</span>
                             {addr.title}
                           </span>
@@ -381,9 +381,9 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                             Eliminar
                           </button>
                         </div>
-                        <p className="text-xs text-[#1b1c1c] font-medium">{addr.street_address}</p>
-                        <p className="text-xs text-[#5b403e]">{addr.city}, {addr.state}</p>
-                        <p className="text-[11px] text-[#5b403e]">📞 {addr.recipient_phone}</p>
+                        <p className="text-xs text-[#1b1c1c] dark:text-[#f9fafb] font-medium">{addr.street_address}</p>
+                        <p className="text-xs text-[#5b403e] dark:text-gray-400">{addr.city}, {addr.state}</p>
+                        <p className="text-[11px] text-[#5b403e] dark:text-gray-400">📞 {addr.recipient_phone}</p>
                       </div>
                     ))}
                   </div>
@@ -398,12 +398,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="glass-panel rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
+                className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
               >
-                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/60 pb-4">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-white/60 dark:border-white/10 pb-4">
                   <div>
-                    <h3 className="text-base font-bold text-[#1b1c1c]">Medios de Pago Guardados</h3>
-                    <p className="text-xs text-[#5b403e]">Tus tarjetas autorizadas para compras directas</p>
+                    <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Medios de Pago Guardados</h3>
+                    <p className="text-xs text-[#5b403e] dark:text-gray-400">Tus tarjetas autorizadas para compras directas</p>
                   </div>
                   <button
                     onClick={() => setIsAddCardOpen(true)}
@@ -416,18 +416,18 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
                 {cards.length === 0 ? (
                   <div className="py-12 text-center space-y-3">
-                    <div className="w-16 h-16 rounded-full bg-[#f0eded] text-[#5b403e] flex items-center justify-center mx-auto shadow-xs">
+                    <div className="w-16 h-16 rounded-full bg-[#f0eded] dark:bg-white/10 text-[#5b403e] dark:text-gray-400 flex items-center justify-center mx-auto shadow-xs">
                       <span className="material-symbols-outlined text-[32px]">credit_card_off</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-[#1b1c1c]">No tienes tarjetas guardadas</h4>
-                      <p className="text-xs text-[#5b403e] max-w-sm mx-auto mt-1">
+                      <h4 className="text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">No tienes tarjetas guardadas</h4>
+                      <p className="text-xs text-[#5b403e] dark:text-gray-400 max-w-sm mx-auto mt-1">
                         Por seguridad, solo guardamos los datos de tus tarjetas si seleccionas la opción al momento del checkout.
                       </p>
                     </div>
                     <button
                       onClick={() => setIsAddCardOpen(true)}
-                      className="px-5 py-2.5 bg-white/80 hover:bg-white text-[#FF4D4F] border border-white rounded-xl text-xs font-bold shadow-xs cursor-pointer"
+                      className="px-5 py-2.5 bg-white/80 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 text-[#FF4D4F] border border-white dark:border-white/10 rounded-xl text-xs font-bold shadow-xs cursor-pointer"
                     >
                       + Guardar una Tarjeta
                     </button>
@@ -437,7 +437,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                     {cards.map((c) => (
                       <div
                         key={c.id}
-                        className="p-4 rounded-2xl bg-gradient-to-tr from-[#1b1c1c] to-[#3a3b3c] text-white shadow-md space-y-3"
+                        className="p-4 rounded-2xl bg-gradient-to-tr from-[#1b1c1c] to-[#3a3b3c] dark:from-[#161a23] dark:to-[#222838] border border-white/10 text-white shadow-md space-y-3"
                       >
                         <div className="flex justify-between items-center">
                           <span className="font-bold text-xs uppercase tracking-wider">{c.brand}</span>
@@ -467,21 +467,21 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 initial={{ opacity: 0, x: 10 }}
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
-                className="glass-panel rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
+                className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-6 sm:p-7 shadow-sm space-y-6 border border-white/60"
               >
-                <div className="border-b border-white/60 pb-4">
-                  <h3 className="text-base font-bold text-[#1b1c1c]">Historial de Pedidos</h3>
-                  <p className="text-xs text-[#5b403e]">Tus compras realizadas y comprobantes de pago</p>
+                <div className="border-b border-white/60 dark:border-white/10 pb-4">
+                  <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Historial de Pedidos</h3>
+                  <p className="text-xs text-[#5b403e] dark:text-gray-400">Tus compras realizadas y comprobantes de pago</p>
                 </div>
 
                 {orders.length === 0 ? (
                   <div className="py-12 text-center space-y-3">
-                    <div className="w-16 h-16 rounded-full bg-[#f0eded] text-[#5b403e] flex items-center justify-center mx-auto shadow-xs">
+                    <div className="w-16 h-16 rounded-full bg-[#f0eded] dark:bg-white/10 text-[#5b403e] dark:text-gray-400 flex items-center justify-center mx-auto shadow-xs">
                       <span className="material-symbols-outlined text-[32px]">shopping_bag</span>
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-[#1b1c1c]">Aún no has realizado pedidos</h4>
-                      <p className="text-xs text-[#5b403e] max-w-sm mx-auto mt-1">
+                      <h4 className="text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Aún no has realizado pedidos</h4>
+                      <p className="text-xs text-[#5b403e] dark:text-gray-400 max-w-sm mx-auto mt-1">
                         Cada vez que compres con Mercado Pago o transferencia, verás el estado en vivo de tu orden aquí.
                       </p>
                     </div>
@@ -497,12 +497,12 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                     {orders.map((ord) => (
                       <div
                         key={ord.id}
-                        className="p-4 rounded-2xl bg-white/70 border border-white shadow-xs space-y-3"
+                        className="p-4 rounded-2xl bg-white/70 dark:bg-white/5 border border-white dark:border-white/10 shadow-xs space-y-3"
                       >
-                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-white/80 pb-2.5">
+                        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-2 border-b border-white/80 dark:border-white/10 pb-2.5">
                           <div>
                             <span className="font-mono font-bold text-xs text-[#FF4D4F]">{ord.order_number}</span>
-                            <span className="text-[11px] text-[#5b403e] ml-2">• {ord.date}</span>
+                            <span className="text-[11px] text-[#5b403e] dark:text-gray-400 ml-2">• {ord.date}</span>
                           </div>
                           <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${ord.status_color}`}>
                             {ord.status}
@@ -515,19 +515,19 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                               <img
                                 src={it.image}
                                 alt={it.title}
-                                className="w-10 h-10 rounded-xl object-contain bg-white p-1 border border-white/80"
+                                className="w-10 h-10 rounded-xl object-contain bg-white dark:bg-white/10 p-1 border border-white/80 dark:border-white/10 mix-blend-multiply dark:mix-blend-normal"
                               />
                               <div className="flex-1 min-w-0">
-                                <p className="font-bold text-[#1b1c1c] truncate">{it.title}</p>
-                                <p className="text-[11px] text-[#5b403e]">Cant: {it.quantity}</p>
+                                <p className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">{it.title}</p>
+                                <p className="text-[11px] text-[#5b403e] dark:text-gray-400">Cant: {it.quantity}</p>
                               </div>
-                              <span className="font-bold text-[#1b1c1c]">${(it.price * it.quantity).toFixed(2)} ARS</span>
+                              <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${(it.price * it.quantity).toFixed(2)} ARS</span>
                             </div>
                           ))}
                         </div>
 
-                        <div className="flex justify-between items-center pt-2 border-t border-white/80 text-xs">
-                          <span className="text-[#5b403e]">
+                        <div className="flex justify-between items-center pt-2 border-t border-white/80 dark:border-white/10 text-xs">
+                          <span className="text-[#5b403e] dark:text-gray-400">
                             Medio de Pago: <b className="capitalize text-[#009EE3]">{ord.payment_method}</b>
                           </span>
                           <span className="text-sm font-extrabold text-[#FF4D4F]">
@@ -546,13 +546,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
       {/* MODAL: EDITAR PERFIL */}
       {isEditProfileOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs">
-          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/90">
-            <div className="flex justify-between items-center border-b border-white pb-3">
-              <h3 className="text-base font-bold text-[#1b1c1c]">Editar Datos del Perfil</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95">
+            <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
+              <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Editar Datos del Perfil</h3>
               <button
                 onClick={() => setIsEditProfileOpen(false)}
-                className="text-[#5b403e] hover:text-[#1b1c1c] cursor-pointer"
+                className="text-[#5b403e] dark:text-gray-400 hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
@@ -560,7 +560,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
             <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Nombre Completo</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Nombre Completo</label>
                 <input
                   type="text"
                   required
@@ -571,7 +571,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Teléfono de Contacto</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Teléfono de Contacto</label>
                 <input
                   type="text"
                   required
@@ -585,7 +585,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={() => setIsEditProfileOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#5b403e] hover:bg-white cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#5b403e] dark:text-gray-400 hover:bg-white dark:hover:bg-white/10 cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -603,13 +603,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
       {/* MODAL: AGREGAR DIRECCIÓN */}
       {isAddAddressOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs">
-          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/90">
-            <div className="flex justify-between items-center border-b border-white pb-3">
-              <h3 className="text-base font-bold text-[#1b1c1c]">Agregar Dirección de Envío</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95">
+            <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
+              <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Agregar Dirección de Envío</h3>
               <button
                 onClick={() => setIsAddAddressOpen(false)}
-                className="text-[#5b403e] hover:text-[#1b1c1c] cursor-pointer"
+                className="text-[#5b403e] dark:text-gray-400 hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
@@ -617,7 +617,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
             <form onSubmit={handleSaveAddress} className="space-y-3 text-xs">
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Identificador (ej. Casa, Oficina)</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Identificador (ej. Casa, Oficina)</label>
                 <input
                   type="text"
                   required
@@ -629,7 +629,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Calle y Número, Piso / Dpto</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Calle y Número, Piso / Dpto</label>
                 <input
                   type="text"
                   required
@@ -642,7 +642,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Ciudad</label>
+                  <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Ciudad</label>
                   <input
                     type="text"
                     required
@@ -653,7 +653,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                   />
                 </div>
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Provincia</label>
+                  <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Provincia</label>
                   <input
                     type="text"
                     required
@@ -666,7 +666,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Teléfono para Entrega</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Teléfono para Entrega</label>
                 <input
                   type="text"
                   value={newAddrPhone}
@@ -680,7 +680,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={() => setIsAddAddressOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#5b403e] hover:bg-white cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#5b403e] dark:text-gray-400 hover:bg-white dark:hover:bg-white/10 cursor-pointer"
                 >
                   Cancelar
                 </button>
@@ -698,13 +698,13 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
       {/* MODAL: AGREGAR TARJETA */}
       {isAddCardOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/30 backdrop-blur-xs">
-          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/90">
-            <div className="flex justify-between items-center border-b border-white pb-3">
-              <h3 className="text-base font-bold text-[#1b1c1c]">Guardar Tarjeta</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95">
+            <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
+              <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Guardar Tarjeta</h3>
               <button
                 onClick={() => setIsAddCardOpen(false)}
-                className="text-[#5b403e] hover:text-[#1b1c1c] cursor-pointer"
+                className="text-[#5b403e] dark:text-gray-400 hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
@@ -712,7 +712,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
             <form onSubmit={handleSaveCard} className="space-y-3 text-xs">
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Titular de la Tarjeta</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Titular de la Tarjeta</label>
                 <input
                   type="text"
                   required
@@ -724,7 +724,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Número de Tarjeta</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Número de Tarjeta</label>
                 <input
                   type="text"
                   required
@@ -736,7 +736,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
               </div>
 
               <div>
-                <label className="font-bold text-[#5b403e] block mb-1">Vencimiento (MM/AA)</label>
+                <label className="font-bold text-[#5b403e] dark:text-gray-400 block mb-1">Vencimiento (MM/AA)</label>
                 <input
                   type="text"
                   required
@@ -751,7 +751,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
                 <button
                   type="button"
                   onClick={() => setIsAddCardOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#5b403e] hover:bg-white cursor-pointer"
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-[#5b403e] dark:text-gray-400 hover:bg-white dark:hover:bg-white/10 cursor-pointer"
                 >
                   Cancelar
                 </button>

@@ -12,7 +12,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
   const isAdmin = isAuthenticated && user?.role === 'admin'
 
   return (
-    <aside className="h-screen w-64 left-0 top-0 fixed border-r border-white/40 hidden lg:flex flex-col p-6 gap-4 bg-[#f5f3f3]/60 backdrop-blur-[20px] z-40 font-body">
+    <aside className="h-screen w-64 left-0 top-0 fixed border-r border-white/40 dark:border-white/10 hidden lg:flex flex-col p-6 gap-4 bg-[#f5f3f3]/60 dark:bg-[#12151c]/95 backdrop-blur-[20px] z-40 font-body">
       {/* Brand Logo Header */}
       <div className="mb-8 flex items-center gap-3">
         <img
@@ -30,8 +30,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           onClick={() => onTabChange('home')}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left cursor-pointer ${
             currentTab === 'home'
-              ? 'text-[#FF4D4F] font-bold bg-white/60 shadow-2xs translate-x-1'
-              : 'text-[#5b403e] hover:bg-white/30 font-medium'
+              ? 'text-[#FF4D4F] font-bold bg-white/60 dark:bg-white/10 shadow-2xs translate-x-1'
+              : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/30 dark:hover:bg-white/5 font-medium'
           }`}
         >
           <span className="material-symbols-outlined" style={currentTab === 'home' ? { fontVariationSettings: "'FILL' 1" } : {}}>
@@ -45,8 +45,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           onClick={() => onTabChange('categories')}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left cursor-pointer ${
             currentTab === 'categories'
-              ? 'text-[#FF4D4F] font-bold bg-white/60 shadow-2xs translate-x-1'
-              : 'text-[#5b403e] hover:bg-white/30 font-medium'
+              ? 'text-[#FF4D4F] font-bold bg-white/60 dark:bg-white/10 shadow-2xs translate-x-1'
+              : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/30 dark:hover:bg-white/5 font-medium'
           }`}
         >
           <span className="material-symbols-outlined" style={currentTab === 'categories' ? { fontVariationSettings: "'FILL' 1" } : {}}>
@@ -60,8 +60,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           onClick={() => onTabChange('favorites')}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left cursor-pointer ${
             currentTab === 'favorites'
-              ? 'text-[#FF4D4F] font-bold bg-white/60 shadow-2xs translate-x-1'
-              : 'text-[#5b403e] hover:bg-white/30 font-medium'
+              ? 'text-[#FF4D4F] font-bold bg-white/60 dark:bg-white/10 shadow-2xs translate-x-1'
+              : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/30 dark:hover:bg-white/5 font-medium'
           }`}
         >
           <span className="material-symbols-outlined" style={currentTab === 'favorites' ? { fontVariationSettings: "'FILL' 1" } : {}}>
@@ -75,8 +75,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
           onClick={() => onTabChange('account')}
           className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-left cursor-pointer ${
             currentTab === 'account'
-              ? 'text-[#FF4D4F] font-bold bg-white/60 shadow-2xs translate-x-1'
-              : 'text-[#5b403e] hover:bg-white/30 font-medium'
+              ? 'text-[#FF4D4F] font-bold bg-white/60 dark:bg-white/10 shadow-2xs translate-x-1'
+              : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/30 dark:hover:bg-white/5 font-medium'
           }`}
         >
           <span className="material-symbols-outlined" style={currentTab === 'account' ? { fontVariationSettings: "'FILL' 1" } : {}}>
@@ -99,15 +99,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
 
       {/* User Profile / Guest Card */}
       {isAuthenticated ? (
-        <div className="flex items-center gap-3 p-3 bg-white/50 rounded-xl border border-white/70 shadow-2xs">
+        <div className="flex items-center gap-3 p-3 bg-white/50 dark:bg-white/5 rounded-xl border border-white/70 dark:border-white/10 shadow-2xs">
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#FF6B5B] to-[#FF4D4F] text-white font-bold flex items-center justify-center text-sm shadow-xs shrink-0">
             {user?.full_name ? user.full_name.charAt(0).toUpperCase() : 'U'}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold text-[#1b1c1c] truncate">
+            <p className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">
               {user?.full_name || 'Mi Cuenta'}
             </p>
-            <p className="text-[10px] text-[#5b403e] truncate">
+            <p className="text-[10px] text-[#5b403e] dark:text-[#9ca3af] truncate">
               {isAdmin ? '👑 Administrador' : 'Cliente'}
             </p>
           </div>
@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
       ) : (
         <Link
           to="/login"
-          className="flex items-center justify-center gap-2 p-3 rounded-xl bg-white/70 hover:bg-white border border-white/80 text-xs font-bold text-[#1b1c1c] hover:text-[#FF4D4F] transition-all shadow-2xs"
+          className="flex items-center justify-center gap-2 p-3 rounded-xl bg-white/70 dark:bg-white/5 hover:bg-white dark:hover:bg-white/10 border border-white/80 dark:border-white/10 text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] hover:text-[#FF4D4F] dark:hover:text-[#FF4D4F] transition-all shadow-2xs"
         >
           <span className="material-symbols-outlined text-[18px]">login</span>
           <span>Iniciar Sesión</span>

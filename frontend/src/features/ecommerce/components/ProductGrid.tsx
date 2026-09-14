@@ -92,30 +92,30 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   }
 
   return (
-    <section id="catalog-section" className="space-y-6 font-body text-[#1b1c1c]">
+    <section id="catalog-section" className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
       {/* Section Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-3">
         <div>
           {searchQuery ? (
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#1b1c1c]">
+                <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#1b1c1c] dark:text-[#f9fafb]">
                   Resultados para "{searchQuery}"
                 </h2>
-                <span className="px-3 py-1 rounded-full bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-xs">
+                <span className="px-3 py-1 rounded-full bg-[#FF4D4F]/10 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] font-bold text-xs">
                   {displayedProducts.length} {displayedProducts.length === 1 ? 'producto' : 'productos'}
                 </span>
               </div>
-              <p className="text-xs md:text-sm text-[#5b403e] mt-1">
+              <p className="text-xs md:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-1">
                 Explora los productos que coinciden con tu búsqueda.
               </p>
             </div>
           ) : (
             <div>
-              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#1b1c1c]">
+              <h2 className="text-2xl md:text-3xl font-bold tracking-tight text-[#1b1c1c] dark:text-[#f9fafb]">
                 {selectedCategorySlug === 'perfumes' ? 'Perfumes' : 'Tendencias de Temporada'}
               </h2>
-              <p className="text-xs md:text-sm text-[#5b403e] mt-1">
+              <p className="text-xs md:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-1">
                 {selectedCategorySlug === 'perfumes'
                   ? 'Colección exclusiva de fragancias y perfumes originales con garantía oficial.'
                   : 'Selección exclusiva de productos y fragancias con garantía oficial.'}
@@ -128,7 +128,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           {searchQuery && onClearSearch && (
             <button
               onClick={onClearSearch}
-              className="text-xs font-bold text-[#FF4D4F] hover:underline flex items-center gap-1 cursor-pointer bg-white/70 px-3 py-1.5 rounded-full border border-white"
+              className="text-xs font-bold text-[#FF4D4F] hover:underline flex items-center gap-1 cursor-pointer bg-white/70 dark:bg-white/10 px-3 py-1.5 rounded-full border border-white dark:border-white/10"
             >
               <span className="material-symbols-outlined text-[16px]">close</span>
               <span>Limpiar búsqueda</span>
@@ -149,19 +149,19 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
       {/* Empty State */}
       {displayedProducts.length === 0 ? (
-        <div className="glass-panel rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto border border-white/70 shadow-sm my-8">
-          <div className="w-16 h-16 rounded-full bg-[#ffdad7]/50 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
+        <div className="glass-panel rounded-3xl p-12 text-center space-y-4 max-w-lg mx-auto border border-white/70 dark:border-white/10 shadow-sm my-8">
+          <div className="w-16 h-16 rounded-full bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
             <span className="material-symbols-outlined text-[36px]">
               {searchQuery ? 'search_off' : 'inventory_2'}
             </span>
           </div>
           <div>
-            <h3 className="text-lg font-bold text-[#1b1c1c]">
+            <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
               {searchQuery
                 ? `No encontramos productos para "${searchQuery}"`
                 : 'Catálogo Listo para Nuevos Productos'}
             </h3>
-            <p className="text-xs text-[#5b403e] mt-1.5 leading-relaxed">
+            <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] mt-1.5 leading-relaxed">
               {searchQuery
                 ? 'Verifica la ortografía o intenta con palabras más generales.'
                 : 'Todos los datos de prueba han sido eliminados. Tu tienda está limpia para comenzar a publicar tus fragancias y perfumes reales.'}
@@ -196,31 +196,31 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.08 }}
               onClick={() => onProductClick(product.id)}
-              className="group glass-card rounded-3xl p-5 flex flex-col justify-between hover:shadow-xl hover:border-white/90 transition-all duration-300 cursor-pointer relative overflow-hidden"
+              className="group glass-card rounded-3xl p-5 flex flex-col justify-between hover:shadow-xl hover:border-white/90 dark:hover:border-white/20 transition-all duration-300 cursor-pointer relative overflow-hidden"
             >
               {/* Tag Badge */}
               {product.tags?.[0] && (
-                <span className="absolute top-4 left-4 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/80 text-[#FF4D4F] border border-white/80 shadow-2xs">
+                <span className="absolute top-4 left-4 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/80 dark:bg-[#181c26]/90 text-[#FF4D4F] border border-white/80 dark:border-white/10 shadow-2xs">
                   {product.tags[0]}
                 </span>
               )}
 
               {/* Product Image Stage */}
-              <div className="relative w-full aspect-square rounded-2xl bg-gradient-to-b from-white/40 to-white/80 flex items-center justify-center p-4 mb-4 overflow-hidden border border-white/60">
+              <div className="relative w-full aspect-square rounded-2xl bg-gradient-to-b from-white/40 to-white/80 dark:from-white/5 dark:to-white/10 flex items-center justify-center p-4 mb-4 overflow-hidden border border-white/60 dark:border-white/10">
                 <img
                   src={product.image}
                   alt={product.title}
-                  className="max-h-full max-w-full object-contain mix-blend-multiply group-hover:scale-108 transition-transform duration-500"
+                  className="max-h-full max-w-full object-contain mix-blend-multiply dark:mix-blend-normal group-hover:scale-108 transition-transform duration-500"
                 />
               </div>
 
               {/* Product Details */}
               <div className="space-y-1.5 mb-4">
                 <div className="flex justify-between items-start">
-                  <span className="text-[11px] text-[#5b403e] uppercase font-bold tracking-wider">
+                  <span className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] uppercase font-bold tracking-wider">
                     {product.category}
                   </span>
-                  <div className="flex items-center gap-1 text-[11px] text-[#1b1c1c] font-bold">
+                  <div className="flex items-center gap-1 text-[11px] text-[#1b1c1c] dark:text-[#f9fafb] font-bold">
                     <span
                       className="material-symbols-outlined text-[14px] text-[#FF4D4F]"
                       style={{ fontVariationSettings: "'FILL' 1" }}
@@ -231,21 +231,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   </div>
                 </div>
 
-                <h3 className="font-bold text-sm text-[#1b1c1c] group-hover:text-[#FF4D4F] transition-colors line-clamp-1">
+                <h3 className="font-bold text-sm text-[#1b1c1c] dark:text-[#f9fafb] group-hover:text-[#FF4D4F] dark:group-hover:text-[#FF4D4F] transition-colors line-clamp-1">
                   {product.title}
                 </h3>
 
-                <p className="text-xs text-[#5b403e] line-clamp-2 leading-relaxed">
+                <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] line-clamp-2 leading-relaxed">
                   {product.subtitle}
                 </p>
               </div>
 
               {/* Price & Action Row */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/60">
+              <div className="flex items-center justify-between pt-3 border-t border-white/60 dark:border-white/10">
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-base font-bold text-[#1b1c1c]">${product.price.toFixed(2)}</span>
+                  <span className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${product.price.toFixed(2)}</span>
                   {product.originalPrice && (
-                    <span className="text-xs line-through text-[#5b403e]">
+                    <span className="text-xs line-through text-[#5b403e] dark:text-[#9ca3af]">
                       ${product.originalPrice.toFixed(2)}
                     </span>
                   )}
@@ -253,7 +253,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
                 <button
                   onClick={(e) => handleAddToCart(e, product)}
-                  className="p-2.5 rounded-full bg-white/80 hover:bg-[#FF4D4F] text-[#1b1c1c] hover:text-white border border-white shadow-2xs transition-all duration-200 cursor-pointer flex items-center justify-center hover:scale-105"
+                  className="p-2.5 rounded-full bg-white/80 dark:bg-white/10 hover:bg-[#FF4D4F] dark:hover:bg-[#FF4D4F] text-[#1b1c1c] dark:text-[#f9fafb] hover:text-white border border-white dark:border-white/10 shadow-2xs transition-all duration-200 cursor-pointer flex items-center justify-center hover:scale-105"
                   title="Añadir al Carrito"
                 >
                   <span className="material-symbols-outlined text-[18px]">add_shopping_cart</span>

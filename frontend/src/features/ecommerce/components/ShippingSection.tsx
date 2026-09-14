@@ -98,19 +98,19 @@ ${itemsText}
   }
 
   return (
-    <div className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-6">
+    <div className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-6 text-[#1b1c1c] dark:text-[#f9fafb]">
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-base font-bold text-[#1b1c1c]">Método de Envío</h3>
-          <p className="text-xs text-[#5b403e]">Selecciona cómo deseas recibir tu compra en Bliss Goods</p>
+          <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Método de Envío</h3>
+          <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">Selecciona cómo deseas recibir tu compra en Lumina</p>
         </div>
-        <div className="w-8 h-8 rounded-xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F]">
+        <div className="w-8 h-8 rounded-xl bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F]">
           <span className="material-symbols-outlined text-[18px]">local_shipping</span>
         </div>
       </div>
 
       {/* Tabs / Selectores de Metodología */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 bg-white/60 border border-white/80 rounded-xl shadow-2xs">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1.5 bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl shadow-2xs">
         <button
           type="button"
           onClick={() => {
@@ -120,7 +120,7 @@ ${itemsText}
           className={`py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             shippingMethod === 'enviopack'
               ? 'bg-[#FF4D4F] text-white shadow-xs font-bold'
-              : 'text-[#5b403e] hover:text-[#1b1c1c]'
+              : 'text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
           }`}
         >
           <span className="material-symbols-outlined text-[16px]">inventory_2</span>
@@ -136,7 +136,7 @@ ${itemsText}
           className={`py-2.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer ${
             shippingMethod === 'whatsapp'
               ? 'bg-[#25D366] text-white shadow-xs font-bold'
-              : 'text-[#5b403e] hover:text-[#1b1c1c]'
+              : 'text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
           }`}
         >
           <span className="material-symbols-outlined text-[16px]">chat</span>
@@ -160,7 +160,7 @@ ${itemsText}
                   handleQuoteShipping()
                 }
               }}
-              className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-white/80 bg-white/70 focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 shadow-2xs"
+              className="flex-1 px-4 py-2.5 text-xs rounded-xl border border-white/80 dark:border-white/10 bg-white/70 dark:bg-white/5 text-[#1b1c1c] dark:text-[#f9fafb] focus:outline-none focus:ring-2 focus:ring-[#FF4D4F]/30 shadow-2xs"
             />
             <button
               type="button"
@@ -187,7 +187,7 @@ ${itemsText}
           {/* Listado de Tarifas de Envíopack */}
           {rates.length > 0 && (
             <div className="space-y-2 pt-1">
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#5b403e] block">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-[#5b403e] dark:text-[#9ca3af] block">
                 Opciones de Correo Disponibles
               </span>
               <div className="space-y-2.5">
@@ -202,19 +202,19 @@ ${itemsText}
                       onClick={() => onSelectShippingRate(rate)}
                       className={`p-4 rounded-xl border flex items-center justify-between cursor-pointer transition-all ${
                         isSelected
-                          ? 'border-[#FF4D4F] bg-white ring-2 ring-[#FF4D4F]/20 shadow-xs'
-                          : 'border-white/70 hover:border-white bg-white/50 hover:bg-white/80'
+                          ? 'border-[#FF4D4F] bg-white dark:bg-[#181c26] ring-2 ring-[#FF4D4F]/20 shadow-xs'
+                          : 'border-white/70 dark:border-white/10 hover:border-white dark:hover:border-white/20 bg-white/50 dark:bg-white/5 hover:bg-white/80 dark:hover:bg-white/10'
                       }`}
                     >
                       <div className="flex items-center gap-3.5">
                         <div className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-                          isSelected ? 'border-[#FF4D4F] bg-[#FF4D4F]' : 'border-[#5b403e]/40'
+                          isSelected ? 'border-[#FF4D4F] bg-[#FF4D4F]' : 'border-[#5b403e]/40 dark:border-white/20'
                         }`}>
                           {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white"></div>}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-[#1b1c1c]">{rate.courier_name}</p>
-                          <p className="text-[11px] text-[#5b403e]">
+                          <p className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb]">{rate.courier_name}</p>
+                          <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
                             {rate.service_name} • Entrega estimada: ~{rate.estimated_days} días hábiles
                           </p>
                         </div>
@@ -233,24 +233,24 @@ ${itemsText}
 
       {/* Opción B: WhatsApp */}
       {shippingMethod === 'whatsapp' && (
-        <div className="space-y-4 p-5 rounded-2xl bg-[#E8F8F0]/70 border border-[#25D366]/30">
+        <div className="space-y-4 p-5 rounded-2xl bg-[#E8F8F0]/70 dark:bg-[#25D366]/10 border border-[#25D366]/30">
           <div className="space-y-1">
-            <span className="text-xs font-bold text-[#1b1c1c] block">
+            <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
               Coordinación personalizada por WhatsApp 💬
             </span>
-            <p className="text-xs text-[#5b403e]">
+            <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">
               Ideal para envíos en moto en el día, retiro en showroom o puntos de encuentro.
             </p>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold text-[#5b403e] block">Tu Zona / Barrio / Dirección de Retiro</label>
+            <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block">Tu Zona / Barrio / Dirección de Retiro</label>
             <input
               type="text"
               placeholder="Ej: Palermo Soho, Belgrano, Recoleta o punto de entrega"
               value={customZone}
               onChange={(e) => setCustomZone(e.target.value)}
-              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-white/80 bg-white focus:outline-none focus:ring-2 focus:ring-[#25D366]/30 shadow-2xs"
+              className="w-full px-3.5 py-2.5 text-xs rounded-xl border border-white/80 dark:border-white/10 bg-white dark:bg-[#181c26] text-[#1b1c1c] dark:text-[#f9fafb] focus:outline-none focus:ring-2 focus:ring-[#25D366]/30 shadow-2xs"
             />
           </div>
 
@@ -259,7 +259,7 @@ ${itemsText}
             onClick={handleOpenWhatsApp}
             className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer active:scale-98"
           >
-            <span>Coordinar con Bliss Goods en WhatsApp</span>
+            <span>Coordinar con Lumina en WhatsApp</span>
             <span className="material-symbols-outlined text-[16px]">open_in_new</span>
           </button>
         </div>

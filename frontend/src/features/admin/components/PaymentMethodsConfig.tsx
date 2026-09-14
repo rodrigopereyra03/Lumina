@@ -69,12 +69,12 @@ export const PaymentMethodsConfig: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-body text-[#1b1c1c]">
+    <div className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Medios de Pago</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5 max-w-xl">
+          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Medios de Pago</h1>
+          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5 max-w-xl">
             Configura las opciones de pago que verán tus clientes durante el checkout. Activa pasarelas y define comisiones o instrucciones.
           </p>
         </div>
@@ -89,27 +89,27 @@ export const PaymentMethodsConfig: React.FC = () => {
       </div>
 
       {savedSuccess && (
-        <div className="p-3.5 rounded-xl bg-[#E8F8F0] border border-[#B7E5CD] text-[#1E824C] text-xs font-bold flex items-center gap-2">
+        <div className="p-3.5 rounded-xl bg-[#E8F8F0] dark:bg-[#4ade80]/15 border border-[#B7E5CD] dark:border-[#4ade80]/30 text-[#1E824C] dark:text-[#4ade80] text-xs font-bold flex items-center gap-2">
           <span className="material-symbols-outlined text-[18px]">check_circle</span>
           <span>Configuración de pasarelas guardada correctamente.</span>
         </div>
       )}
 
       {/* Gateway 1: Mercado Pago */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/60 pb-4">
+      <div className="glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/60 dark:border-white/10 pb-4">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-[#009EE3]/15 flex items-center justify-center text-[#009EE3] shadow-xs">
               <span className="material-symbols-outlined text-[24px]">payments</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-[#1b1c1c]">Mercado Pago Checkout Pro</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F8F0] text-[#1E824C]">
+                <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Mercado Pago Checkout Pro</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F8F0] dark:bg-[#4ade80]/15 text-[#1E824C] dark:text-[#4ade80]">
                   Conectado y Listo
                 </span>
               </div>
-              <p className="text-xs text-[#5b403e]">Acepta tarjetas de crédito, débito, dinero en cuenta y cuotas sin interés.</p>
+              <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">Acepta tarjetas de crédito, débito, dinero en cuenta y cuotas sin interés.</p>
             </div>
           </div>
 
@@ -120,14 +120,14 @@ export const PaymentMethodsConfig: React.FC = () => {
               onChange={(e) => setMpActive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF4D4F]"></div>
+            <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF4D4F]"></div>
           </label>
         </div>
 
         {mpActive && (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">Public Key</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Public Key</label>
               <input
                 type="text"
                 value={mpPublicKey}
@@ -137,7 +137,7 @@ export const PaymentMethodsConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">Access Token</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Access Token</label>
               <input
                 type="password"
                 value={mpAccessToken}
@@ -147,21 +147,21 @@ export const PaymentMethodsConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">Cuotas sin Interés</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Cuotas sin Interés</label>
               <select
                 value={mpInstallments}
                 onChange={(e) => setMpInstallments(e.target.value)}
-                className="bg-white/80 border border-white/80 rounded-xl px-3.5 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
+                className="bg-white/80 dark:bg-[#181c26] text-[#1b1c1c] dark:text-[#f9fafb] border border-white/80 dark:border-white/10 rounded-xl px-3.5 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
               >
-                <option value="1">1 Pago</option>
-                <option value="3">Hasta 3 Cuotas sin interés</option>
-                <option value="6">Hasta 6 Cuotas sin interés</option>
-                <option value="12">Hasta 12 Cuotas sin interés</option>
+                <option value="1" className="dark:bg-[#181c26]">1 Pago</option>
+                <option value="3" className="dark:bg-[#181c26]">Hasta 3 Cuotas sin interés</option>
+                <option value="6" className="dark:bg-[#181c26]">Hasta 6 Cuotas sin interés</option>
+                <option value="12" className="dark:bg-[#181c26]">Hasta 12 Cuotas sin interés</option>
               </select>
             </div>
 
             <div className="flex items-center gap-3 pt-4">
-              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#5b403e]">
+              <label className="flex items-center gap-2 cursor-pointer text-xs font-semibold text-[#5b403e] dark:text-[#9ca3af]">
                 <input
                   type="checkbox"
                   checked={mpSandbox}
@@ -176,20 +176,20 @@ export const PaymentMethodsConfig: React.FC = () => {
       </div>
 
       {/* Gateway 2: Transferencia Bancaria Directa */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/60 pb-4">
+      <div className="glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-white/60 dark:border-white/10 pb-4">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-[#1E824C]/15 flex items-center justify-center text-[#1E824C] shadow-xs">
               <span className="material-symbols-outlined text-[24px]">account_balance</span>
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-[#1b1c1c]">Transferencia Bancaria / CVU</h3>
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F8F0] text-[#1E824C]">
+                <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Transferencia Bancaria / CVU</h3>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#E8F8F0] dark:bg-[#4ade80]/15 text-[#1E824C] dark:text-[#4ade80]">
                   Instrucciones Automáticas
                 </span>
               </div>
-              <p className="text-xs text-[#5b403e]">Muestra tus datos bancarios y aplica descuentos automáticos por pago inmediato.</p>
+              <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">Muestra tus datos bancarios y aplica descuentos automáticos por pago inmediato.</p>
             </div>
           </div>
 
@@ -200,14 +200,14 @@ export const PaymentMethodsConfig: React.FC = () => {
               onChange={(e) => setTransferActive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF4D4F]"></div>
+            <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF4D4F]"></div>
           </label>
         </div>
 
         {transferActive && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">CBU / CVU</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">CBU / CVU</label>
               <input
                 type="text"
                 value={transferCbu}
@@ -217,7 +217,7 @@ export const PaymentMethodsConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">Alias Bancario</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Alias Bancario</label>
               <input
                 type="text"
                 value={transferAlias}
@@ -227,18 +227,18 @@ export const PaymentMethodsConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">Descuento Especial (%)</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Descuento Especial (%)</label>
               <input
                 type="number"
                 value={transferDiscount}
                 onChange={(e) => setTransferDiscount(e.target.value)}
-                className="glass-input w-full px-3.5 py-2.5 rounded-xl font-bold text-[#1E824C] text-xs outline-none"
+                className="glass-input w-full px-3.5 py-2.5 rounded-xl font-bold text-[#1E824C] dark:text-[#4ade80] text-xs outline-none"
                 placeholder="10"
               />
             </div>
 
             <div className="sm:col-span-2">
-              <label className="font-bold text-[#5b403e] block mb-1">Titular de la Cuenta</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Titular de la Cuenta</label>
               <input
                 type="text"
                 value={transferHolder}
@@ -248,7 +248,7 @@ export const PaymentMethodsConfig: React.FC = () => {
             </div>
 
             <div>
-              <label className="font-bold text-[#5b403e] block mb-1">Banco / Entidad</label>
+              <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Banco / Entidad</label>
               <input
                 type="text"
                 value={transferBank}
@@ -261,15 +261,15 @@ export const PaymentMethodsConfig: React.FC = () => {
       </div>
 
       {/* Gateway 3: Tarjeta de Crédito Directa */}
-      <div className="glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 shadow-sm space-y-4">
+      <div className="glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-4">
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F] shadow-xs">
+            <div className="w-11 h-11 rounded-2xl bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F] shadow-xs">
               <span className="material-symbols-outlined text-[24px]">credit_card</span>
             </div>
             <div>
-              <h3 className="text-base font-bold text-[#1b1c1c]">Pasarela de Tarjetas Directa</h3>
-              <p className="text-xs text-[#5b403e]">Formulario integrado de tarjeta con tokenización cifrada.</p>
+              <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Pasarela de Tarjetas Directa</h3>
+              <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">Formulario integrado de tarjeta con tokenización cifrada.</p>
             </div>
           </div>
 
@@ -280,7 +280,7 @@ export const PaymentMethodsConfig: React.FC = () => {
               onChange={(e) => setCardActive(e.target.checked)}
               className="sr-only peer"
             />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF4D4F]"></div>
+            <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#FF4D4F]"></div>
           </label>
         </div>
       </div>

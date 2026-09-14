@@ -82,11 +82,11 @@ export const Login: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#fbf9f8] flex items-center justify-center p-4 relative overflow-hidden font-body text-[#1b1c1c]">
+    <div className="min-h-screen bg-[#fbf9f8] dark:bg-[#0e1015] flex items-center justify-center p-4 relative overflow-hidden font-body text-[#1b1c1c] dark:text-[#f9fafb] transition-colors duration-300">
       {/* Ambient background glows */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-[#ffdad7]/25 blur-[100px]"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[35%] h-[35%] rounded-full bg-[#e2e2e4]/40 blur-[80px]"></div>
+        <div className="absolute top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-[#ffdad7]/25 dark:bg-[#FF4D4F]/10 blur-[100px]"></div>
+        <div className="absolute bottom-[-10%] right-[-10%] w-[35%] h-[35%] rounded-full bg-[#e2e2e4]/40 dark:bg-[#FF4D4F]/5 blur-[80px]"></div>
       </div>
 
       <motion.main
@@ -100,15 +100,15 @@ export const Login: React.FC = () => {
           <Link to="/" className="inline-block">
             <h1 className="text-4xl font-extrabold text-[#FF4D4F] tracking-tight mb-1">LUMINA</h1>
           </Link>
-          <p className="text-sm text-[#5b403e]">Accede a tu cuenta exclusiva</p>
+          <p className="text-sm text-[#5b403e] dark:text-gray-400">Accede a tu cuenta exclusiva</p>
         </div>
 
         {/* Glassmorphic Login Card */}
-        <div className="glass-panel rounded-2xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col gap-6 relative overflow-hidden border border-white/60">
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ffdad7]/35 rounded-full blur-2xl pointer-events-none"></div>
+        <div className="glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-8 shadow-[0_10px_30px_rgba(0,0,0,0.03)] flex flex-col gap-6 relative overflow-hidden border border-white/60">
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-[#ffdad7]/35 dark:bg-[#FF4D4F]/10 rounded-full blur-2xl pointer-events-none"></div>
 
           {error && (
-            <div className="p-3 rounded-xl bg-[#ffdad6]/60 border border-[#ffdad6] text-[#ba1a1a] text-xs text-center font-semibold">
+            <div className="p-3 rounded-xl bg-[#ffdad6]/60 dark:bg-red-900/30 border border-[#ffdad6] dark:border-red-800 text-[#ba1a1a] dark:text-red-300 text-xs text-center font-semibold">
               {error}
             </div>
           )}
@@ -117,7 +117,7 @@ export const Login: React.FC = () => {
             {/* Email Field */}
             <div className="floating-label-group">
               <input
-                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none"
+                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] dark:text-[#f9fafb] outline-none"
                 id="email"
                 placeholder=" "
                 type="email"
@@ -125,7 +125,7 @@ export const Login: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
-              <label className="floating-label text-xs text-[#5b403e]" htmlFor="email">
+              <label className="floating-label text-xs text-[#5b403e] dark:text-gray-400" htmlFor="email">
                 Correo Electrónico
               </label>
             </div>
@@ -133,7 +133,7 @@ export const Login: React.FC = () => {
             {/* Password Field */}
             <div className="floating-label-group relative">
               <input
-                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] outline-none pr-10"
+                className="glass-input w-full rounded-xl px-4 py-3 text-sm text-[#1b1c1c] dark:text-[#f9fafb] outline-none pr-10"
                 id="password"
                 placeholder=" "
                 type={showPassword ? 'text' : 'password'}
@@ -141,13 +141,13 @@ export const Login: React.FC = () => {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <label className="floating-label text-xs text-[#5b403e]" htmlFor="password">
+              <label className="floating-label text-xs text-[#5b403e] dark:text-gray-400" htmlFor="password">
                 Contraseña
               </label>
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b403e] hover:text-[#1b1c1c] p-1 cursor-pointer"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5b403e] dark:text-gray-400 hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] p-1 cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[18px]">
                   {showPassword ? 'visibility_off' : 'visibility'}
@@ -174,9 +174,9 @@ export const Login: React.FC = () => {
 
           {/* Social Login Divider */}
           <div className="flex items-center gap-3 my-1">
-            <div className="flex-1 h-px bg-white/60"></div>
-            <span className="text-[11px] text-[#5b403e] uppercase tracking-wider font-medium">O continuar con</span>
-            <div className="flex-1 h-px bg-white/60"></div>
+            <div className="flex-1 h-px bg-white/60 dark:bg-white/10"></div>
+            <span className="text-[11px] text-[#5b403e] dark:text-gray-400 uppercase tracking-wider font-medium">O continuar con</span>
+            <div className="flex-1 h-px bg-white/60 dark:bg-white/10"></div>
           </div>
 
           {/* Social Login Buttons */}
@@ -228,7 +228,7 @@ export const Login: React.FC = () => {
           </div>
 
           {/* Create Account Link */}
-          <div className="text-center text-xs text-[#5b403e] pt-2 border-t border-white/60">
+          <div className="text-center text-xs text-[#5b403e] dark:text-gray-400 pt-2 border-t border-white/60 dark:border-white/10">
             ¿No tienes una cuenta?{' '}
             <Link to="/register" className="text-[#FF4D4F] hover:underline font-bold">
               Crear Cuenta
@@ -238,7 +238,7 @@ export const Login: React.FC = () => {
 
         {/* Back to Home Link */}
         <div className="text-center mt-6">
-          <Link to="/" className="text-xs text-[#5b403e] hover:text-[#FF4D4F] transition-colors inline-flex items-center gap-1 font-medium">
+          <Link to="/" className="text-xs text-[#5b403e] dark:text-gray-400 hover:text-[#FF4D4F] transition-colors inline-flex items-center gap-1 font-medium">
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
             <span>Volver a la Tienda Lumina</span>
           </Link>

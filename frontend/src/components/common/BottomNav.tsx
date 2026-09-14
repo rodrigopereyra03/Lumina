@@ -15,11 +15,11 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
   const isAdmin = isAuthenticated && user?.role === 'admin'
 
   return (
-    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#fbf9f8]/95 backdrop-blur-[20px] border-t border-white/60 px-2 py-2 flex justify-around items-center font-body shadow-lg">
+    <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-[#fbf9f8]/95 dark:bg-[#12151c]/95 backdrop-blur-[20px] border-t border-white/60 dark:border-white/10 px-2 py-2 flex justify-around items-center font-body shadow-lg">
       <button
         onClick={() => onTabChange('home')}
         className={`flex flex-col items-center gap-1 cursor-pointer py-1 px-2 ${
-          currentTab === 'home' ? 'text-[#FF4D4F]' : 'text-[#5b403e]'
+          currentTab === 'home' ? 'text-[#FF4D4F]' : 'text-[#5b403e] dark:text-[#9ca3af]'
         }`}
       >
         <span className="material-symbols-outlined text-[20px]">home</span>
@@ -29,7 +29,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
       <button
         onClick={() => onTabChange('categories')}
         className={`flex flex-col items-center gap-1 cursor-pointer py-1 px-2 ${
-          currentTab === 'categories' ? 'text-[#FF4D4F]' : 'text-[#5b403e]'
+          currentTab === 'categories' ? 'text-[#FF4D4F]' : 'text-[#5b403e] dark:text-[#9ca3af]'
         }`}
       >
         <span className="material-symbols-outlined text-[20px]">grid_view</span>
@@ -39,7 +39,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
       {/* Cart Button */}
       <button
         onClick={openDrawer}
-        className="flex flex-col items-center gap-1 text-[#5b403e] relative cursor-pointer py-1 px-2"
+        className="flex flex-col items-center gap-1 text-[#5b403e] dark:text-[#9ca3af] relative cursor-pointer py-1 px-2"
       >
         <span className="material-symbols-outlined text-[20px]">shopping_cart</span>
         <span className="text-[10px] font-bold">Carrito</span>
@@ -53,7 +53,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
       <button
         onClick={() => onTabChange('favorites')}
         className={`flex flex-col items-center gap-1 cursor-pointer py-1 px-2 ${
-          currentTab === 'favorites' ? 'text-[#FF4D4F]' : 'text-[#5b403e]'
+          currentTab === 'favorites' ? 'text-[#FF4D4F]' : 'text-[#5b403e] dark:text-[#9ca3af]'
         }`}
       >
         <span className="material-symbols-outlined text-[20px]">favorite</span>
@@ -63,7 +63,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, onTabChange })
       <button
         onClick={() => onTabChange('account')}
         className={`flex flex-col items-center gap-1 cursor-pointer py-1 px-2 ${
-          currentTab === 'account' ? 'text-[#FF4D4F]' : 'text-[#5b403e]'
+          currentTab === 'account' ? 'text-[#FF4D4F]' : 'text-[#5b403e] dark:text-[#9ca3af]'
         }`}
       >
         <span className="material-symbols-outlined text-[20px]">person</span>

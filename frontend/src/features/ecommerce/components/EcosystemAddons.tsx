@@ -83,16 +83,16 @@ export const EcosystemAddons: React.FC = () => {
   }
 
   return (
-    <section id="addons" className="py-12 border-t border-[#EBE6DF] font-body relative">
+    <section id="addons" className="py-12 border-t border-[#EBE6DF] dark:border-white/10 font-body relative">
       <div className="text-center max-w-xl mx-auto space-y-3 mb-10">
         <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-[#FF5E4D]">
           <Sparkles size={13} />
           Ecosistema & Complementos
         </div>
-        <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#1E1B18]">
+        <h2 className="text-3xl sm:text-4xl font-black tracking-tight text-[#1E1B18] dark:text-[#f9fafb]">
           Accesorios <span className="text-[#FF5E4D]">Esenciales</span>
         </h2>
-        <p className="text-xs sm:text-sm text-[#635E59]">
+        <p className="text-xs sm:text-sm text-[#635E59] dark:text-gray-400">
           Maximiza tu rendimiento acústico y mantén tus dispositivos protegidos con accesorios originales.
         </p>
       </div>
@@ -108,10 +108,10 @@ export const EcosystemAddons: React.FC = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.45, delay: index * 0.1 }}
-              className="p-6 rounded-3xl warm-glass flex items-start gap-5 hover:border-white shadow-sm hover:shadow-xl transition-all duration-300 group"
+              className="p-6 rounded-3xl glass-panel dark:bg-[#12151c]/75 dark:border-white/10 flex items-start gap-5 hover:border-white dark:hover:border-white/20 shadow-sm hover:shadow-xl transition-all duration-300 group"
             >
               {/* Icon Container */}
-              <div className="p-3.5 rounded-2xl bg-white/90 border border-[#EBE6DF] group-hover:scale-105 transition-transform shrink-0 shadow-2xs">
+              <div className="p-3.5 rounded-2xl bg-white/90 dark:bg-white/10 border border-[#EBE6DF] dark:border-white/10 group-hover:scale-105 transition-transform shrink-0 shadow-2xs">
                 {getIcon(item.icon)}
               </div>
 
@@ -119,21 +119,21 @@ export const EcosystemAddons: React.FC = () => {
               <div className="space-y-1.5 flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-2 truncate">
-                    <h3 className="font-bold text-[#1E1B18] text-sm group-hover:text-[#FF5E4D] transition-colors truncate">
+                    <h3 className="font-bold text-[#1E1B18] dark:text-[#f9fafb] text-sm group-hover:text-[#FF5E4D] transition-colors truncate">
                       {item.title}
                     </h3>
                     {item.tag && (
-                      <span className="text-[9px] font-black uppercase tracking-wider bg-[#FFE8E4] border border-[#FFD2CA] text-[#FF5E4D] px-2 py-0.5 rounded-md">
+                      <span className="text-[9px] font-black uppercase tracking-wider bg-[#FFE8E4] dark:bg-[#FF4D4F]/20 border border-[#FFD2CA] dark:border-[#FF4D4F]/30 text-[#FF5E4D] px-2 py-0.5 rounded-md">
                         {item.tag}
                       </span>
                     )}
                   </div>
-                  <span className="text-sm font-extrabold text-[#1E1B18] shrink-0">
+                  <span className="text-sm font-extrabold text-[#1E1B18] dark:text-[#f9fafb] shrink-0">
                     ${item.price}
                   </span>
                 </div>
                 
-                <p className="text-xs text-[#635E59] leading-relaxed">
+                <p className="text-xs text-[#635E59] dark:text-gray-400 leading-relaxed">
                   {item.description}
                 </p>
 

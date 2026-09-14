@@ -331,18 +331,18 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.35 }}
-      className="max-w-4xl mx-auto space-y-8 font-body text-[#1b1c1c]"
+      className="max-w-4xl mx-auto space-y-8 font-body text-[#1b1c1c] dark:text-[#f9fafb]"
     >
       {/* Header with Back Button */}
-      <div className="flex items-center justify-between border-b border-white/60 pb-5">
+      <div className="flex items-center justify-between border-b border-white/60 dark:border-white/10 pb-5">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-1 text-xs text-[#5b403e] hover:text-[#FF4D4F] transition-colors cursor-pointer"
+          className="inline-flex items-center gap-1 text-xs text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] transition-colors cursor-pointer"
         >
           <span className="material-symbols-outlined text-[18px]">arrow_back</span>
           <span>Volver al Carrito</span>
         </button>
-        <span className="text-xs font-bold tracking-wider text-[#5b403e] uppercase">
+        <span className="text-xs font-bold tracking-wider text-[#5b403e] dark:text-[#9ca3af] uppercase">
           Pago Seguro Cifrado (SSL 256-bit)
         </span>
       </div>
@@ -356,7 +356,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               <div className="flex justify-between items-center">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">1. Información de Envío</h3>
                 {addresses.length > 0 && (
-                  <span className="text-[10px] text-[#5b403e] font-semibold">
+                  <span className="text-[10px] text-[#5b403e] dark:text-[#9ca3af] font-semibold">
                     {addresses.length} {addresses.length === 1 ? 'dirección guardada' : 'direcciones guardadas'}
                   </span>
                 )}
@@ -373,7 +373,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       className={`px-3 py-1.5 rounded-xl text-[11px] font-semibold border transition-all cursor-pointer ${
                         address === a.street_address
                           ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-2xs'
-                          : 'bg-white/60 border-white/80 text-[#5b403e] hover:bg-white'
+                          : 'bg-white/60 dark:bg-white/5 border-white/80 dark:border-white/10 text-[#5b403e] dark:text-[#9ca3af] hover:bg-white dark:hover:bg-white/10'
                       }`}
                     >
                       📍 {a.title}: {a.street_address.split(',')[0]}
@@ -384,7 +384,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
 
               <div className="grid sm:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Nombre Completo</label>
+                  <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Nombre Completo</label>
                   <input
                     type="text"
                     required
@@ -395,7 +395,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Correo Electrónico</label>
+                  <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Correo Electrónico</label>
                   <input
                     type="email"
                     required
@@ -409,7 +409,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
 
               <div className="grid sm:grid-cols-3 gap-3">
                 <div>
-                  <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Dirección de Entrega</label>
+                  <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Dirección de Entrega</label>
                   <input
                     type="text"
                     required
@@ -420,7 +420,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Ciudad</label>
+                  <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Ciudad</label>
                   <input
                     type="text"
                     required
@@ -431,7 +431,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                   />
                 </div>
                 <div>
-                  <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Teléfono</label>
+                  <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Teléfono</label>
                   <input
                     type="text"
                     required
@@ -452,7 +452,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                     onChange={(e) => setSaveAddressOption(e.target.checked)}
                     className="rounded border-[#e4bebb] text-[#FF4D4F] focus:ring-[#FF4D4F]/30"
                   />
-                  <span className="text-[11px] text-[#5b403e] font-medium">
+                  <span className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] font-medium">
                     Guardar esta dirección de entrega para mis próximas compras
                   </span>
                 </label>
@@ -471,16 +471,16 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
             </div>
 
             {/* 3. Método de Pago */}
-            <div className="space-y-3 pt-4 border-t border-white/60">
+            <div className="space-y-3 pt-4 border-t border-white/60 dark:border-white/10">
               <h3 className="text-xs font-bold uppercase tracking-wider text-[#FF4D4F]">3. Método de Pago</h3>
               
               {activeMethodsCount === 0 ? (
-                <div className="p-4 rounded-2xl bg-[#ffdad6]/60 border border-[#ffdad6] text-[#ba1a1a] text-xs text-center font-semibold">
+                <div className="p-4 rounded-2xl bg-[#ffdad6]/60 dark:bg-[#ff4d4f]/20 border border-[#ffdad6] dark:border-[#ff4d4f]/30 text-[#ba1a1a] dark:text-[#ff8a80] text-xs text-center font-semibold">
                   No hay medios de pago habilitados en este momento. Por favor contacte con administración.
                 </div>
               ) : (
                 /* Payment Tabs Selector based on Admin Settings */
-                <div className={`grid grid-cols-${activeMethodsCount} gap-2 p-1.5 glass-panel rounded-2xl border border-white/70`}>
+                <div className={`grid grid-cols-${activeMethodsCount} gap-2 p-1.5 glass-panel rounded-2xl border border-white/70 dark:border-white/10`}>
                   {paymentSettings.mp_active && (
                     <button
                       type="button"
@@ -488,7 +488,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                         paymentMethod === 'mercadopago'
                           ? 'bg-[#009EE3] text-white shadow-md'
-                          : 'text-[#5b403e] hover:bg-white/40'
+                          : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/40 dark:hover:bg-white/10'
                       }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">account_balance_wallet</span>
@@ -503,7 +503,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                         paymentMethod === 'card'
                           ? 'bg-[#FF4D4F] text-white shadow-md'
-                          : 'text-[#5b403e] hover:bg-white/40'
+                          : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/40 dark:hover:bg-white/10'
                       }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">credit_card</span>
@@ -518,7 +518,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       className={`py-2.5 px-2 rounded-xl text-xs font-bold flex flex-col items-center gap-1 transition-all cursor-pointer ${
                         paymentMethod === 'transfer'
                           ? 'bg-[#1E824C] text-white shadow-md'
-                          : 'text-[#5b403e] hover:bg-white/40'
+                          : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/40 dark:hover:bg-white/10'
                       }`}
                     >
                       <span className="material-symbols-outlined text-[18px]">account_balance</span>
@@ -536,22 +536,22 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       MP
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-[#1b1c1c]">Checkout Pro de Mercado Pago</h4>
-                      <p className="text-[11px] text-[#5b403e]">
+                      <h4 className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Checkout Pro de Mercado Pago</h4>
+                      <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
                         Paga con Dinero en Cuenta, Débito, Crédito o hasta {paymentSettings.mp_installments || 6} Cuotas sin interés.
                       </p>
                     </div>
                   </div>
-                  <div className="text-[11px] text-[#009EE3] font-medium bg-white/60 p-2.5 rounded-xl border border-white/80">
+                  <div className="text-[11px] text-[#009EE3] font-medium bg-white/60 dark:bg-white/5 p-2.5 rounded-xl border border-white/80 dark:border-white/10">
                     💡 Al presionar el botón de abajo, serás redirigido de forma 100% segura a la aplicación o web de Mercado Pago.
                   </div>
                 </div>
               )}
 
               {paymentMethod === 'card' && paymentSettings.card_active && (
-                <div className="space-y-3 p-4 glass-panel rounded-2xl border border-white/80">
+                <div className="space-y-3 p-4 glass-panel rounded-2xl border border-white/80 dark:border-white/10">
                   <div>
-                    <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Número de Tarjeta</label>
+                    <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Número de Tarjeta</label>
                     <div className="relative">
                       <input
                         type="text"
@@ -561,7 +561,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                         className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs font-mono outline-none pl-9"
                         placeholder="4242 4242 4242 4242"
                       />
-                      <span className="material-symbols-outlined absolute left-2.5 top-2.5 text-[#5b403e] text-[18px]">
+                      <span className="material-symbols-outlined absolute left-2.5 top-2.5 text-[#5b403e] dark:text-[#9ca3af] text-[18px]">
                         credit_card
                       </span>
                     </div>
@@ -569,7 +569,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] font-bold text-[#5b403e] block mb-1">Vencimiento (MM/AA)</label>
+                      <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Vencimiento (MM/AA)</label>
                       <input
                         type="text"
                         required
@@ -580,7 +580,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] font-bold text-[#5b403e] block mb-1">CVV / Seguridad</label>
+                      <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">CVV / Seguridad</label>
                       <input
                         type="text"
                         required
@@ -600,7 +600,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                         onChange={(e) => setSaveCardOption(e.target.checked)}
                         className="rounded border-[#e4bebb] text-[#FF4D4F] focus:ring-[#FF4D4F]/30"
                       />
-                      <span className="text-[11px] text-[#5b403e] font-medium">
+                      <span className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] font-medium">
                         Guardar esta tarjeta de forma segura para mis próximas compras
                       </span>
                     </label>
@@ -611,7 +611,7 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
               {paymentMethod === 'transfer' && paymentSettings.transfer_active && (
                 <div className="p-4 rounded-2xl bg-[#1E824C]/10 border border-[#1E824C]/20 space-y-3 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-[#1E824C] flex items-center gap-1">
+                    <span className="font-bold text-[#1E824C] dark:text-[#4ade80] flex items-center gap-1">
                       <span className="material-symbols-outlined text-[16px]">percent</span>
                       {paymentSettings.transfer_discount || 10}% de Descuento Aplicado
                     </span>
@@ -619,13 +619,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                       Ahorras ${transferDiscount.toFixed(2)}
                     </span>
                   </div>
-                  <div className="p-3 bg-white/70 rounded-xl space-y-1 text-[#5b403e] text-[11px] font-mono">
+                  <div className="p-3 bg-white/70 dark:bg-white/5 rounded-xl space-y-1 text-[#5b403e] dark:text-[#9ca3af] text-[11px] font-mono border border-white/80 dark:border-white/10">
                     <p><b>Banco:</b> {paymentSettings.transfer_bank || 'Banco Santander'}</p>
                     <p><b>Titular:</b> {paymentSettings.transfer_holder || 'Lumina Retail S.A.'}</p>
                     <p><b>CBU:</b> {paymentSettings.transfer_cbu || '0000003100010000849201'}</p>
                     <p><b>Alias:</b> <span className="text-[#FF4D4F] font-bold">{paymentSettings.transfer_alias || 'LUMINA.PAGOS.OFICIAL'}</span></p>
                   </div>
-                  <p className="text-[11px] text-[#5b403e]">
+                  <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
                     Envía el comprobante por WhatsApp o correo para despacho prioritario.
                   </p>
                 </div>
@@ -658,8 +658,8 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
         </div>
 
         {/* Right Column: Order Summary Glass Card */}
-        <div className="lg:col-span-5 glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-5">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#1b1c1c] pb-3 border-b border-white/60">
+        <div className="lg:col-span-5 glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-5">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-[#1b1c1c] dark:text-[#f9fafb] pb-3 border-b border-white/60 dark:border-white/10">
             Resumen del Pedido ({items.length} {items.length === 1 ? 'producto' : 'productos'})
           </h3>
 
@@ -670,35 +670,35 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-12 h-12 rounded-xl object-contain bg-white/60 border border-white p-1 shrink-0"
+                  className="w-12 h-12 rounded-xl object-contain bg-white/60 dark:bg-white/10 border border-white dark:border-white/10 p-1 shrink-0 mix-blend-multiply dark:mix-blend-normal"
                 />
                 <div className="flex-1 min-w-0">
-                  <h4 className="font-bold text-[#1b1c1c] truncate">{item.title}</h4>
-                  <p className="text-[11px] text-[#5b403e]">
+                  <h4 className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">{item.title}</h4>
+                  <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
                     {item.variant ? `${item.variant} • ` : ''}Cant: {item.quantity}
                   </p>
                 </div>
-                <span className="font-bold text-[#1b1c1c]">${(item.price * item.quantity).toFixed(2)}</span>
+                <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${(item.price * item.quantity).toFixed(2)}</span>
               </div>
             ))}
           </div>
 
           {/* Pricing Totals */}
-          <div className="space-y-2 pt-3 border-t border-white/60 text-xs text-[#5b403e]">
+          <div className="space-y-2 pt-3 border-t border-white/60 dark:border-white/10 text-xs text-[#5b403e] dark:text-[#9ca3af]">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span className="font-semibold text-[#1b1c1c]">${subtotal.toFixed(2)}</span>
+              <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">${subtotal.toFixed(2)}</span>
             </div>
 
             {discountAmount > 0 && (
-              <div className="flex justify-between text-[#1E824C]">
+              <div className="flex justify-between text-[#1E824C] dark:text-[#4ade80]">
                 <span>Descuento cupón ({discountCode})</span>
                 <span className="font-semibold">-${discountAmount.toFixed(2)}</span>
               </div>
             )}
 
             {paymentMethod === 'transfer' && paymentSettings.transfer_active && transferDiscount > 0 && (
-              <div className="flex justify-between text-[#1E824C]">
+              <div className="flex justify-between text-[#1E824C] dark:text-[#4ade80]">
                 <span>Descuento Transferencia ({paymentSettings.transfer_discount}%)</span>
                 <span className="font-semibold">-${transferDiscount.toFixed(2)}</span>
               </div>
@@ -706,12 +706,12 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
 
             <div className="flex justify-between">
               <span>Costo de Envío</span>
-              <span className={`font-semibold ${shippingCost > 0 ? 'text-[#FF4D4F]' : 'text-[#1E824C]'}`}>
+              <span className={`font-semibold ${shippingCost > 0 ? 'text-[#FF4D4F]' : 'text-[#1E824C] dark:text-[#4ade80]'}`}>
                 {shippingCost > 0 ? `$${shippingCost.toFixed(2)} ARS` : shippingRate === null ? 'A coordinar / WhatsApp' : 'Gratis'}
               </span>
             </div>
 
-            <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">
+            <div className="flex justify-between items-baseline pt-2 border-t border-white/80 dark:border-white/10 text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
               <span>Total Final</span>
               <span className="text-xl font-extrabold text-[#FF4D4F]">${total.toFixed(2)}</span>
             </div>

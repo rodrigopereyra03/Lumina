@@ -230,7 +230,7 @@ export const AdminDashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="py-20 text-center text-xs text-[#5b403e] glass-panel rounded-2xl border border-white/70 shadow-sm">
+      <div className="py-20 text-center text-xs text-[#5b403e] dark:text-[#9ca3af] glass-panel rounded-2xl border border-white/70 dark:border-white/10 shadow-sm">
         <div className="w-10 h-10 border-2 border-[#FF4D4F] border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
         <span>Calculando métricas y facturación en tiempo real...</span>
       </div>
@@ -238,23 +238,23 @@ export const AdminDashboard: React.FC = () => {
   }
 
   return (
-    <div className="space-y-8 font-body text-[#1b1c1c]">
+    <div className="space-y-8 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Resumen General</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
+          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Resumen General</h1>
+          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5">
             Métricas de la tienda en tiempo real, volumen de ventas y facturación en vivo.
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Timeframe Filter Pills */}
-          <div className="flex bg-white/70 border border-white/80 rounded-xl p-1 shadow-2xs text-xs font-semibold text-[#5b403e]">
+          <div className="flex bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl p-1 shadow-2xs text-xs font-semibold text-[#5b403e] dark:text-[#9ca3af]">
             <button
               onClick={() => setTimeframe('today')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                timeframe === 'today' ? 'bg-[#FF4D4F] text-white font-bold shadow-xs' : 'hover:text-[#1b1c1c]'
+                timeframe === 'today' ? 'bg-[#FF4D4F] text-white font-bold shadow-xs' : 'hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
               }`}
             >
               Hoy
@@ -262,7 +262,7 @@ export const AdminDashboard: React.FC = () => {
             <button
               onClick={() => setTimeframe('week')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                timeframe === 'week' ? 'bg-[#FF4D4F] text-white font-bold shadow-xs' : 'hover:text-[#1b1c1c]'
+                timeframe === 'week' ? 'bg-[#FF4D4F] text-white font-bold shadow-xs' : 'hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
               }`}
             >
               Esta Semana
@@ -270,7 +270,7 @@ export const AdminDashboard: React.FC = () => {
             <button
               onClick={() => setTimeframe('month')}
               className={`px-3 py-1.5 rounded-lg transition-all cursor-pointer ${
-                timeframe === 'month' ? 'bg-[#FF4D4F] text-white font-bold shadow-xs' : 'hover:text-[#1b1c1c]'
+                timeframe === 'month' ? 'bg-[#FF4D4F] text-white font-bold shadow-xs' : 'hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
               }`}
             >
               Este Mes
@@ -296,21 +296,21 @@ export const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.05 }}
-          className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-3"
+          className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-3"
         >
           <div className="flex justify-between items-start">
-            <span className="text-xs text-[#5b403e] font-semibold uppercase tracking-wider">
+            <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-semibold uppercase tracking-wider">
               Ventas Totales
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F]">
+            <div className="w-8 h-8 rounded-xl bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F]">
               <span className="material-symbols-outlined text-[18px]">payments</span>
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
               ${totalSales.toFixed(2)}
             </span>
-            <span className="text-[10px] font-bold text-[#1E824C] flex items-center gap-0.5 bg-[#E8F8F0] px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-[#1E824C] dark:text-[#4ade80] flex items-center gap-0.5 bg-[#E8F8F0] dark:bg-[#4ade80]/15 px-2 py-0.5 rounded-full">
               <span className="material-symbols-outlined text-[12px]">trending_up</span>
               {filteredOrders.length} {filteredOrders.length === 1 ? 'orden' : 'órdenes'}
             </span>
@@ -322,21 +322,21 @@ export const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.1 }}
-          className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-3"
+          className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-3"
         >
           <div className="flex justify-between items-start">
-            <span className="text-xs text-[#5b403e] font-semibold uppercase tracking-wider">
+            <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-semibold uppercase tracking-wider">
               Órdenes Pendientes
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#FFF0EB] flex items-center justify-center text-[#D97757]">
+            <div className="w-8 h-8 rounded-xl bg-[#FFF0EB] dark:bg-[#D97757]/20 flex items-center justify-center text-[#D97757]">
               <span className="material-symbols-outlined text-[18px]">hourglass_top</span>
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
               {pendingOrdersCount}
             </span>
-            <span className="text-[10px] font-semibold text-[#D97757] bg-[#FFF0EB] px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-semibold text-[#D97757] bg-[#FFF0EB] dark:bg-[#D97757]/15 px-2 py-0.5 rounded-full">
               {pendingOrdersCount === 1 ? 'En preparación' : 'En preparación'}
             </span>
           </div>
@@ -347,21 +347,21 @@ export const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
-          className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-3"
+          className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-3"
         >
           <div className="flex justify-between items-start">
-            <span className="text-xs text-[#5b403e] font-semibold uppercase tracking-wider">
+            <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-semibold uppercase tracking-wider">
               Clientes Registrados
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#e2e2e4]/70 flex items-center justify-center text-[#1b1c1c]">
+            <div className="w-8 h-8 rounded-xl bg-[#e2e2e4]/70 dark:bg-white/10 flex items-center justify-center text-[#1b1c1c] dark:text-[#f9fafb]">
               <span className="material-symbols-outlined text-[18px]">group</span>
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
               {totalCustomersCount}
             </span>
-            <span className="text-[10px] font-bold text-[#1E824C] flex items-center gap-0.5 bg-[#E8F8F0] px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-[#1E824C] dark:text-[#4ade80] flex items-center gap-0.5 bg-[#E8F8F0] dark:bg-[#4ade80]/15 px-2 py-0.5 rounded-full">
               Activos
             </span>
           </div>
@@ -372,21 +372,21 @@ export const AdminDashboard: React.FC = () => {
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 }}
-          className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-3"
+          className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-3"
         >
           <div className="flex justify-between items-start">
-            <span className="text-xs text-[#5b403e] font-semibold uppercase tracking-wider">
+            <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-semibold uppercase tracking-wider">
               Ticket Promedio
             </span>
-            <div className="w-8 h-8 rounded-xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F]">
+            <div className="w-8 h-8 rounded-xl bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F]">
               <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
             </div>
           </div>
           <div className="flex items-baseline justify-between">
-            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] tracking-tight">
+            <span className="text-2xl sm:text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
               ${averageTicket.toFixed(2)}
             </span>
-            <span className="text-[10px] font-bold text-[#1E824C] flex items-center gap-0.5 bg-[#E8F8F0] px-2 py-0.5 rounded-full">
+            <span className="text-[10px] font-bold text-[#1E824C] dark:text-[#4ade80] flex items-center gap-0.5 bg-[#E8F8F0] dark:bg-[#4ade80]/15 px-2 py-0.5 rounded-full">
               ARS / compra
             </span>
           </div>
@@ -396,24 +396,24 @@ export const AdminDashboard: React.FC = () => {
       {/* Revenue Graph and Top Categories Split */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Revenue Performance Chart */}
-        <div className="lg:col-span-8 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 shadow-sm space-y-6">
+        <div className="lg:col-span-8 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h3 className="text-base font-bold text-[#1b1c1c]">Rendimiento de Facturación</h3>
-              <p className="text-xs text-[#5b403e]">
+              <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Rendimiento de Facturación</h3>
+              <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">
                 Ingresos brutos reales por día ({timeframe === 'today' ? 'Hoy' : timeframe === 'week' ? 'Esta Semana' : 'Últimos 30 días'})
               </p>
             </div>
-            <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/40 px-3 py-1 rounded-full border border-white/60">
+            <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/40 dark:bg-[#FF4D4F]/15 px-3 py-1 rounded-full border border-white/60 dark:border-white/10">
               Total periodo: ${totalSales.toFixed(2)} ARS
             </span>
           </div>
 
           {/* Bar Chart Bars */}
-          <div className="h-64 flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-white/60">
+          <div className="h-64 flex items-end justify-between gap-3 pt-6 pb-2 px-2 border-b border-white/60 dark:border-white/10">
             {revenueChartData.map((d) => (
               <div key={d.day} className="flex-1 flex flex-col items-center gap-2 group h-full justify-end">
-                <div className="text-[11px] font-bold text-[#FF4D4F] opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 px-1.5 py-0.5 rounded-md shadow-2xs border border-white">
+                <div className="text-[11px] font-bold text-[#FF4D4F] opacity-0 group-hover:opacity-100 transition-opacity bg-white/90 dark:bg-[#181c26] px-1.5 py-0.5 rounded-md shadow-2xs border border-white dark:border-white/10">
                   ${d.amount.toFixed(2)}
                 </div>
                 <motion.div
@@ -423,32 +423,32 @@ export const AdminDashboard: React.FC = () => {
                   className={`w-full max-w-[48px] rounded-t-xl transition-all cursor-pointer ${
                     d.amount > 0
                       ? 'bg-gradient-to-t from-[#FF4D4F] to-[#FF8A80] shadow-sm group-hover:brightness-110'
-                      : 'bg-white/40 border-t border-white/60'
+                      : 'bg-white/40 dark:bg-white/10 border-t border-white/60 dark:border-white/10'
                   }`}
                 />
-                <span className="text-xs font-semibold text-[#5b403e]">{d.day}</span>
+                <span className="text-xs font-semibold text-[#5b403e] dark:text-[#9ca3af]">{d.day}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* Top Categories */}
-        <div className="lg:col-span-4 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 shadow-sm space-y-6">
+        <div className="lg:col-span-4 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-6">
           <div>
-            <h3 className="text-base font-bold text-[#1b1c1c]">Categorías Principales</h3>
-            <p className="text-xs text-[#5b403e]">Distribución de facturación según pedidos reales</p>
+            <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Categorías Principales</h3>
+            <p className="text-xs text-[#5b403e] dark:text-[#9ca3af]">Distribución de facturación según pedidos reales</p>
           </div>
 
           <div className="space-y-4">
             {topCategoriesData.map((cat) => (
               <div key={cat.name} className="space-y-1.5">
-                <div className="flex justify-between text-xs font-bold text-[#1b1c1c]">
+                <div className="flex justify-between text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
                   <span>{cat.name}</span>
                   <span className="text-[#FF4D4F]">
                     {cat.sales} ({cat.percentage}%)
                   </span>
                 </div>
-                <div className="w-full h-2 bg-white/60 rounded-full overflow-hidden border border-white/80">
+                <div className="w-full h-2 bg-white/60 dark:bg-white/10 rounded-full overflow-hidden border border-white/80 dark:border-white/10">
                   <div
                     className={`h-full ${cat.color} rounded-full transition-all duration-500`}
                     style={{ width: `${Math.max(cat.percentage, cat.percentage > 0 ? 5 : 0)}%` }}
@@ -458,8 +458,8 @@ export const AdminDashboard: React.FC = () => {
             ))}
           </div>
 
-          <div className="p-4 rounded-xl bg-white/60 border border-white/80 text-xs text-[#5b403e] space-y-1">
-            <span className="font-bold text-[#1b1c1c] block">Diagnóstico en Tiempo Real</span>
+          <div className="p-4 rounded-xl bg-white/60 dark:bg-white/5 border border-white/80 dark:border-white/10 text-xs text-[#5b403e] dark:text-[#9ca3af] space-y-1">
+            <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">Diagnóstico en Tiempo Real</span>
             <p>
               {filteredOrders.length > 0
                 ? `Se han registrado ${filteredOrders.length} pedidos en este periodo con una facturación neta de $${totalSales.toFixed(2)} ARS.`

@@ -149,18 +149,18 @@ export const OrderManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-body text-[#1b1c1c]">
+    <div className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Órdenes</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
+          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Órdenes</h1>
+          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5">
             Supervisa pedidos de clientes, pagos recibidos y despachos en tiempo real.
           </p>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex bg-white/70 border border-white/80 rounded-xl p-1 shadow-2xs text-xs font-semibold text-[#5b403e] overflow-x-auto">
+        <div className="flex bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl p-1 shadow-2xs text-xs font-semibold text-[#5b403e] dark:text-[#9ca3af] overflow-x-auto">
           {['Todas', 'Pagado', 'En Proceso', 'Enviado', 'Entregado', 'Cancelado'].map((status) => (
             <button
               key={status}
@@ -168,7 +168,7 @@ export const OrderManagement: React.FC = () => {
               className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
                 filterStatus === status
                   ? 'bg-[#FF4D4F] text-white font-bold shadow-xs'
-                  : 'hover:text-[#1b1c1c]'
+                  : 'hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
               }`}
             >
               {status}
@@ -178,7 +178,7 @@ export const OrderManagement: React.FC = () => {
       </div>
 
       {statusFeedback && (
-        <div className="p-3.5 rounded-xl bg-[#E8F8F0] border border-[#B7E5CD] text-[#1E824C] text-xs font-bold flex items-center gap-2 animate-in fade-in">
+        <div className="p-3.5 rounded-xl bg-[#E8F8F0] dark:bg-[#4ade80]/15 border border-[#B7E5CD] dark:border-[#4ade80]/30 text-[#1E824C] dark:text-[#4ade80] text-xs font-bold flex items-center gap-2 animate-in fade-in">
           <span className="material-symbols-outlined text-[18px]">check_circle</span>
           <span>{statusFeedback}</span>
         </div>
@@ -186,17 +186,17 @@ export const OrderManagement: React.FC = () => {
 
       {/* Main Content */}
       {loading ? (
-        <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e]">
+        <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e] dark:text-[#9ca3af]">
           Cargando órdenes desde la base de datos...
         </div>
       ) : orders.length === 0 ? (
-        <div className="glass-panel rounded-2xl p-12 text-center space-y-3 border border-white/70 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-[#ffdad7]/40 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
+        <div className="glass-panel rounded-2xl p-12 text-center space-y-3 border border-white/70 dark:border-white/10 shadow-sm">
+          <div className="w-16 h-16 rounded-full bg-[#ffdad7]/40 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
             <span className="material-symbols-outlined text-[32px]">receipt_long</span>
           </div>
           <div>
-            <h4 className="text-base font-bold text-[#1b1c1c]">No hay órdenes con estado "{filterStatus}"</h4>
-            <p className="text-xs text-[#5b403e] max-w-md mx-auto mt-1">
+            <h4 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">No hay órdenes con estado "{filterStatus}"</h4>
+            <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] max-w-md mx-auto mt-1">
               Las compras realizadas por tus clientes aparecerán aquí según su estado.
             </p>
           </div>
@@ -205,11 +205,11 @@ export const OrderManagement: React.FC = () => {
         /* Main Split View: Orders List & Order Detail Inspector */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Orders Table */}
-          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-4">
+          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-4">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/60 text-[#5b403e]">
+                  <tr className="border-b border-white/60 dark:border-white/10 text-[#5b403e] dark:text-[#9ca3af]">
                     <th className="pb-3 font-semibold">N° Orden</th>
                     <th className="pb-3 font-semibold">Cliente</th>
                     <th className="pb-3 font-semibold">Fecha</th>
@@ -217,7 +217,7 @@ export const OrderManagement: React.FC = () => {
                     <th className="pb-3 font-semibold">Estado</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/50">
+                <tbody className="divide-y divide-white/50 dark:divide-white/10">
                   {orders.map((ord) => {
                     const isSelected = selectedOrder?.id === ord.id
 
@@ -226,13 +226,13 @@ export const OrderManagement: React.FC = () => {
                         key={ord.id}
                         onClick={() => setSelectedOrder(ord)}
                         className={`cursor-pointer transition-all ${
-                          isSelected ? 'bg-white/80 font-semibold shadow-2xs' : 'hover:bg-white/40'
+                          isSelected ? 'bg-white/80 dark:bg-white/10 font-semibold shadow-2xs' : 'hover:bg-white/40 dark:hover:bg-white/5'
                         }`}
                       >
                         <td className="py-3.5 font-mono font-bold text-[#FF4D4F]">{ord.id}</td>
-                        <td className="py-3.5 text-[#1b1c1c] font-medium">{ord.customer}</td>
-                        <td className="py-3.5 text-[#5b403e]">{ord.date}</td>
-                        <td className="py-3.5 font-bold text-[#1b1c1c]">${ord.total.toFixed(2)} ARS</td>
+                        <td className="py-3.5 text-[#1b1c1c] dark:text-[#f9fafb] font-medium">{ord.customer}</td>
+                        <td className="py-3.5 text-[#5b403e] dark:text-[#9ca3af]">{ord.date}</td>
+                        <td className="py-3.5 font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${ord.total.toFixed(2)} ARS</td>
                         <td className="py-3.5">
                           <span
                             className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(
@@ -249,23 +249,23 @@ export const OrderManagement: React.FC = () => {
               </table>
             </div>
 
-            <div className="flex justify-between items-center text-xs text-[#5b403e] pt-3 border-t border-white/60">
+            <div className="flex justify-between items-center text-xs text-[#5b403e] dark:text-[#9ca3af] pt-3 border-t border-white/60 dark:border-white/10">
               <span>
                 Mostrando {orders.length} órdenes ({filterStatus})
               </span>
-              <span className="font-semibold text-[#1b1c1c]">Base de Datos Lumina</span>
+              <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">Base de Datos Lumina</span>
             </div>
           </div>
 
           {/* Right Column: Order Detail Inspector */}
           {selectedOrder && (
-            <div className="lg:col-span-5 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 shadow-sm space-y-5 sticky top-24">
-              <div className="flex justify-between items-center border-b border-white/60 pb-3">
+            <div className="lg:col-span-5 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-5 sticky top-24">
+              <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#5b403e]">
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#5b403e] dark:text-[#9ca3af]">
                     Detalle de Orden
                   </span>
-                  <h3 className="text-lg font-bold text-[#1b1c1c]">{selectedOrder.id}</h3>
+                  <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">{selectedOrder.id}</h3>
                 </div>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusBadge(selectedOrder.status)}`}>
                   {selectedOrder.status}
@@ -274,53 +274,53 @@ export const OrderManagement: React.FC = () => {
 
               {/* Customer & Shipping Details */}
               <div className="space-y-3 text-xs">
-                <div className="p-3.5 rounded-xl bg-white/60 space-y-1">
-                  <span className="font-bold text-[#1b1c1c] block">Información del Cliente</span>
-                  <p className="font-semibold text-[#1b1c1c]">{selectedOrder.customer}</p>
-                  <p className="text-[#5b403e]">{selectedOrder.email}</p>
-                  <p className="text-[#5b403e]">{selectedOrder.phone}</p>
+                <div className="p-3.5 rounded-xl bg-white/60 dark:bg-white/5 border border-white/60 dark:border-white/10 space-y-1">
+                  <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">Información del Cliente</span>
+                  <p className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">{selectedOrder.customer}</p>
+                  <p className="text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.email}</p>
+                  <p className="text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.phone}</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white/60 space-y-1">
-                  <span className="font-bold text-[#1b1c1c] block">Dirección de Entrega</span>
-                  <p className="text-[#5b403e]">{selectedOrder.address}</p>
+                <div className="p-3.5 rounded-xl bg-white/60 dark:bg-white/5 border border-white/60 dark:border-white/10 space-y-1">
+                  <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">Dirección de Entrega</span>
+                  <p className="text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.address}</p>
                 </div>
               </div>
 
               {/* Items Purchased */}
-              <div className="space-y-3 pt-2 border-t border-white/60">
-                <span className="font-bold text-xs text-[#1b1c1c] block">
+              <div className="space-y-3 pt-2 border-t border-white/60 dark:border-white/10">
+                <span className="font-bold text-xs text-[#1b1c1c] dark:text-[#f9fafb] block">
                   Productos del Pedido ({selectedOrder.items.length})
                 </span>
                 <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
                   {selectedOrder.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2 rounded-xl bg-white/50 border border-white/60">
+                    <div key={idx} className="flex items-center gap-3 p-2 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10">
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-10 h-10 object-contain rounded-lg bg-white p-1 shrink-0 mix-blend-multiply"
+                        className="w-10 h-10 object-contain rounded-lg bg-white dark:bg-white/10 p-1 shrink-0 mix-blend-multiply dark:mix-blend-normal border border-white dark:border-white/10"
                       />
                       <div className="flex-1 min-w-0 text-xs">
-                        <p className="font-bold text-[#1b1c1c] truncate">{item.title}</p>
-                        <p className="text-[11px] text-[#5b403e]">{item.variant} • Cant: {item.quantity}</p>
+                        <p className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">{item.title}</p>
+                        <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">{item.variant} • Cant: {item.quantity}</p>
                       </div>
-                      <span className="font-bold text-xs text-[#1b1c1c]">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-bold text-xs text-[#1b1c1c] dark:text-[#f9fafb]">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Totals Breakdown */}
-              <div className="space-y-1.5 pt-3 border-t border-white/60 text-xs text-[#5b403e]">
+              <div className="space-y-1.5 pt-3 border-t border-white/60 dark:border-white/10 text-xs text-[#5b403e] dark:text-[#9ca3af]">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1b1c1c]">${selectedOrder.subtotal.toFixed(2)}</span>
+                  <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">${selectedOrder.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Envío</span>
-                  <span className="font-semibold text-[#1E824C]">Gratis</span>
+                  <span className="font-semibold text-[#1E824C] dark:text-[#4ade80]">Gratis</span>
                 </div>
-                <div className="flex justify-between items-baseline pt-2 border-t border-white/80 text-sm font-bold text-[#1b1c1c]">
+                <div className="flex justify-between items-baseline pt-2 border-t border-white/80 dark:border-white/10 text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
                   <span>Total</span>
                   <span className="text-lg font-bold text-[#FF4D4F]">${selectedOrder.total.toFixed(2)} ARS</span>
                 </div>
@@ -328,7 +328,7 @@ export const OrderManagement: React.FC = () => {
 
               {/* Status Changer Actions */}
               <div className="pt-2 flex flex-col gap-2">
-                <span className="text-[11px] font-bold text-[#5b403e]">Cambiar Estado del Pedido:</span>
+                <span className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af]">Cambiar Estado del Pedido:</span>
                 <div className="grid grid-cols-2 gap-2.5 text-xs pt-1">
                   {/* 1. Enviado */}
                   <button
@@ -336,7 +336,7 @@ export const OrderManagement: React.FC = () => {
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Enviado'
                         ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-sm'
-                        : 'bg-white/90 text-[#FF4D4F] border-[#FF4D4F]/30 hover:bg-[#FF4D4F] hover:text-white shadow-2xs hover:border-[#FF4D4F]'
+                        : 'bg-white/90 dark:bg-white/5 text-[#FF4D4F] border-[#FF4D4F]/30 hover:bg-[#FF4D4F] hover:text-white shadow-2xs hover:border-[#FF4D4F]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">local_shipping</span>
@@ -349,7 +349,7 @@ export const OrderManagement: React.FC = () => {
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Entregado'
                         ? 'bg-[#1E824C] text-white border-[#1E824C] shadow-sm'
-                        : 'bg-white/90 text-[#1E824C] border-[#1E824C]/30 hover:bg-[#1E824C] hover:text-white shadow-2xs hover:border-[#1E824C]'
+                        : 'bg-white/90 dark:bg-white/5 text-[#1E824C] dark:text-[#4ade80] border-[#1E824C]/30 hover:bg-[#1E824C] hover:text-white shadow-2xs hover:border-[#1E824C]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">check_circle</span>
@@ -362,7 +362,7 @@ export const OrderManagement: React.FC = () => {
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'En Proceso'
                         ? 'bg-[#D97757] text-white border-[#D97757] shadow-sm'
-                        : 'bg-white/90 text-[#D97757] border-[#D97757]/40 hover:bg-[#D97757] hover:text-white shadow-2xs hover:border-[#D97757]'
+                        : 'bg-white/90 dark:bg-white/5 text-[#D97757] border-[#D97757]/40 hover:bg-[#D97757] hover:text-white shadow-2xs hover:border-[#D97757]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">hourglass_top</span>
@@ -375,7 +375,7 @@ export const OrderManagement: React.FC = () => {
                     className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
                       selectedOrder.status === 'Cancelado'
                         ? 'bg-[#ba1a1a] text-white border-[#ba1a1a] shadow-sm'
-                        : 'bg-white/90 text-[#ba1a1a] border-red-200 hover:bg-[#ba1a1a] hover:text-white shadow-2xs hover:border-[#ba1a1a]'
+                        : 'bg-white/90 dark:bg-white/5 text-[#ba1a1a] dark:text-[#ff8a80] border-red-200 dark:border-red-900/40 hover:bg-[#ba1a1a] hover:text-white shadow-2xs hover:border-[#ba1a1a]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">cancel</span>
@@ -390,38 +390,38 @@ export const OrderManagement: React.FC = () => {
 
       {/* MODAL: CANCELACIÓN Y REEMBOLSO MERCADO PAGO */}
       {isRefundModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-in fade-in">
-          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-2xl space-y-5 bg-white/95 text-xs">
-            <div className="flex justify-between items-start border-b border-white/80 pb-3">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white dark:border-white/10 shadow-2xl space-y-5 bg-white/95 dark:bg-[#12151c] text-xs">
+            <div className="flex justify-between items-start border-b border-white/80 dark:border-white/10 pb-3">
               <div className="flex items-center gap-2 text-[#ba1a1a]">
-                <div className="w-9 h-9 rounded-xl bg-red-100 flex items-center justify-center text-[#ba1a1a]">
+                <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/40 flex items-center justify-center text-[#ba1a1a] dark:text-[#ff8a80]">
                   <span className="material-symbols-outlined text-[22px]">assignment_return</span>
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1b1c1c]">Cancelar y Reembolsar Orden</h3>
-                  <span className="font-mono text-[11px] text-[#5b403e]">{selectedOrder.id}</span>
+                  <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Cancelar y Reembolsar Orden</h3>
+                  <span className="font-mono text-[11px] text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.id}</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsRefundModalOpen(false)}
-                className="text-[#5b403e] hover:text-[#1b1c1c] cursor-pointer"
+                className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/20 space-y-2 text-[#1b1c1c]">
+            <div className="p-4 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/20 space-y-2 text-[#1b1c1c] dark:text-[#f9fafb]">
               <div className="flex items-center gap-2 font-bold text-[#009EE3]">
                 <span className="material-symbols-outlined text-[18px]">payments</span>
                 <span>¿Deseas reembolsar el dinero en Mercado Pago?</span>
               </div>
-              <p className="text-[11px] text-[#5b403e] leading-relaxed">
+              <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] leading-relaxed">
                 El comprador <b>{selectedOrder.customer}</b> abonó <b>${selectedOrder.total.toFixed(2)} ARS</b>. Si confirmas, se enviará la orden de reembolso a la API de Mercado Pago y el saldo se reintegrará automáticamente.
               </p>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-[#5b403e] block">
+              <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block">
                 ID de Pago en Mercado Pago (Transaction ID)
               </label>
               <input
@@ -433,7 +433,7 @@ export const OrderManagement: React.FC = () => {
               />
             </div>
 
-            <div className="flex flex-col gap-2 pt-2 border-t border-white/80">
+            <div className="flex flex-col gap-2 pt-2 border-t border-white/80 dark:border-white/10">
               {/* Option 1: Refund via MP and Cancel */}
               <button
                 disabled={refundLoading}
@@ -448,7 +448,7 @@ export const OrderManagement: React.FC = () => {
               <button
                 disabled={refundLoading}
                 onClick={() => handleCancelWithRefund(false)}
-                className="w-full py-2.5 px-4 rounded-xl bg-red-50 hover:bg-red-100 text-[#ba1a1a] font-bold text-xs border border-red-200 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all"
+                className="w-full py-2.5 px-4 rounded-xl bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 text-[#ba1a1a] dark:text-[#ff8a80] font-bold text-xs border border-red-200 dark:border-red-900/40 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all"
               >
                 <span className="material-symbols-outlined text-[16px]">block</span>
                 <span>Solo Cancelar Orden (Sin Reembolso Automático)</span>
@@ -458,7 +458,7 @@ export const OrderManagement: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsRefundModalOpen(false)}
-                className="w-full py-2 text-center text-[#5b403e] hover:text-[#1b1c1c] text-xs font-semibold cursor-pointer"
+                className="w-full py-2 text-center text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] text-xs font-semibold cursor-pointer"
               >
                 Volver atrás
               </button>

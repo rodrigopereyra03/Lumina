@@ -122,17 +122,17 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.35 }}
-      className="space-y-12 font-body text-[#1b1c1c]"
+      className="space-y-12 font-body text-[#1b1c1c] dark:text-[#f9fafb]"
     >
       {/* Top Breadcrumb Navigation */}
-      <div className="flex items-center gap-2 text-xs text-[#5b403e]">
+      <div className="flex items-center gap-2 text-xs text-[#5b403e] dark:text-[#9ca3af]">
         <button onClick={onBack} className="hover:text-[#FF4D4F] transition-colors cursor-pointer font-medium">
           Inicio
         </button>
         <span>/</span>
         <span className="capitalize">{product.category}</span>
         <span>/</span>
-        <span className="text-[#1b1c1c] font-semibold">{product.title}</span>
+        <span className="text-[#1b1c1c] dark:text-[#f9fafb] font-semibold">{product.title}</span>
       </div>
 
       {/* Main Two-Column Product Section */}
@@ -148,8 +148,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                   onClick={() => setSelectedImage(img)}
                   className={`w-18 h-18 rounded-2xl p-1.5 glass-card border transition-all cursor-pointer shrink-0 ${
                     selectedImage === img
-                      ? 'border-[#FF4D4F] ring-2 ring-[#FF4D4F]/30 bg-white'
-                      : 'border-white/60 hover:bg-white/60'
+                      ? 'border-[#FF4D4F] ring-2 ring-[#FF4D4F]/30 bg-white dark:bg-[#181c26]'
+                      : 'border-white/60 dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10'
                   }`}
                 >
                   <img
@@ -163,14 +163,14 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           )}
 
           {/* Main Selected Image Stage */}
-          <div className="flex-1 aspect-[4/3] md:aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 shadow-sm bg-white/40">
+          <div className="flex-1 aspect-[4/3] md:aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5">
             <img
               src={selectedImage || product.image}
               alt={product.title}
-              className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300 mix-blend-multiply"
+              className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300 mix-blend-multiply dark:mix-blend-normal"
             />
             {product.tags?.[0] && (
-              <span className="absolute top-5 left-5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 text-[#FF4D4F] border border-white shadow-2xs">
+              <span className="absolute top-5 left-5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 dark:bg-[#181c26]/90 text-[#FF4D4F] border border-white dark:border-white/10 shadow-2xs">
                 {product.tags[0]}
               </span>
             )}
@@ -181,15 +181,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         <div className="lg:col-span-5 flex flex-col gap-6">
           {/* Header info */}
           <div className="space-y-2">
-            <span className="text-xs text-[#5b403e] font-bold uppercase tracking-widest block">
+            <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-bold uppercase tracking-widest block">
               Lumina • {product.category}
             </span>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[#1b1c1c]">
+            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[#1b1c1c] dark:text-[#f9fafb]">
               {product.title}
             </h1>
 
             {/* Rating & Reviews */}
-            <div className="flex items-center gap-2 text-xs text-[#5b403e] pt-1">
+            <div className="flex items-center gap-2 text-xs text-[#5b403e] dark:text-[#9ca3af] pt-1">
               <div className="flex items-center text-[#FF4D4F]">
                 {[...Array(5)].map((_, i) => (
                   <span
@@ -201,38 +201,38 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                   </span>
                 ))}
               </div>
-              <span className="font-bold text-[#1b1c1c]">{product.rating}</span>
+              <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb]">{product.rating}</span>
               <span>•</span>
-              <span className="text-[#5b403e] font-medium">{product.reviewsCount} valoraciones verificadas</span>
+              <span className="text-[#5b403e] dark:text-[#9ca3af] font-medium">{product.reviewsCount} valoraciones verificadas</span>
             </div>
           </div>
 
           {/* Price Tag */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-[#1b1c1c]">
+            <span className="text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb]">
               ${product.price.toFixed(2)} ARS
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-base line-through text-[#5b403e]">
+              <span className="text-base line-through text-[#5b403e] dark:text-[#9ca3af]">
                 ${product.originalPrice.toFixed(2)} ARS
               </span>
             )}
             {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/60 px-2 py-0.5 rounded-full">
+              <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/60 dark:bg-[#FF4D4F]/20 px-2 py-0.5 rounded-full">
                 Ahorras ${(product.originalPrice - product.price).toFixed(2)}
               </span>
             )}
           </div>
 
           {/* Short Description */}
-          <p className="text-xs md:text-sm text-[#5b403e] leading-relaxed">
+          <p className="text-xs md:text-sm text-[#5b403e] dark:text-[#9ca3af] leading-relaxed">
             {product.description}
           </p>
 
           {/* Variants Selector */}
           {product.variants && product.variants.length > 0 && (
-            <div className="space-y-2.5 pt-2 border-t border-white/60">
-              <span className="text-xs font-bold text-[#1b1c1c] block">
+            <div className="space-y-2.5 pt-2 border-t border-white/60 dark:border-white/10">
+              <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
                 Variante seleccionada: <span className="text-[#FF4D4F]">{selectedVariant}</span>
               </span>
               <div className="flex items-center gap-2.5">
@@ -244,11 +244,11 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                       onClick={() => setSelectedVariant(variant.name)}
                       className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all cursor-pointer ${
                         isSelected
-                          ? 'bg-white text-[#1b1c1c] shadow-xs border-2 border-[#FF4D4F]'
-                          : 'bg-white/50 text-[#5b403e] border border-white/70 hover:bg-white/80'
+                          ? 'bg-white dark:bg-[#181c26] text-[#1b1c1c] dark:text-[#f9fafb] shadow-xs border-2 border-[#FF4D4F]'
+                          : 'bg-white/50 dark:bg-white/5 text-[#5b403e] dark:text-[#9ca3af] border border-white/70 dark:border-white/10 hover:bg-white/80 dark:hover:bg-white/10'
                       }`}
                     >
-                      <span className={`w-3.5 h-3.5 rounded-full ${variant.colorClass} border border-white shadow-2xs`}></span>
+                      <span className={`w-3.5 h-3.5 rounded-full ${variant.colorClass} border border-white dark:border-white/10 shadow-2xs`}></span>
                       <span>{variant.name}</span>
                     </button>
                   )
@@ -261,19 +261,19 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           <div className="space-y-4 pt-2">
             <div className="flex items-center gap-3">
               {/* Stepper */}
-              <div className="flex items-center border border-white/80 bg-white/70 rounded-full px-3 py-1.5 shadow-2xs">
+              <div className="flex items-center border border-white/80 dark:border-white/10 bg-white/70 dark:bg-white/5 rounded-full px-3 py-1.5 shadow-2xs">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  className="text-[#5b403e] hover:text-[#FF4D4F] p-1 cursor-pointer transition-colors"
+                  className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] p-1 cursor-pointer transition-colors"
                 >
                   <span className="material-symbols-outlined text-[16px]">remove</span>
                 </button>
-                <span className="text-xs font-bold min-w-[28px] text-center text-[#1b1c1c]">
+                <span className="text-xs font-bold min-w-[28px] text-center text-[#1b1c1c] dark:text-[#f9fafb]">
                   {quantity}
                 </span>
                 <button
                   onClick={() => setQuantity(quantity + 1)}
-                  className="text-[#5b403e] hover:text-[#FF4D4F] p-1 cursor-pointer transition-colors"
+                  className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] p-1 cursor-pointer transition-colors"
                 >
                   <span className="material-symbols-outlined text-[16px]">add</span>
                 </button>
@@ -290,12 +290,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
 
             {/* Value Props Pill Row */}
-            <div className="grid grid-cols-2 gap-3 text-xs text-[#5b403e] pt-3">
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/40 border border-white/60">
+            <div className="grid grid-cols-2 gap-3 text-xs text-[#5b403e] dark:text-[#9ca3af] pt-3">
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10">
                 <span className="material-symbols-outlined text-[#FF4D4F] text-[18px]">local_shipping</span>
                 <span>Envío express asegurado</span>
               </div>
-              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/40 border border-white/60">
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10">
                 <span className="material-symbols-outlined text-[#FF4D4F] text-[18px]">verified</span>
                 <span>Garantía oficial de 1 año</span>
               </div>
@@ -307,20 +307,20 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
       {/* Product Details Cards */}
       {product.detailsCards && (
         <div className="space-y-6 pt-6">
-          <h2 className="text-xl font-bold text-[#1b1c1c] tracking-tight">
+          <h2 className="text-xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
             Detalles del Producto
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {product.detailsCards.map((card, idx) => (
               <div
                 key={idx}
-                className="glass-card rounded-2xl p-6 space-y-3 border border-white/70 shadow-xs"
+                className="glass-card rounded-2xl p-6 space-y-3 border border-white/70 dark:border-white/10 shadow-xs"
               >
-                <div className="w-10 h-10 rounded-xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F]">
+                <div className="w-10 h-10 rounded-xl bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F]">
                   <span className="material-symbols-outlined text-[22px]">{card.icon}</span>
                 </div>
-                <h3 className="font-bold text-sm text-[#1b1c1c]">{card.title}</h3>
-                <p className="text-xs text-[#5b403e] leading-relaxed">{card.text}</p>
+                <h3 className="font-bold text-sm text-[#1b1c1c] dark:text-[#f9fafb]">{card.title}</h3>
+                <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] leading-relaxed">{card.text}</p>
               </div>
             ))}
           </div>
@@ -329,8 +329,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
       {/* Recommended / Complete the Look Section */}
       {recommended.length > 0 && (
-        <div className="space-y-6 pt-6 border-t border-white/60">
-          <h2 className="text-xl font-bold text-[#1b1c1c] tracking-tight">
+        <div className="space-y-6 pt-6 border-t border-white/60 dark:border-white/10">
+          <h2 className="text-xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">
             Productos Recomendados
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -338,18 +338,18 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               <div
                 key={item.id}
                 onClick={() => onProductClick(item.id)}
-                className="glass-card rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border border-white/70 group"
+                className="glass-card rounded-2xl p-4 flex items-center gap-4 hover:shadow-md transition-all cursor-pointer border border-white/70 dark:border-white/10 group"
               >
                 <img
                   src={item.image}
                   alt={item.title}
-                  className="w-16 h-16 object-contain rounded-xl group-hover:scale-105 transition-transform bg-white/70 p-1 mix-blend-multiply"
+                  className="w-16 h-16 object-contain rounded-xl group-hover:scale-105 transition-transform bg-white/70 dark:bg-white/10 p-1 mix-blend-multiply dark:mix-blend-normal border border-white dark:border-white/10"
                 />
                 <div className="flex-1 min-w-0">
-                  <span className="text-[10px] text-[#5b403e] uppercase font-bold tracking-wider">
+                  <span className="text-[10px] text-[#5b403e] dark:text-[#9ca3af] uppercase font-bold tracking-wider">
                     {item.category_name || 'Lumina'}
                   </span>
-                  <h4 className="text-xs font-bold text-[#1b1c1c] truncate">{item.title}</h4>
+                  <h4 className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">{item.title}</h4>
                   <span className="text-xs font-bold text-[#FF4D4F]">${item.price.toFixed(2)} ARS</span>
                 </div>
               </div>

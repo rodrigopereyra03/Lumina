@@ -84,12 +84,12 @@ export const CategoryManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-body text-[#1b1c1c]">
+    <div className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] tracking-tight">Categorías</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] mt-0.5">
+          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Categorías</h1>
+          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5">
             Estructura y taxonomía del catálogo sincronizada con la base de datos.
           </p>
         </div>
@@ -104,7 +104,7 @@ export const CategoryManagement: React.FC = () => {
       </div>
 
       {loading ? (
-        <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e]">
+        <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e] dark:text-[#9ca3af]">
           Cargando categorías desde la base de datos...
         </div>
       ) : (
@@ -116,17 +116,17 @@ export const CategoryManagement: React.FC = () => {
               initial={{ opacity: 0, y: 15 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: idx * 0.05 }}
-              className="glass-panel rounded-2xl p-6 border border-white/70 shadow-sm space-y-5 flex flex-col justify-between"
+              className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-5 flex flex-col justify-between"
             >
               <div>
                 {/* Category Header */}
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-2xl bg-[#ffdad7]/50 flex items-center justify-center text-[#FF4D4F] border border-white shadow-2xs">
+                    <div className="w-11 h-11 rounded-2xl bg-[#ffdad7]/50 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F] border border-white dark:border-white/10 shadow-2xs">
                       <span className="material-symbols-outlined text-[24px]">{cat.icon}</span>
                     </div>
                     <div>
-                      <h3 className="font-bold text-base text-[#1b1c1c]">{cat.name}</h3>
+                      <h3 className="font-bold text-base text-[#1b1c1c] dark:text-[#f9fafb]">{cat.name}</h3>
                       <p className="text-xs font-semibold text-[#FF4D4F] mt-0.5">
                         {cat.productsCount} {cat.productsCount === 1 ? 'producto activo' : 'productos activos'}
                       </p>
@@ -135,25 +135,25 @@ export const CategoryManagement: React.FC = () => {
 
                   <button
                     onClick={() => handleDelete(cat.id, cat.name)}
-                    className="text-[#5b403e] hover:text-[#ba1a1a] p-1.5 rounded-xl hover:bg-white/80 transition-colors cursor-pointer border border-transparent hover:border-white shadow-2xs"
+                    className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#ba1a1a] dark:hover:text-[#ff8a80] p-1.5 rounded-xl hover:bg-white/80 dark:hover:bg-white/10 transition-colors cursor-pointer border border-transparent hover:border-white dark:hover:border-white/10 shadow-2xs"
                     title="Eliminar categoría"
                   >
                     <span className="material-symbols-outlined text-[18px]">delete</span>
                   </button>
                 </div>
 
-                <div className="mt-4 p-3 rounded-xl bg-white/50 border border-white/60 text-xs text-[#5b403e] flex justify-between items-center">
+                <div className="mt-4 p-3 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10 text-xs text-[#5b403e] dark:text-[#9ca3af] flex justify-between items-center">
                   <span className="font-medium">Slug del sistema:</span>
-                  <span className="font-mono font-bold text-[#1b1c1c]">/{cat.slug}</span>
+                  <span className="font-mono font-bold text-[#1b1c1c] dark:text-[#f9fafb]">/{cat.slug}</span>
                 </div>
               </div>
 
               {/* Status Footer */}
-              <div className="pt-3 border-t border-white/60 flex justify-between items-center text-xs">
-                <span className="bg-[#E8F8F0] text-[#1E824C] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
+              <div className="pt-3 border-t border-white/60 dark:border-white/10 flex justify-between items-center text-xs">
+                <span className="bg-[#E8F8F0] dark:bg-[#4ade80]/15 text-[#1E824C] dark:text-[#4ade80] px-2.5 py-0.5 rounded-full text-[10px] font-bold">
                   Sincronizado
                 </span>
-                <span className="text-[11px] font-semibold text-[#5b403e]">Catálogo Lumina</span>
+                <span className="text-[11px] font-semibold text-[#5b403e] dark:text-[#9ca3af]">Catálogo Lumina</span>
               </div>
             </motion.div>
           ))}
@@ -163,14 +163,14 @@ export const CategoryManagement: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             onClick={() => setIsModalOpen(true)}
-            className="rounded-2xl p-8 border-2 border-dashed border-[#FF4D4F]/30 bg-white/30 hover:bg-white/60 transition-all flex flex-col items-center justify-center gap-3 text-center min-h-[190px] cursor-pointer shadow-2xs group"
+            className="rounded-2xl p-8 border-2 border-dashed border-[#FF4D4F]/30 bg-white/30 dark:bg-white/5 hover:bg-white/60 dark:hover:bg-white/10 transition-all flex flex-col items-center justify-center gap-3 text-center min-h-[190px] cursor-pointer shadow-2xs group"
           >
-            <div className="w-12 h-12 rounded-full bg-[#ffdad7]/60 flex items-center justify-center text-[#FF4D4F] group-hover:scale-110 transition-transform">
+            <div className="w-12 h-12 rounded-full bg-[#ffdad7]/60 dark:bg-[#FF4D4F]/20 flex items-center justify-center text-[#FF4D4F] group-hover:scale-110 transition-transform">
               <span className="material-symbols-outlined text-[28px]">add</span>
             </div>
             <div>
-              <span className="font-bold text-sm text-[#1b1c1c] block">Crear Nueva Categoría</span>
-              <span className="text-xs text-[#5b403e]">Añadir taxonomías y filtros al catálogo</span>
+              <span className="font-bold text-sm text-[#1b1c1c] dark:text-[#f9fafb] block">Crear Nueva Categoría</span>
+              <span className="text-xs text-[#5b403e] dark:text-[#9ca3af]">Añadir taxonomías y filtros al catálogo</span>
             </div>
           </motion.button>
         </div>
@@ -185,20 +185,20 @@ export const CategoryManagement: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-[#1b1c1c]/30 backdrop-blur-xs cursor-pointer"
+              className="absolute inset-0 bg-[#0e1015]/70 backdrop-blur-xs cursor-pointer"
             />
 
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-md bg-[#fbf9f8] glass-panel rounded-3xl p-7 shadow-2xl border border-white/80 space-y-5 z-10"
+              className="relative w-full max-w-md bg-[#fbf9f8] dark:bg-[#12151c] glass-panel rounded-3xl p-7 shadow-2xl border border-white/80 dark:border-white/10 space-y-5 z-10"
             >
-              <div className="flex justify-between items-center border-b border-white/60 pb-3">
-                <h3 className="text-lg font-bold text-[#1b1c1c]">Nueva Categoría</h3>
+              <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
+                <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Nueva Categoría</h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1 text-[#5b403e] hover:text-[#1b1c1c] rounded-lg cursor-pointer"
+                  className="p-1 text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] rounded-lg cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
@@ -206,7 +206,7 @@ export const CategoryManagement: React.FC = () => {
 
               <form onSubmit={handleAddCategory} className="space-y-4 text-xs">
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Nombre de la Categoría</label>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Nombre de la Categoría</label>
                   <input
                     type="text"
                     required
@@ -218,7 +218,7 @@ export const CategoryManagement: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="font-bold text-[#5b403e] block mb-1">Icono (Material Symbol)</label>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Icono (Material Symbol)</label>
                   <input
                     type="text"
                     value={newCatIcon}
@@ -228,7 +228,7 @@ export const CategoryManagement: React.FC = () => {
                   />
                 </div>
 
-                <div className="flex justify-end gap-2.5 pt-3 border-t border-white/60">
+                <div className="flex justify-end gap-2.5 pt-3 border-t border-white/60 dark:border-white/10">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}

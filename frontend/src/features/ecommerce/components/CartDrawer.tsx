@@ -29,7 +29,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
   return (
     <AnimatePresence>
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden font-body text-[#1b1c1c]">
+        <div className="fixed inset-0 z-50 overflow-hidden font-body text-[#1b1c1c] dark:text-[#f9fafb]">
           {/* Backdrop Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -37,7 +37,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
             onClick={closeDrawer}
-            className="absolute inset-0 bg-[#1b1c1c]/25 backdrop-blur-xs cursor-pointer"
+            className="absolute inset-0 bg-[#0e1015]/70 backdrop-blur-xs cursor-pointer"
           />
 
           {/* Slide-out Drawer Panel */}
@@ -47,16 +47,16 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-              className="w-screen max-w-md bg-[#fbf9f8]/95 backdrop-blur-[20px] border-l border-white/40 shadow-2xl flex flex-col justify-between"
+              className="w-screen max-w-md bg-[#fbf9f8]/95 dark:bg-[#12151c]/95 backdrop-blur-[20px] border-l border-white/40 dark:border-white/10 shadow-2xl flex flex-col justify-between"
             >
               {/* Drawer Header */}
-              <div className="p-6 border-b border-white/40 flex justify-between items-center bg-white/30">
-                <h2 className="text-xl font-bold text-[#1b1c1c]">
+              <div className="p-6 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/30 dark:bg-white/5">
+                <h2 className="text-xl font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
                   Tu Carrito ({totalQuantity})
                 </h2>
                 <button
                   onClick={closeDrawer}
-                  className="p-1.5 text-[#5b403e] hover:text-[#1b1c1c] hover:bg-white/60 rounded-full transition-colors cursor-pointer"
+                  className="p-1.5 text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] hover:bg-white/60 dark:hover:bg-white/10 rounded-full transition-colors cursor-pointer"
                   title="Cerrar Carrito"
                 >
                   <span className="material-symbols-outlined text-[22px]">close</span>
@@ -67,11 +67,11 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {items.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-3 py-16">
-                    <div className="w-16 h-16 rounded-2xl bg-white/60 flex items-center justify-center text-[#5b403e]/60">
+                    <div className="w-16 h-16 rounded-2xl bg-white/60 dark:bg-white/10 flex items-center justify-center text-[#5b403e]/60 dark:text-[#9ca3af]/60">
                       <span className="material-symbols-outlined text-[32px]">shopping_cart</span>
                     </div>
-                    <h3 className="text-base font-bold text-[#1b1c1c]">Tu carrito está vacío</h3>
-                    <p className="text-xs text-[#5b403e] max-w-xs">
+                    <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Tu carrito está vacío</h3>
+                    <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] max-w-xs">
                       Explora nuestros productos exclusivos y añade tus favoritos.
                     </p>
                   </div>
@@ -79,42 +79,42 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
                   items.map((item) => (
                     <div
                       key={item.id + (item.variant || '')}
-                      className="glass-item rounded-2xl p-4 flex gap-4 items-center border border-white/60"
+                      className="glass-item rounded-2xl p-4 flex gap-4 items-center border border-white/60 dark:border-white/10"
                     >
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-20 h-20 object-contain rounded-xl bg-white/60 p-2 mix-blend-multiply shrink-0"
+                        className="w-20 h-20 object-contain rounded-xl bg-white/60 dark:bg-white/10 p-2 mix-blend-multiply dark:mix-blend-normal shrink-0 border border-white dark:border-white/10"
                       />
 
                       <div className="flex-1 min-w-0 flex flex-col gap-1">
                         <div className="flex justify-between items-start">
-                          <h3 className="text-xs font-bold text-[#1b1c1c] truncate pr-1">
+                          <h3 className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate pr-1">
                             {item.title}
                           </h3>
-                          <span className="text-xs font-bold text-[#1b1c1c] shrink-0">
+                          <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] shrink-0">
                             ${(item.price * item.quantity).toFixed(2)}
                           </span>
                         </div>
 
-                        <p className="text-[11px] text-[#5b403e]">
+                        <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
                           {item.variant || 'Estándar'}
                         </p>
 
                         <div className="flex justify-between items-center mt-2">
-                          <div className="flex items-center gap-1.5 border border-white/80 rounded-full px-2.5 py-0.5 bg-white/70 shadow-2xs">
+                          <div className="flex items-center gap-1.5 border border-white/80 dark:border-white/10 rounded-full px-2.5 py-0.5 bg-white/70 dark:bg-white/10 shadow-2xs">
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity - 1, item.variant)}
-                              className="text-[#5b403e] hover:text-[#FF4D4F] transition-colors cursor-pointer flex items-center"
+                              className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] transition-colors cursor-pointer flex items-center"
                             >
                               <span className="material-symbols-outlined text-[16px]">remove</span>
                             </button>
-                            <span className="text-xs font-bold text-[#1b1c1c] min-w-[20px] text-center">
+                            <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] min-w-[20px] text-center">
                               {item.quantity}
                             </span>
                             <button
                               onClick={() => updateQuantity(item.id, item.quantity + 1, item.variant)}
-                              className="text-[#5b403e] hover:text-[#FF4D4F] transition-colors cursor-pointer flex items-center"
+                              className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] transition-colors cursor-pointer flex items-center"
                             >
                               <span className="material-symbols-outlined text-[16px]">add</span>
                             </button>
@@ -122,7 +122,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
 
                           <button
                             onClick={() => removeItem(item.id, item.variant)}
-                            className="text-[#5b403e] hover:text-[#ba1a1a] text-[11px] underline cursor-pointer"
+                            className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#ba1a1a] dark:hover:text-[#ff8a80] text-[11px] underline cursor-pointer"
                           >
                             Eliminar
                           </button>
@@ -135,17 +135,17 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
 
               {/* Drawer Footer */}
               {items.length > 0 && (
-                <div className="p-6 border-t border-white/40 bg-[#fbf9f8]/90 backdrop-blur-md">
-                  <div className="flex flex-col gap-2 mb-4 text-xs text-[#5b403e]">
+                <div className="p-6 border-t border-white/40 dark:border-white/10 bg-[#fbf9f8]/90 dark:bg-[#12151c]/95 backdrop-blur-md">
+                  <div className="flex flex-col gap-2 mb-4 text-xs text-[#5b403e] dark:text-[#9ca3af]">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span className="font-semibold text-[#1b1c1c]">${subtotal.toFixed(2)}</span>
+                      <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">${subtotal.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Envío</span>
                       <span>{subtotal >= 150 ? 'Gratis' : 'Calculado en el checkout'}</span>
                     </div>
-                    <div className="flex justify-between items-baseline text-base font-bold text-[#1b1c1c] mt-1 pt-2 border-t border-white/60">
+                    <div className="flex justify-between items-baseline text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb] mt-1 pt-2 border-t border-white/60 dark:border-white/10">
                       <span>Total</span>
                       <span className="text-xl font-bold text-[#FF4D4F]">${total.toFixed(2)}</span>
                     </div>
