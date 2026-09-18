@@ -41,7 +41,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
           />
 
           {/* Slide-out Drawer Panel */}
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
             <motion.aside
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
@@ -50,8 +50,8 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
               className="w-screen max-w-md bg-[#fbf9f8]/95 dark:bg-[#12151c]/95 backdrop-blur-[20px] border-l border-white/40 dark:border-white/10 shadow-2xl flex flex-col justify-between"
             >
               {/* Drawer Header */}
-              <div className="p-6 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/30 dark:bg-white/5">
-                <h2 className="text-xl font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
+              <div className="p-4 sm:p-6 border-b border-white/40 dark:border-white/10 flex justify-between items-center bg-white/30 dark:bg-white/5">
+                <h2 className="text-lg sm:text-xl font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
                   Tu Carrito ({totalQuantity})
                 </h2>
                 <button
@@ -64,7 +64,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
               </div>
 
               {/* Items List */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 sm:space-y-4">
                 {items.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center space-y-3 py-16">
                     <div className="w-16 h-16 rounded-2xl bg-white/60 dark:bg-white/10 flex items-center justify-center text-[#5b403e]/60 dark:text-[#9ca3af]/60">
@@ -135,7 +135,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
 
               {/* Drawer Footer */}
               {items.length > 0 && (
-                <div className="p-6 border-t border-white/40 dark:border-white/10 bg-[#fbf9f8]/90 dark:bg-[#12151c]/95 backdrop-blur-md">
+                <div className="p-4 sm:p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] border-t border-white/40 dark:border-white/10 bg-[#fbf9f8]/90 dark:bg-[#12151c]/95 backdrop-blur-md">
                   <div className="flex flex-col gap-2 mb-4 text-xs text-[#5b403e] dark:text-[#9ca3af]">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
@@ -159,7 +159,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({ onProceedToCheckout }) =
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </button>
 
-                  <p className="text-center text-[10px] text-[#5b403e] mt-2.5">
+                  <p className="text-center text-[10px] text-[#5b403e] dark:text-[#9ca3af] mt-2.5">
                     Impuestos y descuentos aplicados al finalizar la compra.
                   </p>
                 </div>

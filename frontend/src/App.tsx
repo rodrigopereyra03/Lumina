@@ -18,10 +18,12 @@ import { CartDrawer } from './features/ecommerce/components/CartDrawer'
 import { UserProfile } from './features/profile/components/UserProfile'
 import { AdminPanel } from './features/admin/components/AdminPanel'
 import { OrderSuccessPage } from './features/ecommerce/components/OrderSuccessPage'
+import { useSidebarStore } from './store/useSidebarStore'
 
 const queryClient = new QueryClient()
 
 function MainStore() {
+  const { isCollapsed } = useSidebarStore()
   const [currentTab, setCurrentTab] = useState<'home' | 'categories' | 'favorites' | 'account'>('home')
   const [selectedCategorySlug, setSelectedCategorySlug] = useState<string>('all')
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null)
@@ -73,7 +75,7 @@ function MainStore() {
       <Sidebar currentTab={currentTab} onTabChange={handleTabChange} />
 
       {/* Main Content Area (Offset on Desktop) */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
+      <div className={`flex-1 ${isCollapsed ? 'lg:ml-20' : 'lg:ml-64'} flex flex-col min-h-screen transition-all duration-300 ease-in-out`}>
         {/* TopNavBar */}
         <Header
           selectedCategorySlug={selectedCategorySlug}

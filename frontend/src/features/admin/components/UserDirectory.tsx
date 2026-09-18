@@ -234,7 +234,7 @@ export const UserDirectory: React.FC = () => {
       {/* MODAL: CREAR / INVITAR USUARIO */}
       {isCreateModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="glass-panel rounded-2xl p-6 max-w-md w-full border border-white dark:border-white/10 shadow-xl space-y-4 bg-white/95 dark:bg-[#12151c]">
+          <div className="glass-panel rounded-2xl p-5 sm:p-6 max-w-md w-full border border-white dark:border-white/10 shadow-xl space-y-4 bg-white/95 dark:bg-[#12151c] max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-white/80 dark:border-white/10 pb-3">
               <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Crear / Invitar Usuario</h3>
               <button

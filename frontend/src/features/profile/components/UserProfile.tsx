@@ -173,87 +173,96 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
 
       {/* Main Grid: Left Tabs & Right Content */}
       <div className="grid lg:grid-cols-12 gap-8 items-start">
-        {/* Left Tabs Nav */}
-        <div className="lg:col-span-4 glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-3 sm:p-4 shadow-sm space-y-1.5 border border-white/60">
+        {/* Tabs Nav (Horizontal bar on mobile, vertical sidebar on desktop) */}
+        <div className="lg:col-span-4 glass-panel dark:bg-[#12151c]/75 dark:border-white/10 rounded-2xl p-2 sm:p-4 shadow-sm flex lg:flex-col overflow-x-auto lg:overflow-visible gap-1.5 border border-white/60 no-scrollbar">
           <button
             onClick={() => setActiveTab('profile')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`shrink-0 lg:w-full flex items-center justify-between gap-3 px-3.5 sm:px-4 py-2 sm:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'profile'
                 ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
                 : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[20px]">person</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">person</span>
               <span>Datos del Perfil</span>
             </div>
-            <span className="material-symbols-outlined text-[16px]">chevron_right</span>
+            <span className="material-symbols-outlined text-[16px] hidden lg:inline-block">chevron_right</span>
           </button>
 
           <button
             onClick={() => setActiveTab('addresses')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`shrink-0 lg:w-full flex items-center justify-between gap-3 px-3.5 sm:px-4 py-2 sm:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'addresses'
                 ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
                 : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[20px]">location_on</span>
-              <span>Direcciones de Envío</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">location_on</span>
+              <span>Direcciones</span>
             </div>
-            {addresses.length > 0 && (
-              <span className="px-2 py-0.5 bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] rounded-full">
-                {addresses.length}
-              </span>
-            )}
+            <div className="flex items-center gap-1">
+              {addresses.length > 0 && (
+                <span className="px-2 py-0.5 bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] rounded-full">
+                  {addresses.length}
+                </span>
+              )}
+              <span className="material-symbols-outlined text-[16px] hidden lg:inline-block">chevron_right</span>
+            </div>
           </button>
 
           <button
             onClick={() => setActiveTab('payment')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`shrink-0 lg:w-full flex items-center justify-between gap-3 px-3.5 sm:px-4 py-2 sm:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'payment'
                 ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
                 : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[20px]">credit_card</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">credit_card</span>
               <span>Medios de Pago</span>
             </div>
-            {cards.length > 0 && (
-              <span className="px-2 py-0.5 bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] rounded-full">
-                {cards.length}
-              </span>
-            )}
+            <div className="flex items-center gap-1">
+              {cards.length > 0 && (
+                <span className="px-2 py-0.5 bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] rounded-full">
+                  {cards.length}
+                </span>
+              )}
+              <span className="material-symbols-outlined text-[16px] hidden lg:inline-block">chevron_right</span>
+            </div>
           </button>
 
           <button
             onClick={() => setActiveTab('orders')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+            className={`shrink-0 lg:w-full flex items-center justify-between gap-3 px-3.5 sm:px-4 py-2 sm:py-3 rounded-xl text-xs font-semibold transition-all cursor-pointer whitespace-nowrap ${
               activeTab === 'orders'
                 ? 'bg-white dark:bg-[#181c26] text-[#FF4D4F] shadow-sm font-bold border border-transparent dark:border-white/10'
                 : 'text-[#5b403e] dark:text-gray-400 hover:bg-white/40 dark:hover:bg-white/5'
             }`}
           >
-            <div className="flex items-center gap-3">
-              <span className="material-symbols-outlined text-[20px]">receipt_long</span>
-              <span>Historial de Pedidos</span>
+            <div className="flex items-center gap-2 sm:gap-3">
+              <span className="material-symbols-outlined text-[18px] sm:text-[20px]">receipt_long</span>
+              <span>Historial</span>
             </div>
-            {orders.length > 0 && (
-              <span className="px-2 py-0.5 bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] rounded-full">
-                {orders.length}
-              </span>
-            )}
+            <div className="flex items-center gap-1">
+              {orders.length > 0 && (
+                <span className="px-2 py-0.5 bg-[#FF4D4F]/10 text-[#FF4D4F] font-bold text-[10px] rounded-full">
+                  {orders.length}
+                </span>
+              )}
+              <span className="material-symbols-outlined text-[16px] hidden lg:inline-block">chevron_right</span>
+            </div>
           </button>
 
           {user?.role === 'admin' && (
             <Link
               to="/admin"
-              className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#FF6B5B] to-[#FF4D4F] shadow-md shadow-[#FF4D4F]/30 hover:scale-[1.02] transition-all mt-4 block"
+              className="shrink-0 lg:w-full flex items-center justify-center gap-2 px-4 py-2 sm:py-3 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-[#FF6B5B] to-[#FF4D4F] shadow-md shadow-[#FF4D4F]/30 hover:scale-[1.02] transition-all lg:mt-4 whitespace-nowrap"
             >
               <span className="material-symbols-outlined text-[18px]">admin_panel_settings</span>
-              <span>Panel de Administración</span>
+              <span>Admin</span>
             </Link>
           )}
         </div>
@@ -547,7 +556,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
       {/* MODAL: EDITAR PERFIL */}
       {isEditProfileOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95">
+          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
               <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Editar Datos del Perfil</h3>
               <button
@@ -604,7 +613,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
       {/* MODAL: AGREGAR DIRECCIÓN */}
       {isAddAddressOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95">
+          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
               <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Agregar Dirección de Envío</h3>
               <button
@@ -699,7 +708,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onBack }) => {
       {/* MODAL: AGREGAR TARJETA */}
       {isAddCardOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95">
+          <div className="glass-panel dark:bg-[#12151c]/95 dark:border-white/10 rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white shadow-xl space-y-4 bg-white/95 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
               <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Guardar Tarjeta</h3>
               <button

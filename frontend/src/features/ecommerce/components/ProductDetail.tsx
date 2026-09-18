@@ -163,7 +163,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           )}
 
           {/* Main Selected Image Stage */}
-          <div className="flex-1 aspect-[4/3] md:aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5">
+          <div className="flex-1 aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5">
             <img
               src={selectedImage || product.image}
               alt={product.title}
@@ -235,7 +235,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               <span className="text-xs font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
                 Variante seleccionada: <span className="text-[#FF4D4F]">{selectedVariant}</span>
               </span>
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-2.5">
                 {product.variants.map((variant) => {
                   const isSelected = selectedVariant === variant.name
                   return (
@@ -261,7 +261,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           <div className="space-y-4 pt-2">
             <div className="flex items-center gap-3">
               {/* Stepper */}
-              <div className="flex items-center border border-white/80 dark:border-white/10 bg-white/70 dark:bg-white/5 rounded-full px-3 py-1.5 shadow-2xs">
+              <div className="flex items-center border border-white/80 dark:border-white/10 bg-white/70 dark:bg-white/5 rounded-full px-3 py-1.5 shadow-2xs shrink-0">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
                   className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] p-1 cursor-pointer transition-colors"
@@ -282,15 +282,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               {/* Add to Cart CTA */}
               <button
                 onClick={handleAddToCart}
-                className="flex-1 btn-primary py-3.5 px-6 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className="flex-1 btn-primary py-3.5 px-4 sm:px-6 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md"
               >
-                <span>{isAdded ? '¡Añadido al Carrito!' : 'Añadir al Carrito'}</span>
+                <span>{isAdded ? '¡Añadido!' : 'Añadir al Carrito'}</span>
                 <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
               </button>
             </div>
 
             {/* Value Props Pill Row */}
-            <div className="grid grid-cols-2 gap-3 text-xs text-[#5b403e] dark:text-[#9ca3af] pt-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs text-[#5b403e] dark:text-[#9ca3af] pt-2 sm:pt-3">
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-white/40 dark:bg-white/5 border border-white/60 dark:border-white/10">
                 <span className="material-symbols-outlined text-[#FF4D4F] text-[18px]">local_shipping</span>
                 <span>Envío express asegurado</span>

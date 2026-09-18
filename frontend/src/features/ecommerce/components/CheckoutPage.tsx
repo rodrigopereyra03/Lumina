@@ -480,7 +480,13 @@ export const CheckoutPage: React.FC<CheckoutPageProps> = ({ onBack }) => {
                 </div>
               ) : (
                 /* Payment Tabs Selector based on Admin Settings */
-                <div className={`grid grid-cols-${activeMethodsCount} gap-2 p-1.5 glass-panel rounded-2xl border border-white/70 dark:border-white/10`}>
+                <div className={`grid ${
+                  activeMethodsCount === 1 
+                    ? 'grid-cols-1' 
+                    : activeMethodsCount === 2 
+                    ? 'grid-cols-2' 
+                    : 'grid-cols-1 sm:grid-cols-3'
+                } gap-2 p-1.5 glass-panel rounded-2xl border border-white/70 dark:border-white/10`}>
                   {paymentSettings.mp_active && (
                     <button
                       type="button"

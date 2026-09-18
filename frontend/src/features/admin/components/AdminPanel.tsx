@@ -151,7 +151,7 @@ export const AdminPanel: React.FC = () => {
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden bg-[#fbf9f8]/95 backdrop-blur-xl border-b border-white/60 p-4 space-y-1 z-40"
+              className="lg:hidden bg-[#fbf9f8]/95 dark:bg-[#12151c]/95 backdrop-blur-xl border-b border-white/60 dark:border-white/10 p-4 space-y-1 z-40"
             >
               {navItems.map((item) => (
                 <button
@@ -160,10 +160,10 @@ export const AdminPanel: React.FC = () => {
                     setCurrentTab(item.id)
                     setIsMobileNavOpen(false)
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-left ${
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-left transition-colors ${
                     currentTab === item.id
-                      ? 'text-[#FF4D4F] font-bold bg-white/80'
-                      : 'text-[#5b403e]'
+                      ? 'text-[#FF4D4F] font-bold bg-white/80 dark:bg-[#FF4D4F]/15 dark:border dark:border-[#FF4D4F]/30'
+                      : 'text-[#5b403e] dark:text-[#9ca3af] hover:bg-white/40 dark:hover:bg-white/5 hover:text-[#1b1c1c] dark:hover:text-white'
                   }`}
                 >
                   <span className="material-symbols-outlined text-[18px]">{item.icon}</span>
@@ -171,17 +171,17 @@ export const AdminPanel: React.FC = () => {
                 </button>
               ))}
 
-              <div className="pt-2 border-t border-white/60 space-y-1">
+              <div className="pt-2 border-t border-white/60 dark:border-white/10 space-y-1">
                 <Link
                   to="/"
-                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-[#5b403e]"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] dark:hover:text-white transition-colors"
                 >
                   <span className="material-symbols-outlined text-[18px]">storefront</span>
                   <span>Volver a la Tienda</span>
                 </Link>
                 <button
                   onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-[#c0392b]"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-[#c0392b] dark:text-[#ff6b6b] hover:bg-red-50/60 dark:hover:bg-red-950/30 transition-colors"
                 >
                   <span className="material-symbols-outlined text-[18px]">logout</span>
                   <span>Cerrar Sesión</span>

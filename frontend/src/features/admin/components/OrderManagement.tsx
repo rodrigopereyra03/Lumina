@@ -391,7 +391,7 @@ export const OrderManagement: React.FC = () => {
       {/* MODAL: CANCELACIÓN Y REEMBOLSO MERCADO PAGO */}
       {isRefundModalOpen && selectedOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="glass-panel rounded-2xl p-6 sm:p-7 max-w-md w-full border border-white dark:border-white/10 shadow-2xl space-y-5 bg-white/95 dark:bg-[#12151c] text-xs">
+          <div className="glass-panel rounded-2xl p-5 sm:p-7 max-w-md w-full border border-white dark:border-white/10 shadow-2xl space-y-5 bg-white/95 dark:bg-[#12151c] text-xs max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start border-b border-white/80 dark:border-white/10 pb-3">
               <div className="flex items-center gap-2 text-[#ba1a1a]">
                 <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/40 flex items-center justify-center text-[#ba1a1a] dark:text-[#ff8a80]">

@@ -350,7 +350,7 @@ export const ProductManagement: React.FC = () => {
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-lg bg-[#fbf9f8] dark:bg-[#12151c] glass-panel rounded-3xl p-7 shadow-2xl border border-white/80 dark:border-white/10 space-y-5 z-10"
+              className="relative w-full max-w-lg bg-[#fbf9f8] dark:bg-[#12151c] glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-white/80 dark:border-white/10 space-y-5 z-10 max-h-[90vh] overflow-y-auto"
             >
               <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
                 <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">

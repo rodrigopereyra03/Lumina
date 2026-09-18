@@ -187,7 +187,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         </div>
       ) : (
         /* Grid of Cards */
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {displayedProducts.map((product, index) => (
             <motion.div
               key={product.id}
@@ -196,17 +196,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.08 }}
               onClick={() => onProductClick(product.id)}
-              className="group glass-card rounded-3xl p-5 flex flex-col justify-between hover:shadow-xl hover:border-white/90 dark:hover:border-white/20 transition-all duration-300 cursor-pointer relative overflow-hidden"
+              className="group glass-card rounded-2xl sm:rounded-3xl p-3 sm:p-5 flex flex-col justify-between hover:shadow-xl hover:border-white/90 dark:hover:border-white/20 transition-all duration-300 cursor-pointer relative overflow-hidden"
             >
               {/* Tag Badge */}
               {product.tags?.[0] && (
-                <span className="absolute top-4 left-4 z-10 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/80 dark:bg-[#181c26]/90 text-[#FF4D4F] border border-white/80 dark:border-white/10 shadow-2xs">
+                <span className="absolute top-2.5 left-2.5 sm:top-4 sm:left-4 z-10 px-2 sm:px-2.5 py-0.5 rounded-full text-[9px] sm:text-[10px] font-bold uppercase tracking-wider bg-white/80 dark:bg-[#181c26]/90 text-[#FF4D4F] border border-white/80 dark:border-white/10 shadow-2xs">
                   {product.tags[0]}
                 </span>
               )}
 
               {/* Product Image Stage */}
-              <div className="relative w-full aspect-square rounded-2xl bg-gradient-to-b from-white/40 to-white/80 dark:from-white/5 dark:to-white/10 flex items-center justify-center p-4 mb-4 overflow-hidden border border-white/60 dark:border-white/10">
+              <div className="relative w-full aspect-square rounded-xl sm:rounded-2xl bg-gradient-to-b from-white/40 to-white/80 dark:from-white/5 dark:to-white/10 flex items-center justify-center p-2.5 sm:p-4 mb-2.5 sm:mb-4 overflow-hidden border border-white/60 dark:border-white/10">
                 <img
                   src={product.image}
                   alt={product.title}
@@ -215,14 +215,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               </div>
 
               {/* Product Details */}
-              <div className="space-y-1.5 mb-4">
+              <div className="space-y-1 sm:space-y-1.5 mb-2.5 sm:mb-4">
                 <div className="flex justify-between items-start">
-                  <span className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] uppercase font-bold tracking-wider">
+                  <span className="text-[10px] sm:text-[11px] text-[#5b403e] dark:text-[#9ca3af] uppercase font-bold tracking-wider truncate">
                     {product.category}
                   </span>
-                  <div className="flex items-center gap-1 text-[11px] text-[#1b1c1c] dark:text-[#f9fafb] font-bold">
+                  <div className="flex items-center gap-0.5 sm:gap-1 text-[10px] sm:text-[11px] text-[#1b1c1c] dark:text-[#f9fafb] font-bold shrink-0">
                     <span
-                      className="material-symbols-outlined text-[14px] text-[#FF4D4F]"
+                      className="material-symbols-outlined text-[13px] sm:text-[14px] text-[#FF4D4F]"
                       style={{ fontVariationSettings: "'FILL' 1" }}
                     >
                       star
@@ -231,21 +231,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   </div>
                 </div>
 
-                <h3 className="font-bold text-sm text-[#1b1c1c] dark:text-[#f9fafb] group-hover:text-[#FF4D4F] dark:group-hover:text-[#FF4D4F] transition-colors line-clamp-1">
+                <h3 className="font-bold text-xs sm:text-sm text-[#1b1c1c] dark:text-[#f9fafb] group-hover:text-[#FF4D4F] dark:group-hover:text-[#FF4D4F] transition-colors line-clamp-1">
                   {product.title}
                 </h3>
 
-                <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] line-clamp-2 leading-relaxed">
+                <p className="text-[11px] sm:text-xs text-[#5b403e] dark:text-[#9ca3af] line-clamp-2 leading-relaxed hidden xs:block">
                   {product.subtitle}
                 </p>
               </div>
 
               {/* Price & Action Row */}
-              <div className="flex items-center justify-between pt-3 border-t border-white/60 dark:border-white/10">
-                <div className="flex items-baseline gap-1.5">
-                  <span className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${product.price.toFixed(2)}</span>
+              <div className="flex items-center justify-between pt-2.5 sm:pt-3 border-t border-white/60 dark:border-white/10 gap-1">
+                <div className="flex flex-col sm:flex-row sm:items-baseline gap-0.5 sm:gap-1.5 min-w-0">
+                  <span className="text-xs sm:text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">${product.price.toFixed(2)}</span>
                   {product.originalPrice && (
-                    <span className="text-xs line-through text-[#5b403e] dark:text-[#9ca3af]">
+                    <span className="text-[10px] sm:text-xs line-through text-[#5b403e] dark:text-[#9ca3af] truncate">
                       ${product.originalPrice.toFixed(2)}
                     </span>
                   )}
@@ -253,10 +253,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
                 <button
                   onClick={(e) => handleAddToCart(e, product)}
-                  className="p-2.5 rounded-full bg-white/80 dark:bg-white/10 hover:bg-[#FF4D4F] dark:hover:bg-[#FF4D4F] text-[#1b1c1c] dark:text-[#f9fafb] hover:text-white border border-white dark:border-white/10 shadow-2xs transition-all duration-200 cursor-pointer flex items-center justify-center hover:scale-105"
+                  className="p-1.5 sm:p-2.5 rounded-full bg-white/80 dark:bg-white/10 hover:bg-[#FF4D4F] dark:hover:bg-[#FF4D4F] text-[#1b1c1c] dark:text-[#f9fafb] hover:text-white border border-white dark:border-white/10 shadow-2xs transition-all duration-200 cursor-pointer flex items-center justify-center hover:scale-105 shrink-0"
                   title="Añadir al Carrito"
                 >
-                  <span className="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                  <span className="material-symbols-outlined text-[16px] sm:text-[18px]">add_shopping_cart</span>
                 </button>
               </div>
             </motion.div>
