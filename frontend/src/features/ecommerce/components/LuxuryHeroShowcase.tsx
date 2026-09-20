@@ -198,7 +198,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
         transition: 'background 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
         fontFamily: "'Montserrat', sans-serif",
       }}
-      className="w-screen h-screen min-h-screen overflow-hidden text-white font-['Montserrat',sans-serif] select-none relative flex flex-col justify-between py-6 px-6 sm:px-12 xl:px-16"
+      className="w-full min-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden text-white font-['Montserrat',sans-serif] select-none relative flex flex-col justify-between py-5 px-4 sm:py-6 sm:px-12 xl:px-16"
     >
       {/* Subtle Ambient Radial Lighting Overlay */}
       <div className="absolute inset-0 bg-radial from-transparent via-black/5 to-black/50 pointer-events-none z-0" />
@@ -494,7 +494,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
                 <img
                   src={current.imageUrl}
                   alt={current.title}
-                  className="max-h-[360px] sm:max-h-[460px] md:max-h-[540px] lg:max-h-[590px] xl:max-h-[630px] h-[50vh] sm:h-[56vh] w-auto object-contain filter drop-shadow-[0_35px_50px_rgba(0,0,0,0.7)] select-none pointer-events-none"
+                  className="max-h-[280px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[580px] xl:max-h-[630px] h-[34vh] sm:h-[46vh] lg:h-[55vh] w-auto object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.75)] select-none pointer-events-none"
                 />
               </motion.div>
             </motion.div>
@@ -502,7 +502,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
           {/* Dynamic Contact Shadow Under Bottle */}
           <div
-            className="w-56 sm:w-72 lg:w-80 h-7 sm:h-8 bg-black/65 rounded-full blur-2xl pointer-events-none transition-transform duration-200 z-10"
+            className="w-44 sm:w-72 lg:w-80 h-5 sm:h-8 bg-black/65 rounded-full blur-xl sm:blur-2xl pointer-events-none transition-transform duration-200 z-10"
             style={{
               transform: `translateX(${mousePos.x * 45}px) scaleX(${1 - Math.abs(mousePos.x) * 0.15}) scaleY(${1 - Math.abs(mousePos.y) * 0.1})`,
             }}
@@ -511,7 +511,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
         </div>
 
         {/* --- RIGHT COLUMN: Circular Size Buttons (Dynamic from current.availableVolumes) --- */}
-        <div className="w-full lg:w-[380px] xl:w-[440px] shrink-0 z-20 flex flex-col items-center lg:items-end justify-center space-y-3">
+        <div className="w-full lg:w-[380px] xl:w-[440px] shrink-0 z-20 flex flex-col items-center lg:items-end justify-center space-y-2.5 my-3 lg:my-0">
           
           {/* Dynamic round size buttons */}
           <div className="flex items-center gap-3">
@@ -544,9 +544,9 @@ export const LuxuryHeroShowcase: React.FC = () => {
       </main>
 
       {/* ========================================================================= */}
-      {/* 3. BOTTOM AREA (Price Completely Alone • Nav Arrows & Buy Now on Right)   */}
+      {/* 3. BOTTOM AREA (Price & Action Controls)                                  */}
       {/* ========================================================================= */}
-      <footer className="relative z-30 w-full flex items-center justify-between pt-2">
+      <footer className="relative z-30 w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 sm:pt-2 pb-8 sm:pb-2 border-t sm:border-t-0 border-white/10 mt-4 sm:mt-0">
         
         {/* Left Spacer (Subtle luxury guarantees) */}
         <div className="hidden sm:flex items-center gap-2 text-white/45 text-xs font-medium">
@@ -555,15 +555,15 @@ export const LuxuryHeroShowcase: React.FC = () => {
           <span>Cuotas sin interés</span>
         </div>
 
-        {/* CENTER: Price COMPLETELY ALONE (Laser Aligned at 50% screen width) */}
-        <div className="mx-auto sm:mx-0 sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center justify-center">
+        {/* CENTER: Price (Centered on mobile, laser aligned at 50% on desktop) */}
+        <div className="w-full sm:w-auto text-center sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center justify-center">
           <span className="text-3xl sm:text-5xl font-bold text-white tracking-tight">
             ${currentPrice.toLocaleString('es-AR')}
           </span>
         </div>
 
         {/* RIGHT: Circular Prev/Next Controls & Pill "Añadir a la Cesta" Button */}
-        <div className="flex items-center gap-3 ml-auto">
+        <div className="flex items-center justify-center sm:justify-end gap-2.5 sm:gap-3 w-full sm:w-auto sm:ml-auto">
           
           {/* Circular Left Arrow Button */}
           <button
@@ -586,7 +586,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
           {/* Pill "Añadir a la Cesta" Button (Buy Now style - Bold 700) */}
           <button
             onClick={handleAddToCart}
-            className="px-6 sm:px-8 py-3.5 rounded-full bg-white text-black font-bold text-xs uppercase tracking-wider shadow-2xl hover:bg-neutral-100 hover:scale-[1.04] active:scale-[0.97] transition-all flex items-center gap-2 cursor-pointer ml-1"
+            className="flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 rounded-full bg-white text-black font-bold text-xs uppercase tracking-wider shadow-2xl hover:bg-neutral-100 hover:scale-[1.04] active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer ml-1"
           >
             <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
             <span>{isAddedToast ? '¡Añadido!' : 'Añadir a la Cesta'}</span>
