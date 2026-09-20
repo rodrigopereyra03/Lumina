@@ -16,12 +16,16 @@ export const ProductManagement: React.FC = () => {
 
   // Form states for new/edit product
   const [formTitle, setFormTitle] = useState('')
+  const [formBrand, setFormBrand] = useState('Armaf')
   const [formCategory, setFormCategory] = useState('')
   const [formPrice, setFormPrice] = useState('')
   const [formStock, setFormStock] = useState('20')
   const [formDesc, setFormDesc] = useState('')
   const [formImage, setFormImage] = useState('')
+  const [formVolumes, setFormVolumes] = useState<number[]>([50, 100])
+  const [formAccentColor, setFormAccentColor] = useState('#10b981')
   const [uploading, setUploading] = useState(false)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,9 +34,11 @@ export const ProductManagement: React.FC = () => {
 
     setUploading(true)
     setUploadError(null)
+    setUploadSuccess(false)
     try {
       const publicUrl = await storageApi.uploadProductImage(file)
       setFormImage(publicUrl)
+      setUploadSuccess(true)
     } catch (err: any) {
       console.warn('Storage upload notice:', err)
       // Read as base64 preview as resilient fallback
@@ -43,6 +49,7 @@ export const ProductManagement: React.FC = () => {
         }
       }
       reader.readAsDataURL(file)
+      setUploadError('No se pudo conectar directamente con Supabase Storage, se guardará en caché local.')
     } finally {
       setUploading(false)
     }
@@ -76,7 +83,8 @@ export const ProductManagement: React.FC = () => {
   const filtered = productList.filter((p) => {
     const matchesSearch =
       (p.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (p.category_name || '').toLowerCase().includes(searchTerm.toLowerCase())
+      (p.category_name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (p.brand || '').toLowerCase().includes(searchTerm.toLowerCase())
 
     const pSlug = (p.category_slug || p.category_name || '').toLowerCase()
     const matchesCat =
@@ -90,22 +98,32 @@ export const ProductManagement: React.FC = () => {
   const handleOpenAdd = () => {
     setEditingProduct(null)
     setFormTitle('')
+    setFormBrand('Armaf')
     setFormCategory(categories[0]?.name || 'Perfumes')
-    setFormPrice('45000.00')
+    setFormPrice('145000.00')
     setFormStock('15')
     setFormDesc('')
     setFormImage('')
+    setFormVolumes([50, 100])
+    setFormAccentColor('#10b981')
+    setUploadSuccess(false)
+    setUploadError(null)
     setIsModalOpen(true)
   }
 
   const handleOpenEdit = (product: BackendProductDTO) => {
     setEditingProduct(product)
     setFormTitle(product.title)
+    setFormBrand(product.brand || product.category_name || 'Armaf')
     setFormCategory(product.category_name || 'Perfumes')
     setFormPrice(product.price.toString())
     setFormStock(product.stock.toString())
     setFormDesc(product.description || '')
     setFormImage(product.image || '')
+    setFormVolumes(product.volumes && product.volumes.length > 0 ? product.volumes : [50, 100])
+    setFormAccentColor(product.accent_color || '#10b981')
+    setUploadSuccess(false)
+    setUploadError(null)
     setIsModalOpen(true)
   }
 
@@ -123,6 +141,7 @@ export const ProductManagement: React.FC = () => {
 
     const priceNum = parseFloat(formPrice) || 0
     const stockNum = parseInt(formStock, 10) || 0
+    const volumesToSave = formVolumes.length > 0 ? formVolumes : [50, 100]
 
     if (editingProduct) {
       // Optimistic update
@@ -132,11 +151,14 @@ export const ProductManagement: React.FC = () => {
             ? {
                 ...p,
                 title: formTitle.trim(),
+                brand: formBrand.trim() || 'Lumina',
                 category_name: formCategory,
                 price: priceNum,
                 stock: stockNum,
                 description: formDesc.trim(),
                 image: formImage.trim() || p.image,
+                volumes: volumesToSave,
+                accent_color: formAccentColor,
               }
             : p
         )
@@ -144,21 +166,27 @@ export const ProductManagement: React.FC = () => {
 
       await productsApi.updateProduct(editingProduct.id, {
         title: formTitle.trim(),
+        brand: formBrand.trim() || 'Lumina',
         category_name: formCategory,
         price: priceNum,
         stock: stockNum,
         description: formDesc.trim(),
         image: formImage.trim() || editingProduct.image,
+        volumes: volumesToSave,
+        accent_color: formAccentColor,
       })
     } else {
       const created = await productsApi.createProduct({
         title: formTitle.trim(),
-        subtitle: 'Perfume Original',
+        brand: formBrand.trim() || 'Lumina',
+        subtitle: `${formBrand.trim()} • Haute Parfumerie`,
         category_name: formCategory || 'Perfumes',
         price: priceNum,
         stock: stockNum,
         description: formDesc.trim() || 'Fragancia exclusiva con garantía oficial.',
         image: formImage.trim() || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&q=80',
+        volumes: volumesToSave,
+        accent_color: formAccentColor,
       })
 
       setProductList((prev) => [created, ...prev])
@@ -271,13 +299,28 @@ export const ProductManagement: React.FC = () => {
                           <img
                             src={p.image}
                             alt={p.title}
-                            className="w-11 h-11 rounded-xl object-contain bg-white/70 dark:bg-white/10 p-1 border border-white dark:border-white/10 shrink-0 mix-blend-multiply dark:mix-blend-normal"
+                            className="w-12 h-12 rounded-xl object-contain bg-white/70 dark:bg-white/10 p-1 border border-white dark:border-white/10 shrink-0 shadow-xs"
                           />
                           <div className="min-w-0">
                             <p className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] text-xs truncate max-w-[220px]">{p.title}</p>
                             <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] truncate max-w-[220px]">
                               {p.subtitle || p.description?.slice(0, 30) || 'Perfume Lumina'}
                             </p>
+                            <div className="flex items-center gap-1.5 mt-1">
+                              {(p.volumes || [50, 100]).map((v) => (
+                                <span
+                                  key={v}
+                                  className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FF4D4F]/10 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] border border-[#FF4D4F]/30"
+                                >
+                                  {v} ml
+                                </span>
+                              ))}
+                              {p.brand && (
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-neutral-200/60 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
+                                  {p.brand}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                       </td>
@@ -365,6 +408,7 @@ export const ProductManagement: React.FC = () => {
               </div>
 
               <form onSubmit={handleSave} className="space-y-4 text-xs">
+                {/* Fragrance Title */}
                 <div>
                   <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Nombre / Título de la Fragancia</label>
                   <input
@@ -373,8 +417,121 @@ export const ProductManagement: React.FC = () => {
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
                     className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                    placeholder="ej. Club de Nuit Intense Man EDT 105ml"
+                    placeholder="ej. Club de Nuit Intense Man Pure Parfum"
                   />
+                </div>
+
+                {/* Brand House Selector */}
+                <div>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Casa / Marca</label>
+                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                    {['Armaf', 'Afnan', 'Lattafa', 'Al Haramain', 'Lumina'].map((b) => (
+                      <button
+                        type="button"
+                        key={b}
+                        onClick={() => setFormBrand(b)}
+                        className={`px-3 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer border ${
+                          formBrand === b
+                            ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-xs'
+                            : 'bg-white dark:bg-[#181c26] text-[#5b403e] dark:text-[#9ca3af] border-black/10 dark:border-white/10 hover:border-[#FF4D4F]/40'
+                        }`}
+                      >
+                        {b}
+                      </button>
+                    ))}
+                  </div>
+                  <input
+                    type="text"
+                    value={formBrand}
+                    onChange={(e) => setFormBrand(e.target.value)}
+                    className="glass-input w-full px-3 py-2 rounded-xl text-xs outline-none"
+                    placeholder="O escribe otra casa..."
+                  />
+                </div>
+
+                {/* Volume Selector (50 ml / 100 ml / 150 ml) */}
+                <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
+                      Presentaciones Disponibles (Volumen)
+                    </label>
+                    <span className="text-[10px] text-[#FF4D4F] font-bold uppercase tracking-wider">
+                      {formVolumes.length === 1 ? `${formVolumes[0]} ml único` : `${formVolumes.join(' & ')} ml`}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
+                    Selecciona si el perfume estará disponible en <strong>100 ml</strong>, <strong>50 ml</strong> o ambas opciones.
+                  </p>
+                  <div className="flex items-center gap-3 pt-1">
+                    {[50, 100, 150].map((vol) => {
+                      const isSelected = formVolumes.includes(vol)
+                      return (
+                        <button
+                          type="button"
+                          key={vol}
+                          onClick={() => {
+                            if (isSelected) {
+                              // Ensure at least one volume remains selected
+                              if (formVolumes.length > 1) {
+                                setFormVolumes(formVolumes.filter((v) => v !== vol))
+                              }
+                            } else {
+                              setFormVolumes([...formVolumes, vol].sort((a, b) => a - b))
+                            }
+                          }}
+                          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer border ${
+                            isSelected
+                              ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-md shadow-[#FF4D4F]/20'
+                              : 'bg-white dark:bg-[#181c26] text-[#5b403e] dark:text-[#9ca3af] border-black/10 dark:border-white/10 hover:border-[#FF4D4F]/50'
+                          }`}
+                        >
+                          <span className="material-symbols-outlined text-[16px]">
+                            {isSelected ? 'check_circle' : 'radio_button_unchecked'}
+                          </span>
+                          <span>{vol} ml</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Aura / Accent Color (For Showcase 3D and Catalog Glow) */}
+                <div>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">
+                    Tono Distintivo (Aura en Showcase 3D y Tarjeta)
+                  </label>
+                  <div className="flex items-center gap-2.5">
+                    {[
+                      { color: '#10b981', label: 'Esmeralda' },
+                      { color: '#38bdf8', label: 'Zafiro' },
+                      { color: '#f43f5e', label: 'Rubí' },
+                      { color: '#f59e0b', label: 'Ámbar' },
+                      { color: '#c084fc', label: 'Amatista' },
+                      { color: '#94a3b8', label: 'Platino' },
+                    ].map((swatch) => (
+                      <button
+                        type="button"
+                        key={swatch.color}
+                        onClick={() => setFormAccentColor(swatch.color)}
+                        title={swatch.label}
+                        className={`w-7 h-7 rounded-full transition-transform cursor-pointer border-2 ${
+                          formAccentColor === swatch.color
+                            ? 'scale-125 border-white shadow-lg'
+                            : 'border-transparent opacity-80 hover:opacity-100'
+                        }`}
+                        style={{ backgroundColor: swatch.color }}
+                      />
+                    ))}
+                    <div className="ml-auto flex items-center gap-1.5">
+                      <span className="text-[10px] text-gray-400 font-mono">{formAccentColor}</span>
+                      <input
+                        type="color"
+                        value={formAccentColor}
+                        onChange={(e) => setFormAccentColor(e.target.value)}
+                        className="w-6 h-6 rounded-md cursor-pointer border-0 bg-transparent p-0"
+                      />
+                    </div>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -394,7 +551,7 @@ export const ProductManagement: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Precio ($ ARS)</label>
+                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Precio Base ($ ARS)</label>
                     <input
                       type="number"
                       step="0.01"
@@ -402,7 +559,7 @@ export const ProductManagement: React.FC = () => {
                       value={formPrice}
                       onChange={(e) => setFormPrice(e.target.value)}
                       className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
-                      placeholder="45000.00"
+                      placeholder="145000.00"
                     />
                   </div>
 
@@ -418,43 +575,55 @@ export const ProductManagement: React.FC = () => {
                     />
                   </div>
                 </div>
-                  <div>
-                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Imagen del Producto</label>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2">
-                        <label className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 dark:bg-[#FF4D4F]/10 hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
-                          <span className="material-symbols-outlined text-[18px]">
-                            {uploading ? 'sync' : 'add_photo_alternate'}
-                          </span>
-                          <span>{uploading ? 'Subiendo a Supabase...' : 'Subir Foto de tu PC'}</span>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleFileSelect}
-                            disabled={uploading}
-                            className="hidden"
+
+                {/* Product Image & Supabase Bucket Upload */}
+                <div>
+                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">
+                    Imagen del Frasco (Bucket Supabase: <span className="font-mono text-[#FF4D4F]">product-images</span>)
+                  </label>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <label className="flex-1 flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 dark:bg-[#FF4D4F]/10 hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
+                        <span className="material-symbols-outlined text-[20px] animate-pulse">
+                          {uploading ? 'sync' : 'cloud_upload'}
+                        </span>
+                        <span>{uploading ? 'Guardando en Supabase Bucket...' : 'Seleccionar Foto y Subir al Bucket'}</span>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          disabled={uploading}
+                          className="hidden"
+                        />
+                      </label>
+                      {formImage && (
+                        <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#181c26] border border-white/80 dark:border-white/10 p-1 shrink-0 overflow-hidden shadow-sm flex items-center justify-center">
+                          <img
+                            src={formImage}
+                            alt="Vista previa"
+                            className="max-h-full max-w-full object-contain"
                           />
-                        </label>
-                        {formImage && (
-                          <div className="w-10 h-10 rounded-lg bg-white dark:bg-[#181c26] border border-white/80 dark:border-white/10 p-0.5 shrink-0 overflow-hidden shadow-2xs">
-                            <img
-                              src={formImage}
-                              alt="Vista previa"
-                              className="w-full h-full object-contain"
-                            />
-                          </div>
-                        )}
-                      </div>
-                      <input
-                        type="text"
-                        value={formImage}
-                        onChange={(e) => setFormImage(e.target.value)}
-                        className="glass-input w-full px-3 py-1.5 rounded-xl text-[11px] outline-none font-mono"
-                        placeholder="O pega una URL: https://..."
-                      />
-                      {uploadError && <p className="text-[10px] text-red-500">{uploadError}</p>}
+                        </div>
+                      )}
                     </div>
+
+                    {uploadSuccess && (
+                      <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[16px]">verified</span>
+                        <span>Imagen subida con éxito y alojada en el bucket <strong>product-images</strong></span>
+                      </div>
+                    )}
+
+                    <input
+                      type="text"
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
+                      className="glass-input w-full px-3 py-1.5 rounded-xl text-[11px] outline-none font-mono"
+                      placeholder="URL pública de la imagen (Supabase o externa)..."
+                    />
+                    {uploadError && <p className="text-[10px] text-amber-500">{uploadError}</p>}
                   </div>
+                </div>
 
                 <div>
                   <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Descripción Detallada</label>
@@ -463,7 +632,7 @@ export const ProductManagement: React.FC = () => {
                     value={formDesc}
                     onChange={(e) => setFormDesc(e.target.value)}
                     className="glass-input w-full px-3.5 py-2 rounded-xl text-xs outline-none"
-                    placeholder="Describe las características y materiales del producto..."
+                    placeholder="Describe las notas olfativas, fijación y procedencia del perfume..."
                   />
                 </div>
 

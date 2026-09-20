@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 interface HeroSectionProps {
   onProductClick: (id: string) => void
@@ -101,15 +102,13 @@ export const HeroSection: React.FC<HeroSectionProps> = ({ onProductClick: _onPro
               <span className="material-symbols-outlined text-[18px]">arrow_downward</span>
             </button>
 
-            <a
-              href="https://wa.me/5491122334455?text=%C2%A1Hola!%20Quisiera%20asesoramiento%20sobre%20sus%20perfumes%20y%20fragancias%20disponibles."
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white px-5 sm:px-6 py-3 sm:py-3.5 rounded-full text-xs font-semibold flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all cursor-pointer"
+            <Link
+              to="/hero-3d"
+              className="bg-gradient-to-r from-[#10b981]/20 to-[#38bdf8]/20 hover:from-[#10b981]/30 hover:to-[#38bdf8]/30 border border-[#38bdf8]/50 text-white px-5 sm:px-6 py-3 sm:py-3.5 rounded-full text-xs font-bold flex items-center justify-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#38bdf8]/15 cursor-pointer"
             >
-              <span className="material-symbols-outlined text-[18px] text-[#25D366]">chat</span>
-              <span>Asesoramiento en WhatsApp</span>
-            </a>
+              <span className="material-symbols-outlined text-[18px] text-[#38bdf8]">view_in_ar</span>
+              <span>Probar Hero 3D</span>
+            </Link>
           </motion.div>
 
           {/* Features Highlights Row */}

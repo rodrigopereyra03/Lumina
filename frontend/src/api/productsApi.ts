@@ -14,6 +14,9 @@ export interface BackendProductDTO {
   image: string
   rating?: number
   reviews_count?: number
+  volumes?: number[]
+  accent_color?: string
+  brand?: string
 }
 
 export interface ListProductsResponseContent {
@@ -40,7 +43,12 @@ const MOCK_IDS = [
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
 const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
-  return list.filter((p) => !MOCK_IDS.includes(p.id))
+  return list.filter((p) => !MOCK_IDS.includes(p.id)).map((p) => ({
+    ...p,
+    volumes: p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100],
+    accent_color: p.accent_color || '#fb7185',
+    brand: p.brand || p.category_name || 'Lumina',
+  }))
 }
 
 export const productsApi = {
@@ -52,24 +60,39 @@ export const productsApi = {
       if (remote && Array.isArray(remote.products)) {
         let mappedRemote: BackendProductDTO[] = remote.products
           .filter((p: any) => !MOCK_IDS.includes(p.id))
-          .map((p: any) => ({
-            id: p.id,
-            title: p.title,
-            subtitle: p.subtitle || '',
-            description: p.description || '',
-            price: p.price,
-            original_price: p.original_price,
-            stock: p.stock,
-            image: p.image || '',
-            rating: p.rating || 5.0,
-            reviews_count: p.reviews_count || 0,
-            category_name: p.category_name || 'General',
-            category_slug:
-              p.category_slug ||
-              (p.category_name
-                ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
-                : 'general'),
-          }))
+          .map((p: any) => {
+            let parsedMeta: any = {}
+            let cleanSubtitle = p.subtitle || ''
+            if (cleanSubtitle.includes('@@META@@')) {
+              const parts = cleanSubtitle.split('@@META@@')
+              cleanSubtitle = parts[0].trim()
+              try {
+                parsedMeta = JSON.parse(parts[1])
+              } catch (e) {}
+            }
+
+            return {
+              id: p.id,
+              title: p.title,
+              subtitle: cleanSubtitle,
+              description: p.description || '',
+              price: p.price,
+              original_price: p.original_price,
+              stock: p.stock,
+              image: p.image || '',
+              rating: p.rating || 5.0,
+              reviews_count: p.reviews_count || 0,
+              category_name: p.category_name || 'General',
+              category_slug:
+                p.category_slug ||
+                (p.category_name
+                  ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
+                  : 'general'),
+              volumes: p.volumes || parsedMeta.volumes || [50, 100],
+              accent_color: p.accent_color || parsedMeta.accent_color || '#fb7185',
+              brand: p.brand || parsedMeta.brand || p.category_name || 'Lumina',
+            }
+          })
 
         // Save remote database products directly to local cache
         localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mappedRemote))
@@ -131,6 +154,9 @@ export const productsApi = {
     stock: number
     description: string
     image: string
+    volumes?: number[]
+    accent_color?: string
+    brand?: string
   }): Promise<BackendProductDTO> => {
     const slug =
       productData.category_slug ||
@@ -140,10 +166,19 @@ export const productsApi = {
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, '-')
 
+    const meta = {
+      volumes: productData.volumes && productData.volumes.length > 0 ? productData.volumes : [50, 100],
+      accent_color: productData.accent_color || '#fb7185',
+      brand: productData.brand || productData.category_name || 'Lumina',
+    }
+
+    const cleanSubtitle = productData.subtitle || 'Perfumes Árabes • Unisex'
+    const payloadSubtitle = `${cleanSubtitle} @@META@@${JSON.stringify(meta)}`
+
     const newProd: BackendProductDTO = {
       id: 'prod-' + Date.now(),
       title: productData.title,
-      subtitle: productData.subtitle || 'Perfumes Árabes • Unisex',
+      subtitle: cleanSubtitle,
       category_name: productData.category_name,
       category_slug: slug,
       price: productData.price,
@@ -152,6 +187,9 @@ export const productsApi = {
       image: productData.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
       rating: 5.0,
       reviews_count: 0,
+      volumes: meta.volumes,
+      accent_color: meta.accent_color,
+      brand: meta.brand,
     }
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
@@ -160,9 +198,22 @@ export const productsApi = {
     localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
 
     try {
-      const res = await axiosInstance.post('/products', productData, { timeout: 2500 })
+      const res = await axiosInstance.post(
+        '/products',
+        {
+          ...productData,
+          subtitle: payloadSubtitle,
+        },
+        { timeout: 2500 }
+      )
       if (res.data?.content?.id) {
-        return res.data.content
+        return {
+          ...res.data.content,
+          volumes: meta.volumes,
+          accent_color: meta.accent_color,
+          brand: meta.brand,
+          subtitle: cleanSubtitle,
+        }
       }
     } catch (e) {
       // Handled locally
@@ -182,15 +233,33 @@ export const productsApi = {
       stock: number
       description: string
       image: string
+      volumes?: number[]
+      accent_color?: string
+      brand?: string
     }>
   ): Promise<BackendProductDTO> => {
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
     const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
+    const existing = list.find((p) => p.id === id)
+
+    const meta = {
+      volumes: productData.volumes || existing?.volumes || [50, 100],
+      accent_color: productData.accent_color || existing?.accent_color || '#fb7185',
+      brand: productData.brand || existing?.brand || productData.category_name || existing?.category_name || 'Lumina',
+    }
+
+    const cleanSubtitle = productData.subtitle ?? existing?.subtitle ?? 'Perfumes Árabes • Unisex'
+    const payloadSubtitle = `${cleanSubtitle} @@META@@${JSON.stringify(meta)}`
+
     const updated = list.map((p) => {
       if (p.id === id) {
         return {
           ...p,
           ...productData,
+          subtitle: cleanSubtitle,
+          volumes: meta.volumes,
+          accent_color: meta.accent_color,
+          brand: meta.brand,
           category_slug:
             productData.category_slug ||
             (productData.category_name
@@ -203,7 +272,14 @@ export const productsApi = {
     localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
 
     try {
-      await axiosInstance.put(`/products/${id}`, productData, { timeout: 2500 })
+      await axiosInstance.put(
+        `/products/${id}`,
+        {
+          ...productData,
+          subtitle: payloadSubtitle,
+        },
+        { timeout: 2500 }
+      )
     } catch (e) {
       // Handled
     }

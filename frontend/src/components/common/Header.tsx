@@ -121,6 +121,15 @@ export const Header: React.FC<HeaderProps> = ({
               </button>
             )
           })}
+
+          {/* Showcase 3D Link matching Stitch design */}
+          <Link
+            to="/hero-3d"
+            className="px-3.5 py-1.5 rounded-full text-xs font-semibold text-white/90 bg-neutral-900/80 dark:bg-white/10 hover:bg-neutral-800 border border-white/15 transition-all shadow-sm flex items-center gap-2"
+          >
+            <span>Showcase 3D</span>
+            <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399]"></span>
+          </Link>
         </div>
 
         {/* Right Controls: Theme, Cart & Profile */}
