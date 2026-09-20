@@ -239,7 +239,16 @@ export const LuxuryHeroShowcase: React.FC = () => {
         </div>
 
         {/* Right: User Icon & Cart Icon */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Mobile Back to Colección */}
+          <Link
+            to="/"
+            className="sm:hidden flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md shadow-sm active:scale-95 transition-all"
+          >
+            <span className="material-symbols-outlined text-[15px]">arrow_back</span>
+            <span>Colección</span>
+          </Link>
+
           <Link
             to="/profile"
             className="w-10 h-10 rounded-full bg-black/25 hover:bg-white/20 border border-white/20 backdrop-blur-md flex items-center justify-center text-white transition-all shadow-md"

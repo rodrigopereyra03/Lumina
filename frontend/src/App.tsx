@@ -229,7 +229,17 @@ function MainStore() {
           </nav>
 
           {/* Right Action Icons & Button */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Mobile Direct Access to Showcase 3D */}
+            <Link
+              to="/hero-3d"
+              className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md shadow-sm active:scale-95 transition"
+              title="Ver Showcase 3D"
+            >
+              <span>Showcase 3D</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span>
+            </Link>
+
             {/* Admin Quick Badge (if admin) */}
             {isAdmin && (
               <Link
