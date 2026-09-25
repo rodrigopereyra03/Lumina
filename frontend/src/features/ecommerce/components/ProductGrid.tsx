@@ -108,22 +108,34 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               let dot = 'bg-rose-400 shadow-[0_0_10px_#fb7185]'
               let textAccent = 'text-rose-400'
 
-              if (accent === '#10b981') {
+              if (accent === '#10b981' || accent === '#14b8a6') {
                 glow = 'bg-emerald-700/20 group-hover:bg-emerald-600/30'
                 dot = 'bg-emerald-400 shadow-[0_0_10px_#34d399]'
                 textAccent = 'text-emerald-400'
-              } else if (accent === '#38bdf8') {
+              } else if (accent === '#38bdf8' || accent === '#6366f1') {
                 glow = 'bg-blue-700/20 group-hover:bg-blue-600/30'
                 dot = 'bg-blue-400 shadow-[0_0_10px_#60a5fa]'
                 textAccent = 'text-blue-400'
-              } else if (accent === '#f59e0b') {
+              } else if (accent === '#f59e0b' || accent === '#eab308') {
                 glow = 'bg-amber-700/20 group-hover:bg-amber-600/30'
                 dot = 'bg-amber-400 shadow-[0_0_10px_#fbbf24]'
                 textAccent = 'text-amber-400'
+              } else if (accent === '#ea580c') {
+                glow = 'bg-orange-700/20 group-hover:bg-orange-600/30'
+                dot = 'bg-orange-400 shadow-[0_0_10px_#fb923c]'
+                textAccent = 'text-orange-400'
               } else if (accent === '#c084fc') {
                 glow = 'bg-purple-700/20 group-hover:bg-purple-600/30'
                 dot = 'bg-purple-400 shadow-[0_0_10px_#c084fc]'
                 textAccent = 'text-purple-400'
+              } else if (accent === '#be123c') {
+                glow = 'bg-rose-950/40 group-hover:bg-rose-900/50'
+                dot = 'bg-rose-600 shadow-[0_0_10px_#be123c]'
+                textAccent = 'text-rose-400'
+              } else if (accent === '#ec4899') {
+                glow = 'bg-pink-700/20 group-hover:bg-pink-600/30'
+                dot = 'bg-pink-400 shadow-[0_0_10px_#f472b6]'
+                textAccent = 'text-pink-400'
               } else if (accent === '#94a3b8') {
                 glow = 'bg-zinc-700/20 group-hover:bg-zinc-600/30'
                 dot = 'bg-zinc-400 shadow-[0_0_10px_#e4e4e7]'
@@ -213,10 +225,15 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   // Volume price formula helper
   const calculatePrice = (basePrice: number, volume: number, defaultVol: number): number => {
     if (volume === defaultVol) return basePrice
-    if (volume < defaultVol) {
-      return Math.round((basePrice * 0.75) / 1000) * 1000
+    if (volume === 90 && defaultVol === 100) {
+      return Math.round((basePrice * 0.92) / 1000) * 1000
     }
-    return Math.round((basePrice * 1.35) / 1000) * 1000
+    if (volume < defaultVol) {
+      const ratio = Math.pow(volume / defaultVol, 0.75)
+      return Math.round((basePrice * ratio) / 1000) * 1000
+    }
+    const ratio = Math.pow(volume / defaultVol, 0.85)
+    return Math.round((basePrice * ratio) / 1000) * 1000
   }
 
   // Filtered and Sorted products

@@ -505,7 +505,7 @@ export const ProductManagement: React.FC = () => {
                   />
                 </div>
 
-                {/* Volume Selector (50 ml / 100 ml / 150 ml) */}
+                {/* Volume Selector (50 ml / 90 ml / 100 ml / 150 ml) */}
                 <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
@@ -516,10 +516,10 @@ export const ProductManagement: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
-                    Selecciona si el perfume estará disponible en <strong>100 ml</strong>, <strong>50 ml</strong> o ambas opciones.
+                    Selecciona las presentaciones activas del perfume (<strong>50 ml</strong>, <strong>90 ml</strong>, <strong>100 ml</strong>, <strong>150 ml</strong>).
                   </p>
-                  <div className="flex items-center gap-3 pt-1">
-                    {[50, 100, 150].map((vol) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                    {[50, 90, 100, 150].map((vol) => {
                       const isSelected = formVolumes.includes(vol)
                       return (
                         <button
@@ -535,13 +535,13 @@ export const ProductManagement: React.FC = () => {
                               setFormVolumes([...formVolumes, vol].sort((a, b) => a - b))
                             }
                           }}
-                          className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 cursor-pointer border ${
+                          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
                             isSelected
                               ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-md shadow-[#FF4D4F]/20'
                               : 'bg-white dark:bg-[#181c26] text-[#5b403e] dark:text-[#9ca3af] border-black/10 dark:border-white/10 hover:border-[#FF4D4F]/50'
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[16px]">
+                          <span className="material-symbols-outlined text-[15px]">
                             {isSelected ? 'check_circle' : 'radio_button_unchecked'}
                           </span>
                           <span>{vol} ml</span>
@@ -552,41 +552,60 @@ export const ProductManagement: React.FC = () => {
                 </div>
 
                 {/* Aura / Accent Color (For Showcase 3D and Catalog Glow) */}
-                <div>
-                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">
-                    Tono Distintivo (Aura en Showcase 3D y Tarjeta)
-                  </label>
-                  <div className="flex items-center gap-2.5">
+                <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
+                        Tono Distintivo (Aura en Showcase 3D y Tarjeta)
+                      </label>
+                      <span className="text-[10px] text-[#5b403e] dark:text-[#9ca3af]">
+                        Define el color de iluminación ambiental 3D y halo de la fragancia.
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 bg-black/5 dark:bg-white/10 px-2 py-1 rounded-lg">
+                      <span className="text-[10px] text-gray-400 font-mono font-bold">{formAccentColor}</span>
+                      <input
+                        type="color"
+                        value={formAccentColor}
+                        onChange={(e) => setFormAccentColor(e.target.value)}
+                        className="w-5 h-5 rounded cursor-pointer border-0 bg-transparent p-0"
+                        title="Elegir color personalizado"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
                     {[
-                      { color: '#10b981', label: 'Esmeralda' },
-                      { color: '#38bdf8', label: 'Zafiro' },
-                      { color: '#f43f5e', label: 'Rubí' },
-                      { color: '#f59e0b', label: 'Ámbar' },
-                      { color: '#c084fc', label: 'Amatista' },
-                      { color: '#94a3b8', label: 'Platino' },
+                      { color: '#f43f5e', label: 'Rubí Pasión' },
+                      { color: '#be123c', label: 'Bordeaux Vino' },
+                      { color: '#ec4899', label: 'Rose Gold' },
+                      { color: '#f59e0b', label: 'Ámbar Cálido' },
+                      { color: '#eab308', label: 'Oro Champagne' },
+                      { color: '#ea580c', label: 'Coñac & Canela' },
+                      { color: '#10b981', label: 'Esmeralda Árabe' },
+                      { color: '#14b8a6', label: 'Turquesa Imperial' },
+                      { color: '#38bdf8', label: 'Zafiro Océano' },
+                      { color: '#6366f1', label: 'Azul Medianoche' },
+                      { color: '#c084fc', label: 'Amatista Mística' },
+                      { color: '#94a3b8', label: 'Platino / Titanio' },
                     ].map((swatch) => (
                       <button
                         type="button"
                         key={swatch.color}
                         onClick={() => setFormAccentColor(swatch.color)}
                         title={swatch.label}
-                        className={`w-7 h-7 rounded-full transition-transform cursor-pointer border-2 ${
+                        className={`group relative w-8 h-8 rounded-full transition-all cursor-pointer border-2 flex items-center justify-center ${
                           formAccentColor === swatch.color
-                            ? 'scale-125 border-white shadow-lg'
-                            : 'border-transparent opacity-80 hover:opacity-100'
+                            ? 'scale-115 border-white dark:border-white ring-2 ring-black/40 shadow-lg'
+                            : 'border-transparent opacity-80 hover:opacity-100 hover:scale-105'
                         }`}
                         style={{ backgroundColor: swatch.color }}
-                      />
+                      >
+                        {formAccentColor === swatch.color && (
+                          <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
+                        )}
+                      </button>
                     ))}
-                    <div className="ml-auto flex items-center gap-1.5">
-                      <span className="text-[10px] text-gray-400 font-mono">{formAccentColor}</span>
-                      <input
-                        type="color"
-                        value={formAccentColor}
-                        onChange={(e) => setFormAccentColor(e.target.value)}
-                        className="w-6 h-6 rounded-md cursor-pointer border-0 bg-transparent p-0"
-                      />
-                    </div>
                   </div>
                 </div>
 

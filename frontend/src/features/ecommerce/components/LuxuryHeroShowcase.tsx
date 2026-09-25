@@ -187,6 +187,8 @@ export const LuxuryHeroShowcase: React.FC = () => {
     current
       ? sizeNum === defaultVol
         ? current.price
+        : sizeNum === 90 && defaultVol === 100
+        ? Math.round((current.price * 0.92) / 1000) * 1000
         : sizeNum < defaultVol
         ? Math.round((current.price * 0.75) / 1000) * 1000
         : Math.round((current.price * 1.35) / 1000) * 1000
