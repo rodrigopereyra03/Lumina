@@ -77,12 +77,22 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
       .filter((p: any) => !MOCK_IDS.includes(p.id))
       .map((p: any) => {
         let meta: any = {}
-        let cleanSubtitle = p.subtitle || ''
+        let cleanSubtitle = (p.subtitle || '').trim()
+        let cleanDescription = (p.description || '').trim()
+
         if (cleanSubtitle.includes('@@META@@')) {
           const parts = cleanSubtitle.split('@@META@@')
           cleanSubtitle = parts[0].trim()
           try {
             meta = JSON.parse(parts[1])
+          } catch (e) {}
+        }
+
+        if (cleanDescription.includes('@@META@@')) {
+          const parts = cleanDescription.split('@@META@@')
+          cleanDescription = parts[0].trim()
+          try {
+            meta = { ...meta, ...JSON.parse(parts[1]) }
           } catch (e) {}
         }
 
@@ -98,7 +108,7 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
           id: p.id,
           title: p.title,
           subtitle: cleanSubtitle,
-          description: p.description || '',
+          description: cleanDescription,
           price: p.price,
           original_price: p.original_price,
           stock: p.stock,
@@ -202,7 +212,9 @@ export const productsApi = {
         if (Array.isArray(data) && data.length > 0) {
           const p = data[0]
           let meta: any = {}
-          let cleanSubtitle = p.subtitle || ''
+          let cleanSubtitle = (p.subtitle || '').trim()
+          let cleanDescription = (p.description || '').trim()
+
           if (cleanSubtitle.includes('@@META@@')) {
             const parts = cleanSubtitle.split('@@META@@')
             cleanSubtitle = parts[0].trim()
@@ -210,12 +222,21 @@ export const productsApi = {
               meta = JSON.parse(parts[1])
             } catch (e) {}
           }
+
+          if (cleanDescription.includes('@@META@@')) {
+            const parts = cleanDescription.split('@@META@@')
+            cleanDescription = parts[0].trim()
+            try {
+              meta = { ...meta, ...JSON.parse(parts[1]) }
+            } catch (e) {}
+          }
+
           const imgs = meta.images && meta.images.length > 0 ? meta.images : (p.image ? [p.image] : [])
           return {
             id: p.id,
             title: p.title,
             subtitle: cleanSubtitle,
-            description: p.description || '',
+            description: cleanDescription,
             price: p.price,
             original_price: p.original_price,
             stock: p.stock,
@@ -282,8 +303,18 @@ export const productsApi = {
       images: imgs,
     }
 
-    const cleanSubtitle = productData.subtitle || 'Perfumes Árabes • Unisex'
-    const payloadSubtitle = `${cleanSubtitle} @@META@@${JSON.stringify(meta)}`
+    let rawDesc = (productData.description || 'Fragancia exclusiva de autor.').trim()
+    if (rawDesc.includes('@@META@@')) {
+      rawDesc = rawDesc.split('@@META@@')[0].trim()
+    }
+    const cleanDescription = rawDesc
+
+    let rawSub = (productData.subtitle || 'Perfumes Árabes • Unisex').trim()
+    if (rawSub.includes('@@META@@')) {
+      rawSub = rawSub.split('@@META@@')[0].trim()
+    }
+    const cleanSubtitle = rawSub.slice(0, 240)
+    const payloadDescription = `${cleanDescription} @@META@@${JSON.stringify(meta)}`
 
     const newProd: BackendProductDTO = {
       id: 'prod-' + Date.now(),
@@ -293,7 +324,7 @@ export const productsApi = {
       category_slug: slug,
       price: productData.price,
       stock: productData.stock,
-      description: productData.description,
+      description: cleanDescription,
       image: primaryImg,
       images: imgs,
       rating: 5.0,
@@ -320,8 +351,8 @@ export const productsApi = {
         },
         body: JSON.stringify({
           title: productData.title,
-          subtitle: payloadSubtitle,
-          description: productData.description,
+          subtitle: cleanSubtitle,
+          description: payloadDescription,
           price: productData.price,
           stock: productData.stock,
           image: primaryImg,
@@ -338,7 +369,8 @@ export const productsApi = {
             ...productData,
             image: primaryImg,
             images: imgs,
-            subtitle: payloadSubtitle,
+            subtitle: cleanSubtitle,
+            description: payloadDescription,
           },
           { timeout: 2500 }
         )
@@ -389,8 +421,18 @@ export const productsApi = {
       images: imgs,
     }
 
-    const cleanSubtitle = productData.subtitle ?? existing?.subtitle ?? 'Perfumes Árabes • Unisex'
-    const payloadSubtitle = `${cleanSubtitle} @@META@@${JSON.stringify(meta)}`
+    let rawDesc = (productData.description ?? existing?.description ?? 'Fragancia exclusiva de autor.').trim()
+    if (rawDesc.includes('@@META@@')) {
+      rawDesc = rawDesc.split('@@META@@')[0].trim()
+    }
+    const cleanDescription = rawDesc
+
+    let rawSub = (productData.subtitle ?? existing?.subtitle ?? 'Perfumes Árabes • Unisex').trim()
+    if (rawSub.includes('@@META@@')) {
+      rawSub = rawSub.split('@@META@@')[0].trim()
+    }
+    const cleanSubtitle = rawSub.slice(0, 240)
+    const payloadDescription = `${cleanDescription} @@META@@${JSON.stringify(meta)}`
 
     const updated = list.map((p) => {
       if (p.id === id) {
@@ -400,6 +442,7 @@ export const productsApi = {
           image: primaryImg,
           images: imgs,
           subtitle: cleanSubtitle,
+          description: cleanDescription,
           volumes: meta.volumes,
           accent_color: meta.accent_color,
           brand: meta.brand,
@@ -425,10 +468,10 @@ export const productsApi = {
         },
         body: JSON.stringify({
           title: productData.title ?? existing?.title,
-          subtitle: payloadSubtitle,
+          subtitle: cleanSubtitle,
+          description: payloadDescription,
           price: productData.price ?? existing?.price,
           stock: productData.stock ?? existing?.stock,
-          description: productData.description ?? existing?.description,
           image: primaryImg,
         }),
       })
@@ -443,7 +486,8 @@ export const productsApi = {
             ...productData,
             image: primaryImg,
             images: imgs,
-            subtitle: payloadSubtitle,
+            subtitle: cleanSubtitle,
+            description: payloadDescription,
           },
           { timeout: 2500 }
         )
