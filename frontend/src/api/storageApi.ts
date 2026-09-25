@@ -5,7 +5,7 @@ const SUPABASE_URL = `https://${SUPABASE_PROJECT_REF}.supabase.co`
 const BUCKET_NAME = 'product-images'
 
 // Storage key from env or local config
-const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_rGb_wzMIeOiBp2_qyrdvvg_TB5d4lff'
 
 export const storageApi = {
   uploadProductImage: async (file: File): Promise<string> => {

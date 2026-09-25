@@ -179,6 +179,120 @@ export const ProductManagement: React.FC = () => {
   }
 
   const [statusActionMessage, setStatusActionMessage] = useState<string | null>(null)
+  const [syncing, setSyncing] = useState(false)
+  const [syncProgress, setSyncProgress] = useState<{ current: number; total: number; title: string } | null>(null)
+  const [localOnlyCount, setLocalOnlyCount] = useState<number>(0)
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('lumina_custom_products')
+      if (stored) {
+        const localList = JSON.parse(stored)
+        if (Array.isArray(localList)) {
+          const pending = localList.filter((p: any) => {
+            const hasBase64Main = p.image && typeof p.image === 'string' && p.image.startsWith('data:')
+            const hasBase64Gallery =
+              Array.isArray(p.images) && p.images.some((img: string) => typeof img === 'string' && img.startsWith('data:'))
+            return hasBase64Main || hasBase64Gallery
+          })
+          setLocalOnlyCount(pending.length)
+        }
+      }
+    } catch {}
+  }, [productList])
+
+  const handleSyncLocalImagesToCloud = async () => {
+    setSyncing(true)
+    try {
+      const stored = localStorage.getItem('lumina_custom_products')
+      if (!stored) {
+        setSyncing(false)
+        return
+      }
+      const localList = JSON.parse(stored)
+      if (!Array.isArray(localList)) {
+        setSyncing(false)
+        return
+      }
+
+      const pending = localList.filter((p: any) => {
+        const hasBase64Main = p.image && typeof p.image === 'string' && p.image.startsWith('data:')
+        const hasBase64Gallery =
+          Array.isArray(p.images) && p.images.some((img: string) => typeof img === 'string' && img.startsWith('data:'))
+        return hasBase64Main || hasBase64Gallery
+      })
+
+      if (pending.length === 0) {
+        setStatusActionMessage('Todas tus fotos ya están sincronizadas en la nube de producción.')
+        setTimeout(() => setStatusActionMessage(null), 4000)
+        setSyncing(false)
+        return
+      }
+
+      let count = 0
+      for (const p of pending) {
+        count++
+        setSyncProgress({ current: count, total: pending.length, title: p.title })
+
+        const uploadedImages: string[] = []
+        const gallery = Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.image ? [p.image] : [])
+
+        for (let i = 0; i < gallery.length; i++) {
+          const img = gallery[i]
+          if (typeof img === 'string' && img.startsWith('data:')) {
+            try {
+              const arr = img.split(',')
+              const mime = arr[0].match(/:(.*?);/)?.[1] || 'image/jpeg'
+              const bstr = atob(arr[1])
+              let n = bstr.length
+              const u8arr = new Uint8Array(n)
+              while (n--) {
+                u8arr[n] = bstr.charCodeAt(n)
+              }
+              const ext = mime.split('/')[1] || 'jpg'
+              const file = new File([u8arr], `perfume_${p.id}_${i}_${Date.now()}.${ext}`, { type: mime })
+              const cloudUrl = await storageApi.uploadProductImage(file)
+              uploadedImages.push(cloudUrl)
+            } catch (uploadErr) {
+              console.error('Failed to upload image:', uploadErr)
+              uploadedImages.push(img)
+            }
+          } else {
+            uploadedImages.push(img)
+          }
+        }
+
+        const primaryCloudImg = uploadedImages[0] || p.image
+
+        await productsApi.updateProduct(p.id, {
+          title: p.title,
+          subtitle: p.subtitle,
+          price: p.price,
+          stock: p.stock,
+          description: p.description,
+          category_name: p.category_name,
+          category_slug: p.category_slug,
+          image: primaryCloudImg,
+          images: uploadedImages,
+          volumes: p.volumes,
+          accent_color: p.accent_color,
+          brand: p.brand,
+        })
+      }
+
+      await fetchCatalog()
+      setLocalOnlyCount(0)
+      setStatusActionMessage(`¡Éxito! Se sincronizaron las fotos de ${pending.length} productos a la nube de producción.`)
+      setTimeout(() => setStatusActionMessage(null), 5000)
+    } catch (err: any) {
+      console.error('Sync failed:', err)
+      setStatusActionMessage('Error al sincronizar imágenes con Supabase: ' + (err?.message || ''))
+      setTimeout(() => setStatusActionMessage(null), 5000)
+    } finally {
+      setSyncing(false)
+      setSyncProgress(null)
+    }
+  }
 
   const handleQuickToggleStock = async (product: BackendProductDTO) => {
     const isCurrentlyOut = product.stock <= 0
@@ -334,6 +448,43 @@ export const ProductManagement: React.FC = () => {
           </select>
         </div>
       </div>
+
+      {/* Localhost to Cloud Sync Banner */}
+      {localOnlyCount > 0 && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-amber-500/10 border border-amber-500/40 text-[#1b1c1c] dark:text-[#f9fafb] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+              <span className="material-symbols-outlined text-[22px]">cloud_upload</span>
+            </div>
+            <div>
+              <h4 className="text-xs font-bold">
+                {localOnlyCount} {localOnlyCount === 1 ? 'producto tiene fotos cargadas' : 'productos tienen fotos cargadas'} en tu navegador local
+              </h4>
+              <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
+                Sincronizalas ahora a la nube de Supabase para que se vean automáticamente en la URL de producción.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSyncLocalImagesToCloud}
+            disabled={syncing}
+            className="px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-black flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer shrink-0 disabled:opacity-50"
+          >
+            {syncing ? (
+              <>
+                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                <span>Sincronizando {syncProgress ? `(${syncProgress.current}/${syncProgress.total})` : '...'}</span>
+              </>
+            ) : (
+              <>
+                <span className="material-symbols-outlined text-[18px]">sync</span>
+                <span>Subir Fotos a Producción</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Feedback Toast */}
       {statusActionMessage && (
