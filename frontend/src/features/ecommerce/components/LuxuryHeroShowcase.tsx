@@ -21,6 +21,29 @@ interface PerfumeShowcaseItem {
   description: string
 }
 
+export const createShowcaseGradient = (accent: string): string => {
+  let hex = (accent || '#e11d48').replace('#', '').trim()
+  if (hex.length === 3) {
+    hex = hex.split('').map((c) => c + c).join('')
+  }
+  const num = parseInt(hex, 16) || 0
+  const r = (num >> 16) & 255
+  const g = (num >> 8) & 255
+  const b = num & 255
+
+  // Luxury chromatic night tones: keeps atmospheric ambiance at the borders
+  // avoiding the dead pitch-black void (#06070a)
+  const edgeR = Math.round(r * 0.12 + 14)
+  const edgeG = Math.round(g * 0.12 + 16)
+  const edgeB = Math.round(b * 0.12 + 20)
+
+  const midR = Math.round(r * 0.28 + 16)
+  const midG = Math.round(g * 0.28 + 18)
+  const midB = Math.round(b * 0.28 + 24)
+
+  return `radial-gradient(circle at 52% 46%, rgba(${r}, ${g}, ${b}, 0.65) 0%, rgba(${r}, ${g}, ${b}, 0.38) 32%, rgb(${midR}, ${midG}, ${midB}) 65%, rgb(${edgeR}, ${edgeG}, ${edgeB}) 100%)`
+}
+
 const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
   {
     id: 'lattafa-asad',
@@ -29,7 +52,7 @@ const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
     subtitle: 'Lattafa • Haute Parfumerie',
     price: 65000,
     imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    bgGradient: 'radial-gradient(circle at 55% 48%, #e11d4838 0%, #e11d4818 40%, #0d0f14 80%, #06070a 100%)',
+    bgGradient: createShowcaseGradient('#e11d48'),
     accentColor: '#e11d48',
     tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
     volumeLabel: '50 ml • 100 ml',
@@ -43,7 +66,7 @@ const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
     subtitle: 'Armaf • Haute Parfumerie',
     price: 89000,
     imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    bgGradient: 'radial-gradient(circle at 55% 48%, #94a3b838 0%, #94a3b818 40%, #0d0f14 80%, #06070a 100%)',
+    bgGradient: createShowcaseGradient('#94a3b8'),
     accentColor: '#94a3b8',
     tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
     volumeLabel: '50 ml • 100 ml',
@@ -57,7 +80,7 @@ const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
     subtitle: 'Lattafa • Haute Parfumerie',
     price: 78000,
     imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    bgGradient: 'radial-gradient(circle at 55% 48%, #f59e0b38 0%, #f59e0b18 40%, #0d0f14 80%, #06070a 100%)',
+    bgGradient: createShowcaseGradient('#f59e0b'),
     accentColor: '#f59e0b',
     tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
     volumeLabel: '50 ml • 100 ml',
@@ -83,7 +106,7 @@ const getInitialShowcaseItems = (): PerfumeShowcaseItem[] => {
             subtitle: p.subtitle || `${brand} • Private Collection`,
             price: p.price,
             imageUrl: p.image || '/hero-perfumes/odyssey-aqua.png',
-            bgGradient: `radial-gradient(circle at 55% 48%, ${accent}38 0%, ${accent}18 40%, #0d0f14 80%, #06070a 100%)`,
+            bgGradient: createShowcaseGradient(accent),
             accentColor: accent,
             tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
             volumeLabel: vols.map((v: number) => `${v} ml`).join(' • '),
@@ -162,7 +185,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
               subtitle: p.subtitle || `${brand} • Private Collection`,
               price: p.price,
               imageUrl: p.image || '/hero-perfumes/odyssey-aqua.png',
-              bgGradient: `radial-gradient(circle at 55% 48%, ${accent}38 0%, ${accent}18 40%, #0d0f14 80%, #06070a 100%)`,
+              bgGradient: createShowcaseGradient(accent),
               accentColor: accent,
               tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
               volumeLabel: vols.map((v) => `${v} ml`).join(' • '),
@@ -268,14 +291,14 @@ export const LuxuryHeroShowcase: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        background: current.bgGradient,
+        background: createShowcaseGradient(current.accentColor),
         transition: 'background 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
         fontFamily: "'Montserrat', sans-serif",
       }}
       className="w-full min-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden text-white font-['Montserrat',sans-serif] select-none relative flex flex-col justify-between py-5 px-4 sm:py-6 sm:px-12 xl:px-16"
     >
-      {/* Subtle Ambient Radial Lighting Overlay */}
-      <div className="absolute inset-0 bg-radial from-transparent via-black/5 to-black/50 pointer-events-none z-0" />
+      {/* Subtle Ambient Radial Lighting Overlay - Lightened to eliminate dark edges */}
+      <div className="absolute inset-0 bg-radial from-white/5 via-transparent to-black/15 pointer-events-none z-0" />
 
       {/* ========================================================================= */}
       {/* 1. TOP NAVBAR (Minimalist, matching Nike Reference)                       */}
@@ -378,7 +401,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
               animate={{ opacity: 1, x: 0, y: 0 }}
               exit={{ opacity: 0, x: 25, y: -15 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3.5"
+              className="space-y-3.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
             >
               {/* Category Breadcrumb */}
               <span className="text-xs font-bold tracking-[0.25em] uppercase text-white/70 block">
@@ -430,10 +453,12 @@ export const LuxuryHeroShowcase: React.FC = () => {
         {/* --- CENTER STAGE: Huge Mandala + Massive 3D Bottle (Fills the Center) --- */}
         <div className="flex-1 w-full flex flex-col items-center justify-center relative min-h-[460px] sm:min-h-[580px] lg:min-h-[640px] overflow-visible">
           
-          {/* Subtle Dynamic Ambient Spotlight */}
+          {/* Dynamic Ambient Spotlight with Vibrant Luminous Glow */}
           <div
-            style={{ backgroundColor: current.accentColor }}
-            className="absolute w-96 sm:w-[500px] h-96 sm:h-[500px] rounded-full blur-[130px] opacity-25 pointer-events-none transition-colors duration-700"
+            style={{
+              background: `radial-gradient(circle, ${current.accentColor} 0%, ${current.accentColor}80 35%, transparent 70%)`,
+            }}
+            className="absolute w-[480px] sm:w-[650px] lg:w-[780px] h-[480px] sm:h-[650px] lg:h-[780px] rounded-full blur-[90px] opacity-60 pointer-events-none transition-all duration-700"
           />
 
           {/* 🌀 EXPANSIVE MANDALA DE FONDO 3D EMBOSSED (Grandiosa, ocupa todo el centro) */}
@@ -443,7 +468,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
               initial={{ scale: 0.45, opacity: 0, rotate: -45 }}
               animate={{
                 scale: [0.45, 1.15, 1],
-                opacity: [0, 0.45, 0.28],
+                opacity: [0, 0.65, 0.42],
                 rotate: 0,
               }}
               exit={{
@@ -464,23 +489,23 @@ export const LuxuryHeroShowcase: React.FC = () => {
               >
                 <defs>
                   <radialGradient id={`mandala-glow-${current.id}`} cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.25" />
-                    <stop offset="60%" stopColor="#ffffff" stopOpacity="0.08" />
-                    <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+                    <stop offset="50%" stopColor={current.accentColor} stopOpacity="0.38" />
+                    <stop offset="100%" stopColor={current.accentColor} stopOpacity="0" />
                   </radialGradient>
                   
-                  {/* Outer Petal Gradient with 3D Embossed Lighting */}
+                  {/* Outer Petal Gradient with 3D Embossed Lighting & Vibrant Aura */}
                   <linearGradient id={`lotus-outer-${current.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.32" />
-                    <stop offset="45%" stopColor="#ffffff" stopOpacity="0.14" />
-                    <stop offset="100%" stopColor="#000000" stopOpacity="0.28" />
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+                    <stop offset="35%" stopColor={current.accentColor} stopOpacity="0.4" />
+                    <stop offset="100%" stopColor={current.accentColor} stopOpacity="0.12" />
                   </linearGradient>
 
                   {/* Inner Petal Gradient */}
                   <linearGradient id={`lotus-inner-${current.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.38" />
-                    <stop offset="50%" stopColor="#ffffff" stopOpacity="0.16" />
-                    <stop offset="100%" stopColor="#000000" stopOpacity="0.24" />
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.6" />
+                    <stop offset="40%" stopColor={current.accentColor} stopOpacity="0.45" />
+                    <stop offset="100%" stopColor={current.accentColor} stopOpacity="0.15" />
                   </linearGradient>
                 </defs>
 
@@ -490,13 +515,13 @@ export const LuxuryHeroShowcase: React.FC = () => {
                     <path
                       d="M 0 -85 C 58 -115 68 -180 0 -235 C -68 -180 -58 -115 0 -85 Z"
                       fill={`url(#lotus-outer-${current.id})`}
-                      stroke="rgba(255,255,255,0.18)"
-                      strokeWidth="1"
+                      stroke="rgba(255,255,255,0.28)"
+                      strokeWidth="1.2"
                     />
                     {/* Nervadura central del pétalo para relieve 3D */}
                     <path
                       d="M 0 -85 L 0 -235"
-                      stroke="rgba(255,255,255,0.15)"
+                      stroke="rgba(255,255,255,0.22)"
                       strokeWidth="1"
                     />
                   </g>
@@ -508,8 +533,8 @@ export const LuxuryHeroShowcase: React.FC = () => {
                     <path
                       d="M 0 -60 C 44 -85 52 -135 0 -180 C -52 -135 -44 -85 0 -60 Z"
                       fill={`url(#lotus-inner-${current.id})`}
-                      stroke="rgba(255,255,255,0.22)"
-                      strokeWidth="0.8"
+                      stroke="rgba(255,255,255,0.3)"
+                      strokeWidth="0.9"
                     />
                   </g>
                 ))}
@@ -518,19 +543,19 @@ export const LuxuryHeroShowcase: React.FC = () => {
                 <circle
                   r="75"
                   fill={`url(#mandala-glow-${current.id})`}
-                  stroke="rgba(255,255,255,0.22)"
+                  stroke="rgba(255,255,255,0.3)"
                   strokeWidth="1.5"
                 />
                 <circle
                   r="52"
                   fill="none"
-                  stroke="rgba(255,255,255,0.15)"
+                  stroke="rgba(255,255,255,0.2)"
                   strokeWidth="1"
                   strokeDasharray="3 3"
                 />
                 <circle
                   r="24"
-                  fill="rgba(255,255,255,0.12)"
+                  fill="rgba(255,255,255,0.18)"
                 />
               </svg>
             </motion.div>

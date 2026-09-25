@@ -141,6 +141,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 glow = 'bg-zinc-700/20 group-hover:bg-zinc-600/30'
                 dot = 'bg-zinc-400 shadow-[0_0_10px_#e4e4e7]'
                 textAccent = 'text-zinc-400'
+              } else if (accent.toLowerCase() === '#ffffff' || accent.toLowerCase() === '#f8fafc') {
+                glow = 'bg-white/20 group-hover:bg-white/30'
+                dot = 'bg-white shadow-[0_0_10px_#ffffff]'
+                textAccent = 'text-white font-bold'
               }
 
               return {

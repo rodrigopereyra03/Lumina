@@ -791,6 +791,7 @@ export const ProductManagement: React.FC = () => {
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     {[
+                      { color: '#ffffff', label: 'Blanco Cristal / Diamante' },
                       { color: '#f43f5e', label: 'Rubí Pasión' },
                       { color: '#be123c', label: 'Bordeaux Vino' },
                       { color: '#ec4899', label: 'Rose Gold' },
@@ -810,14 +811,22 @@ export const ProductManagement: React.FC = () => {
                         onClick={() => setFormAccentColor(swatch.color)}
                         title={swatch.label}
                         className={`group relative w-8 h-8 rounded-full transition-all cursor-pointer border-2 flex items-center justify-center ${
-                          formAccentColor === swatch.color
-                            ? 'scale-115 border-white dark:border-white ring-2 ring-black/40 shadow-lg'
+                          formAccentColor.toLowerCase() === swatch.color.toLowerCase()
+                            ? swatch.color === '#ffffff'
+                              ? 'scale-115 border-black dark:border-white ring-2 ring-black/30 dark:ring-white/40 shadow-lg'
+                              : 'scale-115 border-white dark:border-white ring-2 ring-black/40 shadow-lg'
+                            : swatch.color === '#ffffff'
+                            ? 'border-gray-400 dark:border-white/40 opacity-90 hover:opacity-100 hover:scale-105 shadow-xs'
                             : 'border-transparent opacity-80 hover:opacity-100 hover:scale-105'
                         }`}
                         style={{ backgroundColor: swatch.color }}
                       >
-                        {formAccentColor === swatch.color && (
-                          <span className="w-2 h-2 rounded-full bg-white shadow-xs" />
+                        {formAccentColor.toLowerCase() === swatch.color.toLowerCase() && (
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              swatch.color === '#ffffff' ? 'bg-black' : 'bg-white'
+                            } shadow-xs`}
+                          />
                         )}
                       </button>
                     ))}
