@@ -21,7 +21,7 @@ interface PerfumeShowcaseItem {
   description: string
 }
 
-export const createShowcaseGradient = (accent: string): string => {
+const createShowcaseGradient = (accent: string): string => {
   let hex = (accent || '#e11d48').replace('#', '').trim()
   if (hex.length === 3) {
     hex = hex.split('').map((c) => c + c).join('')
