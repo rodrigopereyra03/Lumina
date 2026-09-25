@@ -247,6 +247,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   // Volume price formula helper
   const calculatePrice = (basePrice: number, volume: number, defaultVol: number): number => {
     if (volume === defaultVol) return basePrice
+    if (volume === 80 && defaultVol === 100) {
+      return Math.round((basePrice * 0.85) / 1000) * 1000
+    }
     if (volume === 90 && defaultVol === 100) {
       return Math.round((basePrice * 0.92) / 1000) * 1000
     }
