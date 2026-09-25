@@ -638,9 +638,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {/* ========================================================================= */}
       <section className="relative z-10 pb-8 space-y-4">
         <div className="max-w-[1440px] mx-auto space-y-4">
-          {/* 2A. BRAND HOUSES (Dedicated Luxury Scroll Bar) */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-amber-400 font-bold px-3 py-2 rounded-xl bg-amber-400/10 border border-amber-400/20 shrink-0">
+          {/* 2A. BRAND HOUSES (Full Visibility Multi-Row Wrap) */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-amber-400 font-bold px-3 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/20 shrink-0">
               Casas:
             </span>
             {availableHouses.map((house) => {
@@ -652,7 +652,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     setSelectedHouse(house.brand)
                     setCurrentPage(1)
                   }}
-                  className={`px-4 py-2 rounded-xl whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-xs font-semibold ${
+                  className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold ${
                     isActive
                       ? 'bg-white text-black font-extrabold shadow-lg shadow-white/20 scale-[1.02]'
                       : 'bg-white/[0.04] border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/20'
@@ -674,7 +674,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           {/* 2B. OLFACTIVE FAMILIES & SORT ROW */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-1">
             {/* Families Filter Tabs */}
-            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none text-xs font-medium">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
               <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mr-1 hidden sm:inline">
                 Familias:
               </span>
