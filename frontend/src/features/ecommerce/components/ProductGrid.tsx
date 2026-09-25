@@ -157,6 +157,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 glow = 'bg-white/20 group-hover:bg-white/30'
                 dot = 'bg-white shadow-[0_0_10px_#ffffff]'
                 textAccent = 'text-white font-bold'
+              } else if (accent === '#000000' || accent === '#0a0a0a') {
+                glow = 'bg-neutral-800/40 group-hover:bg-neutral-700/50'
+                dot = 'bg-neutral-400 shadow-[0_0_10px_#a1a1aa]'
+                textAccent = 'text-neutral-300 font-bold'
               }
 
               return {

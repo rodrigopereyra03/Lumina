@@ -792,6 +792,7 @@ export const ProductManagement: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     {[
                       { color: '#ffffff', label: 'Blanco Cristal / Diamante' },
+                      { color: '#000000', label: 'Negro Azabache / Onyx' },
                       { color: '#00d2ff', label: 'Celeste / Azul Eléctrico' },
                       { color: '#2563eb', label: 'Azul Francia / Bleu Royal' },
                       { color: '#1e40af', label: 'Azul Oscuro / Noche' },
@@ -820,6 +821,8 @@ export const ProductManagement: React.FC = () => {
                               : 'scale-115 border-white dark:border-white ring-2 ring-black/40 shadow-lg'
                             : swatch.color === '#ffffff'
                             ? 'border-gray-400 dark:border-white/40 opacity-90 hover:opacity-100 hover:scale-105 shadow-xs'
+                            : swatch.color === '#000000'
+                            ? 'border-neutral-500/80 dark:border-neutral-600 opacity-90 hover:opacity-100 hover:scale-105 shadow-xs'
                             : 'border-transparent opacity-80 hover:opacity-100 hover:scale-105'
                         }`}
                         style={{ backgroundColor: swatch.color }}

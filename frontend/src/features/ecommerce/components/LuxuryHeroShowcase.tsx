@@ -31,6 +31,12 @@ const createShowcaseGradient = (accent: string): string => {
   const g = (num >> 8) & 255
   const b = num & 255
 
+  // Special handling for Pure Black / Onyx Noir (#000000 or near-black)
+  const isOnyxNoir = r < 20 && g < 20 && b < 20
+  if (isOnyxNoir) {
+    return `radial-gradient(circle at 52% 46%, rgba(65, 70, 82, 0.72) 0%, rgba(35, 38, 45, 0.5) 34%, #12141a 68%, #08090c 100%)`
+  }
+
   // Adaptive luminosity for deeper colors (e.g. dark navy/midnight blue)
   const brightness = (r * 299 + g * 587 + b * 114) / 1000
   const centerAlpha = brightness < 70 ? 0.8 : 0.65
@@ -461,7 +467,10 @@ export const LuxuryHeroShowcase: React.FC = () => {
           {/* Dynamic Ambient Spotlight with Vibrant Luminous Glow */}
           <div
             style={{
-              background: `radial-gradient(circle, ${current.accentColor} 0%, ${current.accentColor}80 35%, transparent 70%)`,
+              background:
+                current.accentColor === '#000000' || current.accentColor === '#0a0a0a'
+                  ? `radial-gradient(circle, rgba(95, 102, 118, 0.65) 0%, rgba(45, 48, 56, 0.45) 35%, transparent 70%)`
+                  : `radial-gradient(circle, ${current.accentColor} 0%, ${current.accentColor}80 35%, transparent 70%)`,
             }}
             className="absolute w-[480px] sm:w-[650px] lg:w-[780px] h-[480px] sm:h-[650px] lg:h-[780px] rounded-full blur-[90px] opacity-60 pointer-events-none transition-all duration-700"
           />
@@ -488,31 +497,35 @@ export const LuxuryHeroShowcase: React.FC = () => {
               }}
               className="absolute w-[520px] h-[520px] sm:w-[680px] sm:h-[680px] lg:w-[820px] lg:h-[820px] xl:w-[940px] xl:h-[940px] pointer-events-none select-none z-0 flex items-center justify-center"
             >
-              <svg
-                viewBox="-250 -250 500 500"
-                className="w-full h-full filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)]"
-              >
-                <defs>
-                  <radialGradient id={`mandala-glow-${current.id}`} cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
-                    <stop offset="50%" stopColor={current.accentColor} stopOpacity="0.38" />
-                    <stop offset="100%" stopColor={current.accentColor} stopOpacity="0" />
-                  </radialGradient>
-                  
-                  {/* Outer Petal Gradient with 3D Embossed Lighting & Vibrant Aura */}
-                  <linearGradient id={`lotus-outer-${current.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
-                    <stop offset="35%" stopColor={current.accentColor} stopOpacity="0.4" />
-                    <stop offset="100%" stopColor={current.accentColor} stopOpacity="0.12" />
-                  </linearGradient>
+              {(() => {
+                const isBlack = current.accentColor === '#000000' || current.accentColor === '#0a0a0a'
+                const effectiveAccent = isBlack ? '#94a3b8' : current.accentColor
+                return (
+                  <svg
+                    viewBox="-250 -250 500 500"
+                    className="w-full h-full filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)]"
+                  >
+                    <defs>
+                      <radialGradient id={`mandala-glow-${current.id}`} cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+                        <stop offset="50%" stopColor={effectiveAccent} stopOpacity="0.38" />
+                        <stop offset="100%" stopColor={effectiveAccent} stopOpacity="0" />
+                      </radialGradient>
+                      
+                      {/* Outer Petal Gradient with 3D Embossed Lighting & Vibrant Aura */}
+                      <linearGradient id={`lotus-outer-${current.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
+                        <stop offset="35%" stopColor={effectiveAccent} stopOpacity="0.4" />
+                        <stop offset="100%" stopColor={effectiveAccent} stopOpacity="0.12" />
+                      </linearGradient>
 
-                  {/* Inner Petal Gradient */}
-                  <linearGradient id={`lotus-inner-${current.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.6" />
-                    <stop offset="40%" stopColor={current.accentColor} stopOpacity="0.45" />
-                    <stop offset="100%" stopColor={current.accentColor} stopOpacity="0.15" />
-                  </linearGradient>
-                </defs>
+                      {/* Inner Petal Gradient */}
+                      <linearGradient id={`lotus-inner-${current.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.6" />
+                        <stop offset="40%" stopColor={effectiveAccent} stopOpacity="0.45" />
+                        <stop offset="100%" stopColor={effectiveAccent} stopOpacity="0.15" />
+                      </linearGradient>
+                    </defs>
 
                 {/* 🌸 CAPA EXTERIOR: 8 Grandes Pétalos de Flor de Loto */}
                 {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
@@ -563,6 +576,8 @@ export const LuxuryHeroShowcase: React.FC = () => {
                   fill="rgba(255,255,255,0.18)"
                 />
               </svg>
+                )
+              })()}
             </motion.div>
           </AnimatePresence>
 
