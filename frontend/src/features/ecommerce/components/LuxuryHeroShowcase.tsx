@@ -20,8 +20,84 @@ interface PerfumeShowcaseItem {
   description: string
 }
 
+const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
+  {
+    id: 'lattafa-asad',
+    brand: 'LATTAFA',
+    title: 'Asad',
+    subtitle: 'Lattafa • Haute Parfumerie',
+    price: 65000,
+    imageUrl: '/hero-perfumes/odyssey-aqua.png',
+    bgGradient: 'radial-gradient(circle at 55% 48%, #e11d4838 0%, #e11d4818 40%, #0d0f14 80%, #06070a 100%)',
+    accentColor: '#e11d48',
+    tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
+    volumeLabel: '50 ml • 100 ml',
+    availableVolumes: [50, 100],
+    description: 'Fragancia masculina icónica con notas especiadas, pimienta negra, café y vainilla.',
+  },
+  {
+    id: 'armaf-club-de-nuit',
+    brand: 'ARMAF',
+    title: 'Club de Nuit Intense Man',
+    subtitle: 'Armaf • Haute Parfumerie',
+    price: 89000,
+    imageUrl: '/hero-perfumes/odyssey-aqua.png',
+    bgGradient: 'radial-gradient(circle at 55% 48%, #94a3b838 0%, #94a3b818 40%, #0d0f14 80%, #06070a 100%)',
+    accentColor: '#94a3b8',
+    tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
+    volumeLabel: '50 ml • 100 ml',
+    availableVolumes: [50, 100],
+    description: 'Apertura cítrica deslumbrante de bergamota y limón con fondo amaderado y ahumado.',
+  },
+  {
+    id: 'lattafa-khamrah',
+    brand: 'LATTAFA',
+    title: 'Khamrah',
+    subtitle: 'Lattafa • Haute Parfumerie',
+    price: 78000,
+    imageUrl: '/hero-perfumes/odyssey-aqua.png',
+    bgGradient: 'radial-gradient(circle at 55% 48%, #f59e0b38 0%, #f59e0b18 40%, #0d0f14 80%, #06070a 100%)',
+    accentColor: '#f59e0b',
+    tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
+    volumeLabel: '50 ml • 100 ml',
+    availableVolumes: [50, 100],
+    description: 'Gourmand cálido y envolvente con canela, nuez moscada, praliné y haba tonka.',
+  },
+]
+
+const getInitialShowcaseItems = (): PerfumeShowcaseItem[] => {
+  try {
+    const stored = localStorage.getItem('lumina_custom_products')
+    if (stored) {
+      const list = JSON.parse(stored)
+      if (Array.isArray(list) && list.length > 0) {
+        return list.slice(0, 30).map((p: any) => {
+          const vols = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
+          const accent = p.accent_color || '#38bdf8'
+          const brand = (p.brand || p.category_name || 'LUMINA').toUpperCase()
+          return {
+            id: p.id,
+            brand,
+            title: p.title,
+            subtitle: p.subtitle || `${brand} • Private Collection`,
+            price: p.price,
+            imageUrl: p.image || '/hero-perfumes/odyssey-aqua.png',
+            bgGradient: `radial-gradient(circle at 55% 48%, ${accent}38 0%, ${accent}18 40%, #0d0f14 80%, #06070a 100%)`,
+            accentColor: accent,
+            tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
+            volumeLabel: vols.map((v: number) => `${v} ml`).join(' • '),
+            availableVolumes: vols,
+            description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
+          }
+        })
+      }
+    }
+  } catch {}
+  return INITIAL_SHOWCASE_ITEMS
+}
+
 export const LuxuryHeroShowcase: React.FC = () => {
-  const [showcaseList, setShowcaseList] = useState<PerfumeShowcaseItem[]>([])
+  const [showcaseList, setShowcaseList] = useState<PerfumeShowcaseItem[]>(getInitialShowcaseItems)
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [selectedSize, setSelectedSize] = useState<string>('100')
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
@@ -30,6 +106,17 @@ export const LuxuryHeroShowcase: React.FC = () => {
   const heroRef = useRef<HTMLDivElement>(null)
   const { addItem, openDrawer, items } = useCartStore()
   const navigate = useNavigate()
+
+  // Handle Next / Previous Perfume
+  const handleNext = () => {
+    if (showcaseList.length === 0) return
+    setSelectedIndex((prev) => (prev + 1) % showcaseList.length)
+  }
+
+  const handlePrev = () => {
+    if (showcaseList.length === 0) return
+    setSelectedIndex((prev) => (prev - 1 + showcaseList.length) % showcaseList.length)
+  }
 
   // Load custom database products dynamically
   useEffect(() => {
@@ -69,7 +156,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
     }
   }, [])
 
-  const current = showcaseList[selectedIndex] || showcaseList[0]
+  const current = showcaseList[selectedIndex] || showcaseList[0] || INITIAL_SHOWCASE_ITEMS[0]
   const totalCartCount = items.reduce((acc, item) => acc + item.quantity, 0)
 
   // Ensure selectedSize matches one of current perfume's available volumes
@@ -83,6 +170,16 @@ export const LuxuryHeroShowcase: React.FC = () => {
     }
   }, [selectedIndex, current])
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') handleNext()
+      if (e.key === 'ArrowLeft') handlePrev()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [showcaseList.length])
+
   // Calculate dynamic price based on selected volume
   const sizeNum = parseInt(selectedSize, 10) || 100
   const defaultVol = current?.availableVolumes?.includes(100) ? 100 : current?.availableVolumes?.[0] || 100
@@ -95,17 +192,6 @@ export const LuxuryHeroShowcase: React.FC = () => {
         : Math.round((current.price * 1.35) / 1000) * 1000
       : 0
 
-  if (!current) {
-    return (
-      <div className="w-full min-h-screen bg-[#070709] flex items-center justify-center text-white font-['Montserrat',sans-serif]">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 rounded-full border-2 border-rose-500 border-t-transparent animate-spin" />
-          <span className="text-xs tracking-widest uppercase text-gray-400">Cargando Showcase 3D...</span>
-        </div>
-      </div>
-    )
-  }
-
   // Handle 3D Tilt calculation (Skill: 3d-web-experience)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!heroRef.current) return
@@ -117,15 +203,6 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
   const handleMouseLeave = () => {
     setMousePos({ x: 0, y: 0 })
-  }
-
-  // Handle Next / Previous Perfume
-  const handleNext = () => {
-    setSelectedIndex((prev) => (prev + 1) % showcaseList.length)
-  }
-
-  const handlePrev = () => {
-    setSelectedIndex((prev) => (prev - 1 + showcaseList.length) % showcaseList.length)
   }
 
   // Handle Add to Cart
@@ -144,16 +221,6 @@ export const LuxuryHeroShowcase: React.FC = () => {
       openDrawer()
     }, 1000)
   }
-
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') handleNext()
-      if (e.key === 'ArrowLeft') handlePrev()
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [showcaseList.length])
 
   return (
     <div
@@ -461,6 +528,9 @@ export const LuxuryHeroShowcase: React.FC = () => {
                 <img
                   src={current.imageUrl}
                   alt={current.title}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
+                  }}
                   className="max-h-[280px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[580px] xl:max-h-[630px] h-[34vh] sm:h-[46vh] lg:h-[55vh] w-auto object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.75)] select-none pointer-events-none"
                 />
               </motion.div>

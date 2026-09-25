@@ -59,28 +59,30 @@ const fetchCategoriesFromSupabase = async (): Promise<BackendCategoryDTO[]> => {
 
 export const categoriesApi = {
   getCategories: async (): Promise<ListCategoriesResponseContent> => {
-    // 1. Fetch from backend API (if running locally)
-    try {
-      const res = await axiosInstance.get('/categories', { timeout: 1500 })
-      const remote = res.data.content || res.data
-      if (remote?.categories && Array.isArray(remote.categories)) {
-        const cleanRemote = remote.categories
-          .filter((c: BackendCategoryDTO) => !OLD_CAT_SLUGS.includes(c.slug))
-        
-        if (cleanRemote.length > 0) {
-          localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(cleanRemote))
-          return { categories: cleanRemote }
-        }
-      }
-    } catch {
-      // Backend unreachable or production environment
-    }
-
-    // 2. Fetch directly from Supabase REST API (works everywhere in production)
+    // 1. Fetch directly from Supabase REST API (works everywhere in production)
     const remoteSupabase = await fetchCategoriesFromSupabase()
     if (remoteSupabase.length > 0) {
       localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(remoteSupabase))
       return { categories: remoteSupabase }
+    }
+
+    // 2. Fetch from backend API (if custom VITE_API_URL configured)
+    if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+      try {
+        const res = await axiosInstance.get('/categories', { timeout: 1500 })
+        const remote = res.data.content || res.data
+        if (remote?.categories && Array.isArray(remote.categories)) {
+          const cleanRemote = remote.categories
+            .filter((c: BackendCategoryDTO) => !OLD_CAT_SLUGS.includes(c.slug))
+          
+          if (cleanRemote.length > 0) {
+            localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(cleanRemote))
+            return { categories: cleanRemote }
+          }
+        }
+      } catch {
+        // Backend unreachable
+      }
     }
 
     // 3. Read local stored categories without old demo categories

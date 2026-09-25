@@ -126,74 +126,38 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
 
 export const productsApi = {
   getProducts: async (categorySlug?: string): Promise<ListProductsResponseContent> => {
-    // 1. Try local Go backend (if running)
-    try {
-      const url = categorySlug && categorySlug !== 'all' ? `/products?category=${categorySlug}` : '/products'
-      const res = await axiosInstance.get(url, { timeout: 1500 })
-      const remote = res.data.content || res.data
-      if (remote && Array.isArray(remote.products) && remote.products.length > 0) {
-        let mappedRemote: BackendProductDTO[] = remote.products
-          .filter((p: any) => !MOCK_IDS.includes(p.id))
-          .map((p: any) => {
-            let parsedMeta: any = {}
-            let cleanSubtitle = p.subtitle || ''
-            if (cleanSubtitle.includes('@@META@@')) {
-              const parts = cleanSubtitle.split('@@META@@')
-              cleanSubtitle = parts[0].trim()
-              try {
-                parsedMeta = JSON.parse(parts[1])
-              } catch (e) {}
-            }
-
-            return {
-              id: p.id,
-              title: p.title,
-              subtitle: cleanSubtitle,
-              description: p.description || '',
-              price: p.price,
-              original_price: p.original_price,
-              stock: p.stock,
-              image: p.image || '',
-              rating: p.rating || 5.0,
-              reviews_count: p.reviews_count || 0,
-              category_name: p.category_name || 'General',
-              category_slug:
-                p.category_slug ||
-                (p.category_name
-                  ? p.category_name.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, '-')
-                  : 'general'),
-              volumes: p.volumes || parsedMeta.volumes || [50, 100],
-              accent_color: p.accent_color || parsedMeta.accent_color || '#fb7185',
-              brand: p.brand || parsedMeta.brand || p.category_name || 'Lumina',
-            }
-          })
-
-        // Save remote database products directly to local cache
-        localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mappedRemote))
-
-        const filtered = categorySlug && categorySlug !== 'all'
-          ? mappedRemote.filter((p) => {
-              const s = (p.category_slug || p.category_name || '').toLowerCase()
-              const target = categorySlug.toLowerCase()
-              return s.includes(target) || target.includes(s)
-            })
-          : mappedRemote
-
-        return {
-          products: filtered,
-          total: filtered.length,
-        }
-      }
-    } catch {
-      // Backend unreachable or production environment
-    }
-
-    // 2. Fetch directly from Supabase REST API (production ready!)
+    // 1. Fetch directly from Supabase REST API (source of truth in cloud)
     const supabaseProducts = await fetchProductsFromSupabase(categorySlug)
     if (supabaseProducts.length > 0) {
       return {
         products: supabaseProducts,
         total: supabaseProducts.length,
+      }
+    }
+
+    // 2. If configured with a custom backend URL (not localhost), try axios
+    if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+      try {
+        const url = categorySlug && categorySlug !== 'all' ? `/products?category=${categorySlug}` : '/products'
+        const res = await axiosInstance.get(url, { timeout: 1500 })
+        const remote = res.data.content || res.data
+        if (remote && Array.isArray(remote.products) && remote.products.length > 0) {
+          const mappedRemote = cleanProductList(remote.products)
+          localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mappedRemote))
+          const filtered = categorySlug && categorySlug !== 'all'
+            ? mappedRemote.filter((p) => {
+                const s = (p.category_slug || p.category_name || '').toLowerCase()
+                const target = categorySlug.toLowerCase()
+                return s.includes(target) || target.includes(s)
+              })
+            : mappedRemote
+          return {
+            products: filtered,
+            total: filtered.length,
+          }
+        }
+      } catch {
+        // Backend unreachable
       }
     }
 
@@ -216,13 +180,7 @@ export const productsApi = {
   },
 
   getProductById: async (id: string): Promise<BackendProductDTO> => {
-    try {
-      const res = await axiosInstance.get(`/products/${id}`, { timeout: 1500 })
-      const remote = res.data.content || res.data
-      if (remote?.id) return remote
-    } catch {}
-
-    // Fallback: Fetch directly from Supabase
+    // 1. Fetch directly from Supabase
     try {
       const url = `${SUPABASE_URL}/rest/v1/products?id=eq.${id}&select=*,category:categories(id,name,slug)&limit=1`
       const res = await fetch(url, {
@@ -264,6 +222,15 @@ export const productsApi = {
         }
       }
     } catch {}
+
+    // 2. If custom backend URL is configured, try axios
+    if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+      try {
+        const res = await axiosInstance.get(`/products/${id}`, { timeout: 1500 })
+        const remote = res.data.content || res.data
+        if (remote?.id) return remote
+      } catch {}
+    }
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
     const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
