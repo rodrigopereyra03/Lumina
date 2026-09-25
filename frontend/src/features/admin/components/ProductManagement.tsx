@@ -806,6 +806,7 @@ export const ProductManagement: React.FC = () => {
                       { color: '#f59e0b', label: 'Ámbar Cálido' },
                       { color: '#eab308', label: 'Oro Champagne' },
                       { color: '#ea580c', label: 'Coñac & Canela' },
+                      { color: '#783c1d', label: 'Marrón Chocolate / Madera Noble' },
                       { color: '#c084fc', label: 'Amatista Mística' },
                       { color: '#94a3b8', label: 'Platino / Titanio' },
                     ].map((swatch) => (
