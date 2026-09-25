@@ -22,6 +22,8 @@ export const ProductManagement: React.FC = () => {
   const [formStock, setFormStock] = useState('20')
   const [formDesc, setFormDesc] = useState('')
   const [formImage, setFormImage] = useState('')
+  const [formImages, setFormImages] = useState<string[]>([])
+  const [urlInput, setUrlInput] = useState('')
   const [formVolumes, setFormVolumes] = useState<number[]>([50, 100])
   const [formAccentColor, setFormAccentColor] = useState('#10b981')
   const [uploading, setUploading] = useState(false)
@@ -29,30 +31,72 @@ export const ProductManagement: React.FC = () => {
   const [uploadError, setUploadError] = useState<string | null>(null)
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
+    const files = e.target.files
+    if (!files || files.length === 0) return
 
     setUploading(true)
     setUploadError(null)
     setUploadSuccess(false)
-    try {
-      const publicUrl = await storageApi.uploadProductImage(file)
-      setFormImage(publicUrl)
-      setUploadSuccess(true)
-    } catch (err: any) {
-      console.warn('Storage upload notice:', err)
-      // Read as base64 preview as resilient fallback
-      const reader = new FileReader()
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setFormImage(event.target.result as string)
-        }
+
+    const uploadedUrls: string[] = []
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i]
+      try {
+        const publicUrl = await storageApi.uploadProductImage(file)
+        uploadedUrls.push(publicUrl)
+      } catch (err: any) {
+        console.warn('Storage upload fallback:', err)
+        await new Promise<void>((resolve) => {
+          const reader = new FileReader()
+          reader.onload = (event) => {
+            if (event.target?.result) {
+              uploadedUrls.push(event.target.result as string)
+            }
+            resolve()
+          }
+          reader.readAsDataURL(file)
+        })
       }
-      reader.readAsDataURL(file)
-      setUploadError('No se pudo conectar directamente con Supabase Storage, se guardará en caché local.')
-    } finally {
-      setUploading(false)
     }
+
+    if (uploadedUrls.length > 0) {
+      setFormImages((prev) => [...prev, ...uploadedUrls])
+      if (!formImage) {
+        setFormImage(uploadedUrls[0])
+      }
+      setUploadSuccess(true)
+    }
+    setUploading(false)
+  }
+
+  const handleAddUrlImage = () => {
+    if (!urlInput.trim()) return
+    const url = urlInput.trim()
+    setFormImages((prev) => [...prev, url])
+    if (!formImage) {
+      setFormImage(url)
+    }
+    setUrlInput('')
+  }
+
+  const handleRemoveImage = (indexToRemove: number) => {
+    setFormImages((prev) => {
+      const updated = prev.filter((_, idx) => idx !== indexToRemove)
+      if (formImage === prev[indexToRemove]) {
+        setFormImage(updated[0] || '')
+      }
+      return updated
+    })
+  }
+
+  const handleSetPrimaryImage = (indexToPrimary: number) => {
+    setFormImages((prev) => {
+      const target = prev[indexToPrimary]
+      const rest = prev.filter((_, idx) => idx !== indexToPrimary)
+      const reordered = [target, ...rest]
+      setFormImage(target)
+      return reordered
+    })
   }
 
   const fetchCatalog = async () => {
@@ -104,6 +148,8 @@ export const ProductManagement: React.FC = () => {
     setFormStock('15')
     setFormDesc('')
     setFormImage('')
+    setFormImages([])
+    setUrlInput('')
     setFormVolumes([50, 100])
     setFormAccentColor('#10b981')
     setUploadSuccess(false)
@@ -119,7 +165,12 @@ export const ProductManagement: React.FC = () => {
     setFormPrice(product.price.toString())
     setFormStock(product.stock.toString())
     setFormDesc(product.description || '')
-    setFormImage(product.image || '')
+    const initialImgs = product.images && product.images.length > 0
+      ? product.images
+      : (product.image ? [product.image] : [])
+    setFormImages(initialImgs)
+    setFormImage(initialImgs[0] || product.image || '')
+    setUrlInput('')
     setFormVolumes(product.volumes && product.volumes.length > 0 ? product.volumes : [50, 100])
     setFormAccentColor(product.accent_color || '#10b981')
     setUploadSuccess(false)
@@ -142,6 +193,8 @@ export const ProductManagement: React.FC = () => {
     const priceNum = parseFloat(formPrice) || 0
     const stockNum = parseInt(formStock, 10) || 0
     const volumesToSave = formVolumes.length > 0 ? formVolumes : [50, 100]
+    const finalImgs = formImages.length > 0 ? formImages : (formImage ? [formImage] : [])
+    const primaryImg = finalImgs[0] || formImage || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&q=80'
 
     if (editingProduct) {
       // Optimistic update
@@ -156,7 +209,8 @@ export const ProductManagement: React.FC = () => {
                 price: priceNum,
                 stock: stockNum,
                 description: formDesc.trim(),
-                image: formImage.trim() || p.image,
+                image: primaryImg,
+                images: finalImgs,
                 volumes: volumesToSave,
                 accent_color: formAccentColor,
               }
@@ -171,7 +225,8 @@ export const ProductManagement: React.FC = () => {
         price: priceNum,
         stock: stockNum,
         description: formDesc.trim(),
-        image: formImage.trim() || editingProduct.image,
+        image: primaryImg,
+        images: finalImgs,
         volumes: volumesToSave,
         accent_color: formAccentColor,
       })
@@ -184,7 +239,8 @@ export const ProductManagement: React.FC = () => {
         price: priceNum,
         stock: stockNum,
         description: formDesc.trim() || 'Fragancia exclusiva con garantía oficial.',
-        image: formImage.trim() || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&q=80',
+        image: primaryImg,
+        images: finalImgs,
         volumes: volumesToSave,
         accent_color: formAccentColor,
       })
@@ -576,53 +632,134 @@ export const ProductManagement: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Product Image & Supabase Bucket Upload */}
-                <div>
-                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">
-                    Imagen del Frasco (Bucket Supabase: <span className="font-mono text-[#FF4D4F]">product-images</span>)
-                  </label>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <label className="flex-1 flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 dark:bg-[#FF4D4F]/10 hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
-                        <span className="material-symbols-outlined text-[20px] animate-pulse">
-                          {uploading ? 'sync' : 'cloud_upload'}
-                        </span>
-                        <span>{uploading ? 'Guardando en Supabase Bucket...' : 'Seleccionar Foto y Subir al Bucket'}</span>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleFileSelect}
-                          disabled={uploading}
-                          className="hidden"
-                        />
+                {/* Product Images & Multi-Photo Gallery */}
+                <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
+                        Fotos del Producto (Galería Multi-Foto)
                       </label>
-                      {formImage && (
-                        <div className="w-12 h-12 rounded-xl bg-white dark:bg-[#181c26] border border-white/80 dark:border-white/10 p-1 shrink-0 overflow-hidden shadow-sm flex items-center justify-center">
-                          <img
-                            src={formImage}
-                            alt="Vista previa"
-                            className="max-h-full max-w-full object-contain"
-                          />
-                        </div>
-                      )}
+                      <span className="text-[10px] text-[#5b403e] dark:text-[#9ca3af]">
+                        Puedes subir varias fotos. La primera foto será la principal en la tienda.
+                      </span>
+                    </div>
+                    <span className="text-[10px] text-[#FF4D4F] font-bold uppercase tracking-wider">
+                      {formImages.length} {formImages.length === 1 ? 'Foto' : 'Fotos'}
+                    </span>
+                  </div>
+
+                  {/* Upload button (supports multiple files) */}
+                  <div className="space-y-2">
+                    <label className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 dark:bg-[#FF4D4F]/10 hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
+                      <span className="material-symbols-outlined text-[20px] animate-pulse">
+                        {uploading ? 'sync' : 'cloud_upload'}
+                      </span>
+                      <span>
+                        {uploading ? 'Subiendo fotos al Bucket...' : 'Seleccionar Fotos (puedes elegir varias)'}
+                      </span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleFileSelect}
+                        disabled={uploading}
+                        className="hidden"
+                      />
+                    </label>
+
+                    {/* Add via URL directly */}
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="text"
+                        value={urlInput}
+                        onChange={(e) => setUrlInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault()
+                            handleAddUrlImage()
+                          }
+                        }}
+                        className="glass-input flex-1 px-3 py-2 rounded-xl text-[11px] outline-none font-mono"
+                        placeholder="O pega una URL de foto y presiona Añadir..."
+                      />
+                      <button
+                        type="button"
+                        onClick={handleAddUrlImage}
+                        disabled={!urlInput.trim()}
+                        className="px-3.5 py-2 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-[#FF4D4F] hover:text-white text-xs font-semibold cursor-pointer disabled:opacity-40 transition-all shrink-0"
+                      >
+                        Añadir Foto
+                      </button>
                     </div>
 
                     {uploadSuccess && (
                       <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold flex items-center gap-1.5">
                         <span className="material-symbols-outlined text-[16px]">verified</span>
-                        <span>Imagen subida con éxito y alojada en el bucket <strong>product-images</strong></span>
+                        <span>Fotos añadidas con éxito a la galería</span>
                       </div>
                     )}
-
-                    <input
-                      type="text"
-                      value={formImage}
-                      onChange={(e) => setFormImage(e.target.value)}
-                      className="glass-input w-full px-3 py-1.5 rounded-xl text-[11px] outline-none font-mono"
-                      placeholder="URL pública de la imagen (Supabase o externa)..."
-                    />
                     {uploadError && <p className="text-[10px] text-amber-500">{uploadError}</p>}
                   </div>
+
+                  {/* Gallery Thumbnails Grid */}
+                  {formImages.length > 0 && (
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-2">
+                      {formImages.map((imgUrl, idx) => (
+                        <div
+                          key={idx}
+                          className={`relative rounded-xl border p-1.5 bg-white dark:bg-[#181c26] flex flex-col items-center justify-between gap-1 shadow-sm transition-all group ${
+                            idx === 0
+                              ? 'border-[#FF4D4F] ring-2 ring-[#FF4D4F]/30'
+                              : 'border-white/80 dark:border-white/10 hover:border-gray-400'
+                          }`}
+                        >
+                          {/* Image preview */}
+                          <div className="w-full aspect-square rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-black/20">
+                            <img
+                              src={imgUrl}
+                              alt={`Foto ${idx + 1}`}
+                              className="max-h-full max-w-full object-contain"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
+                              }}
+                            />
+                          </div>
+
+                          {/* Badge Principal on first photo */}
+                          {idx === 0 && (
+                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-[#FF4D4F] text-white text-[9px] font-extrabold uppercase shadow-sm">
+                              Principal
+                            </span>
+                          )}
+
+                          {/* Actions */}
+                          <div className="w-full flex items-center justify-between gap-1 pt-0.5">
+                            {idx !== 0 ? (
+                              <button
+                                type="button"
+                                onClick={() => handleSetPrimaryImage(idx)}
+                                className="text-[10px] text-[#FF4D4F] hover:underline font-bold cursor-pointer"
+                                title="Hacer foto principal"
+                              >
+                                Hacer Principal
+                              </button>
+                            ) : (
+                              <span className="text-[10px] text-gray-400 font-medium">Portada</span>
+                            )}
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              className="w-5 h-5 rounded flex items-center justify-center text-red-500 hover:bg-red-500/10 cursor-pointer"
+                              title="Eliminar de la galería"
+                            >
+                              <span className="material-symbols-outlined text-[14px]">delete</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 <div>

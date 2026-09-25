@@ -36,6 +36,10 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         ])
 
         if (currentProd) {
+          const productGallery = currentProd.images && currentProd.images.length > 0
+            ? currentProd.images
+            : [currentProd.image || '/hero-perfumes/odyssey-aqua.png']
+
           const mapped: Product = {
             id: currentProd.id,
             title: currentProd.title,
@@ -47,8 +51,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             rating: currentProd.rating || 5.0,
             reviewsCount: currentProd.reviews_count || 12,
             stock: currentProd.stock,
-            image: currentProd.image || '/hero-perfumes/odyssey-aqua.png',
-            gallery: [currentProd.image || '/hero-perfumes/odyssey-aqua.png'],
+            image: productGallery[0] || currentProd.image || '/hero-perfumes/odyssey-aqua.png',
+            gallery: productGallery,
             tags: ['Garantía Oficial', 'Original'],
             description: currentProd.description,
             variants: [
@@ -79,7 +83,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             ],
           }
           setProduct(mapped)
-          setSelectedImage(mapped.gallery[0] || mapped.image)
+          setSelectedImage(productGallery[0])
           setSelectedVariant(mapped.variants[0]?.name || 'Estándar')
         }
 
@@ -97,6 +101,20 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     fetchProduct()
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }, [productId])
+
+  const currentImageIndex = product?.gallery ? Math.max(0, product.gallery.indexOf(selectedImage)) : 0
+
+  const handleNextImage = () => {
+    if (!product?.gallery || product.gallery.length <= 1) return
+    const nextIdx = (currentImageIndex + 1) % product.gallery.length
+    setSelectedImage(product.gallery[nextIdx])
+  }
+
+  const handlePrevImage = () => {
+    if (!product?.gallery || product.gallery.length <= 1) return
+    const prevIdx = (currentImageIndex - 1 + product.gallery.length) % product.gallery.length
+    setSelectedImage(product.gallery[prevIdx])
+  }
 
   const handleAddToCart = () => {
     if (!product) return
@@ -137,44 +155,99 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
       {/* Main Two-Column Product Section */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        {/* Left Column: Gallery */}
-        <div className="lg:col-span-7 flex flex-col-reverse md:flex-row gap-4">
-          {/* Thumbnails list */}
-          {product.gallery && product.gallery.length > 1 && (
-            <div className="flex md:flex-col gap-3 overflow-x-auto pb-2 md:pb-0">
-              {product.gallery.map((img, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setSelectedImage(img)}
-                  className={`w-18 h-18 rounded-2xl p-1.5 glass-card border transition-all cursor-pointer shrink-0 ${
-                    selectedImage === img
-                      ? 'border-[#FF4D4F] ring-2 ring-[#FF4D4F]/30 bg-white dark:bg-[#181c26]'
-                      : 'border-white/60 dark:border-white/10 hover:bg-white/60 dark:hover:bg-white/10'
-                  }`}
-                >
-                  <img
-                    src={img}
-                    alt={`${product.title} view ${idx}`}
-                    className="w-full h-full object-contain rounded-xl"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-
+        {/* Left Column: Multi-Photo Gallery Stage */}
+        <div className="lg:col-span-7 flex flex-col gap-4">
           {/* Main Selected Image Stage */}
-          <div className="flex-1 aspect-square rounded-3xl glass-panel p-6 flex items-center justify-center relative overflow-hidden border border-white/70 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5">
-            <img
+          <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square w-full rounded-3xl glass-panel p-6 flex items-center justify-center overflow-hidden border border-white/70 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 group">
+            <motion.img
+              key={selectedImage || product.image}
               src={selectedImage || product.image}
               alt={product.title}
-              className="max-h-full max-w-full object-contain rounded-2xl transition-all duration-300 mix-blend-multiply dark:mix-blend-normal"
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.25 }}
+              onError={(e) => {
+                (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
+              }}
+              className="max-h-full max-w-full object-contain rounded-2xl select-none"
             />
+
+            {/* Tag Badge */}
             {product.tags?.[0] && (
-              <span className="absolute top-5 left-5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 dark:bg-[#181c26]/90 text-[#FF4D4F] border border-white dark:border-white/10 shadow-2xs">
+              <span className="absolute top-5 left-5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/85 dark:bg-[#181c26]/90 text-[#FF4D4F] border border-white dark:border-white/10 shadow-2xs z-10">
                 {product.tags[0]}
               </span>
             )}
+
+            {/* Photo Counter Badge */}
+            {product.gallery && product.gallery.length > 1 && (
+              <span className="absolute top-5 right-5 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 backdrop-blur-md text-white border border-white/20 shadow-2xs z-10">
+                {currentImageIndex + 1} / {product.gallery.length}
+              </span>
+            )}
+
+            {/* Prev / Next Arrows */}
+            {product.gallery && product.gallery.length > 1 && (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handlePrevImage()
+                  }}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95 z-20 opacity-80 group-hover:opacity-100"
+                  title="Foto anterior"
+                >
+                  <span className="material-symbols-outlined text-[20px]">chevron_left</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleNextImage()
+                  }}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 flex items-center justify-center transition-all cursor-pointer shadow-lg active:scale-95 z-20 opacity-80 group-hover:opacity-100"
+                  title="Siguiente foto"
+                >
+                  <span className="material-symbols-outlined text-[20px]">chevron_right</span>
+                </button>
+              </>
+            )}
           </div>
+
+          {/* Interactive Thumbnails Selector */}
+          {product.gallery && product.gallery.length > 1 && (
+            <div className="flex items-center gap-3 overflow-x-auto pb-2 pt-1 px-1 scrollbar-thin">
+              {product.gallery.map((img, idx) => {
+                const isSelected = (selectedImage || product.image) === img
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSelectedImage(img)}
+                    className={`relative w-20 h-20 rounded-2xl p-1.5 transition-all cursor-pointer shrink-0 border-2 overflow-hidden flex items-center justify-center bg-white/50 dark:bg-white/5 ${
+                      isSelected
+                        ? 'border-[#FF4D4F] ring-4 ring-[#FF4D4F]/20 scale-105 shadow-md shadow-[#FF4D4F]/20'
+                        : 'border-white/60 dark:border-white/10 hover:border-white/90 opacity-70 hover:opacity-100'
+                    }`}
+                  >
+                    <img
+                      src={img}
+                      alt={`${product.title} vista ${idx + 1}`}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
+                      }}
+                      className="w-full h-full object-contain rounded-xl"
+                    />
+                    {isSelected && (
+                      <span className="absolute bottom-1 right-1 w-2.5 h-2.5 rounded-full bg-[#FF4D4F] shadow-xs" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+          )}
         </div>
 
         {/* Right Column: Information, Variants & Actions */}
@@ -207,19 +280,19 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             </div>
           </div>
 
-          {/* Price Tag */}
+          {/* Price Tag with Clean Formatting */}
           <div className="flex items-baseline gap-3">
             <span className="text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb]">
-              ${product.price.toFixed(2)} ARS
+              ${Math.round(product.price).toLocaleString('es-AR')} ARS
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-base line-through text-[#5b403e] dark:text-[#9ca3af]">
-                ${product.originalPrice.toFixed(2)} ARS
+                ${Math.round(product.originalPrice).toLocaleString('es-AR')} ARS
               </span>
             )}
             {product.originalPrice && product.originalPrice > product.price && (
               <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/60 dark:bg-[#FF4D4F]/20 px-2 py-0.5 rounded-full">
-                Ahorras ${(product.originalPrice - product.price).toFixed(2)}
+                Ahorras ${Math.round(product.originalPrice - product.price).toLocaleString('es-AR')}
               </span>
             )}
           </div>

@@ -17,6 +17,7 @@ type UpdateProductInput struct {
 	OriginalPrice *float64
 	Stock         int
 	Image         string
+	Images        []string
 }
 
 type UpdateProductOutput struct {
@@ -64,6 +65,12 @@ func (uc UpdateProductImpl) Execute(ctx context.Context, input UpdateProductInpu
 	}
 	if input.Image != "" {
 		existing.Image = input.Image
+	}
+	if len(input.Images) > 0 {
+		existing.Images = input.Images
+		if existing.Image == "" {
+			existing.Image = input.Images[0]
+		}
 	}
 
 	updated, err := uc.persistor.Update(ctx, existing)

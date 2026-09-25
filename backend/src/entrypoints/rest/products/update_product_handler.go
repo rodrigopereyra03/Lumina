@@ -39,6 +39,7 @@ func (h UpdateProductHandler) Handle() gin.HandlerFunc {
 			OriginalPrice: req.OriginalPrice,
 			Stock:         req.Stock,
 			Image:         req.Image,
+			Images:        req.Images,
 		})
 		if err != nil {
 			if errors.Is(err, prodUsecases.ErrProductNotFound) {

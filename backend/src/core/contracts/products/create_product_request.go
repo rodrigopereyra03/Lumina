@@ -13,7 +13,8 @@ type CreateProductRequest struct {
 	Price         float64  `json:"price" binding:"required,gt=0"`
 	OriginalPrice *float64 `json:"original_price,omitempty"`
 	Stock         int      `json:"stock" binding:"gte=0"`
-	Image         string   `json:"image" binding:"required"`
+	Image         string   `json:"image"`
+	Images        []string `json:"images,omitempty"`
 }
 
 func (r CreateProductRequest) ToInput() productUsecases.CreateProductInput {
@@ -27,5 +28,6 @@ func (r CreateProductRequest) ToInput() productUsecases.CreateProductInput {
 		OriginalPrice: r.OriginalPrice,
 		Stock:         r.Stock,
 		Image:         r.Image,
+		Images:        r.Images,
 	}
 }

@@ -12,6 +12,7 @@ export interface BackendProductDTO {
   original_price?: number
   stock: number
   image: string
+  images?: string[]
   rating?: number
   reviews_count?: number
   volumes?: number[]
@@ -43,12 +44,17 @@ const MOCK_IDS = [
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
 const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
-  return list.filter((p) => !MOCK_IDS.includes(p.id)).map((p) => ({
-    ...p,
-    volumes: p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100],
-    accent_color: p.accent_color || '#fb7185',
-    brand: p.brand || p.category_name || 'Lumina',
-  }))
+  return list.filter((p) => !MOCK_IDS.includes(p.id)).map((p) => {
+    const imgs = p.images && p.images.length > 0 ? p.images : (p.image ? [p.image] : [])
+    return {
+      ...p,
+      image: imgs[0] || p.image,
+      images: imgs,
+      volumes: p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100],
+      accent_color: p.accent_color || '#fb7185',
+      brand: p.brand || p.category_name || 'Lumina',
+    }
+  })
 }
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dxxoxzaowyaxpxphqpsd.supabase.co'
@@ -86,6 +92,7 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
           p.category_slug ||
           (meta.brand ? meta.brand.toLowerCase().replace(/\s+/g, '-') : 'perfumes')
         const brand = meta.brand || p.category?.name || p.brand || 'Lumina'
+        const imgs = meta.images && meta.images.length > 0 ? meta.images : (p.image ? [p.image] : [])
 
         return {
           id: p.id,
@@ -95,7 +102,8 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
           price: p.price,
           original_price: p.original_price,
           stock: p.stock,
-          image: p.image || '',
+          image: imgs[0] || p.image || '',
+          images: imgs,
           rating: p.rating || 5.0,
           reviews_count: p.reviews_count || 0,
           category_name: catName,
@@ -202,6 +210,7 @@ export const productsApi = {
               meta = JSON.parse(parts[1])
             } catch (e) {}
           }
+          const imgs = meta.images && meta.images.length > 0 ? meta.images : (p.image ? [p.image] : [])
           return {
             id: p.id,
             title: p.title,
@@ -210,7 +219,8 @@ export const productsApi = {
             price: p.price,
             original_price: p.original_price,
             stock: p.stock,
-            image: p.image || '',
+            image: imgs[0] || p.image || '',
+            images: imgs,
             rating: p.rating || 5.0,
             reviews_count: p.reviews_count || 0,
             category_name: p.category?.name || 'Perfumes',
@@ -247,6 +257,7 @@ export const productsApi = {
     stock: number
     description: string
     image: string
+    images?: string[]
     volumes?: number[]
     accent_color?: string
     brand?: string
@@ -259,10 +270,16 @@ export const productsApi = {
         .replace(/[\u0300-\u036f]/g, '')
         .replace(/\s+/g, '-')
 
+    const imgs = productData.images && productData.images.length > 0
+      ? productData.images
+      : (productData.image ? [productData.image] : [])
+    const primaryImg = imgs[0] || productData.image || 'https://images.unsplash.com/photo-1547887537-6158d64c35b3?w=500&q=80'
+
     const meta = {
       volumes: productData.volumes && productData.volumes.length > 0 ? productData.volumes : [50, 100],
       accent_color: productData.accent_color || '#fb7185',
       brand: productData.brand || productData.category_name || 'Lumina',
+      images: imgs,
     }
 
     const cleanSubtitle = productData.subtitle || 'Perfumes Árabes • Unisex'
@@ -277,7 +294,8 @@ export const productsApi = {
       price: productData.price,
       stock: productData.stock,
       description: productData.description,
-      image: productData.image || 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500&q=80',
+      image: primaryImg,
+      images: imgs,
       rating: 5.0,
       reviews_count: 0,
       volumes: meta.volumes,
@@ -290,26 +308,51 @@ export const productsApi = {
     const updated = [newProd, ...list.filter((p) => p.id !== newProd.id)]
     localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
 
+    // Direct sync to Supabase Cloud
     try {
-      const res = await axiosInstance.post(
-        '/products',
-        {
-          ...productData,
-          subtitle: payloadSubtitle,
+      await fetch(`${SUPABASE_URL}/rest/v1/products`, {
+        method: 'POST',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
+          Prefer: 'return=representation',
         },
-        { timeout: 2500 }
-      )
-      if (res.data?.content?.id) {
-        return {
-          ...res.data.content,
-          volumes: meta.volumes,
-          accent_color: meta.accent_color,
-          brand: meta.brand,
-          subtitle: cleanSubtitle,
+        body: JSON.stringify({
+          title: productData.title,
+          subtitle: payloadSubtitle,
+          description: productData.description,
+          price: productData.price,
+          stock: productData.stock,
+          image: primaryImg,
+        }),
+      })
+    } catch {}
+
+    // Fallback sync to Go backend if configured
+    if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+      try {
+        const res = await axiosInstance.post(
+          '/products',
+          {
+            ...productData,
+            image: primaryImg,
+            images: imgs,
+            subtitle: payloadSubtitle,
+          },
+          { timeout: 2500 }
+        )
+        if (res.data?.content?.id) {
+          return {
+            ...res.data.content,
+            images: imgs,
+            volumes: meta.volumes,
+            accent_color: meta.accent_color,
+            brand: meta.brand,
+            subtitle: cleanSubtitle,
+          }
         }
-      }
-    } catch (e) {
-      // Handled locally
+      } catch {}
     }
 
     return newProd
@@ -326,6 +369,7 @@ export const productsApi = {
       stock: number
       description: string
       image: string
+      images?: string[]
       volumes?: number[]
       accent_color?: string
       brand?: string
@@ -335,10 +379,14 @@ export const productsApi = {
     const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
     const existing = list.find((p) => p.id === id)
 
+    const imgs = productData.images ?? existing?.images ?? (productData.image ? [productData.image] : (existing?.image ? [existing.image] : []))
+    const primaryImg = productData.image || imgs[0] || existing?.image || ''
+
     const meta = {
       volumes: productData.volumes || existing?.volumes || [50, 100],
       accent_color: productData.accent_color || existing?.accent_color || '#fb7185',
       brand: productData.brand || existing?.brand || productData.category_name || existing?.category_name || 'Lumina',
+      images: imgs,
     }
 
     const cleanSubtitle = productData.subtitle ?? existing?.subtitle ?? 'Perfumes Árabes • Unisex'
@@ -349,6 +397,8 @@ export const productsApi = {
         return {
           ...p,
           ...productData,
+          image: primaryImg,
+          images: imgs,
           subtitle: cleanSubtitle,
           volumes: meta.volumes,
           accent_color: meta.accent_color,
@@ -364,17 +414,40 @@ export const productsApi = {
     })
     localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(updated))
 
+    // Direct sync to Supabase Cloud
     try {
-      await axiosInstance.put(
-        `/products/${id}`,
-        {
-          ...productData,
-          subtitle: payloadSubtitle,
+      await fetch(`${SUPABASE_URL}/rest/v1/products?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+          'Content-Type': 'application/json',
         },
-        { timeout: 2500 }
-      )
-    } catch (e) {
-      // Handled
+        body: JSON.stringify({
+          title: productData.title ?? existing?.title,
+          subtitle: payloadSubtitle,
+          price: productData.price ?? existing?.price,
+          stock: productData.stock ?? existing?.stock,
+          description: productData.description ?? existing?.description,
+          image: primaryImg,
+        }),
+      })
+    } catch {}
+
+    // Fallback sync to Go backend if configured
+    if (import.meta.env.VITE_API_URL && !import.meta.env.VITE_API_URL.includes('localhost')) {
+      try {
+        await axiosInstance.put(
+          `/products/${id}`,
+          {
+            ...productData,
+            image: primaryImg,
+            images: imgs,
+            subtitle: payloadSubtitle,
+          },
+          { timeout: 2500 }
+        )
+      } catch {}
     }
 
     const updatedItem = updated.find((p) => p.id === id)!

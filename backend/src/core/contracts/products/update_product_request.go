@@ -9,4 +9,5 @@ type UpdateProductRequest struct {
 	OriginalPrice *float64 `json:"original_price,omitempty"`
 	Stock         int      `json:"stock"`
 	Image         string   `json:"image"`
+	Images        []string `json:"images,omitempty"`
 }

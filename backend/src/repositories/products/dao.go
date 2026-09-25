@@ -1,6 +1,9 @@
 package products
 
 import (
+	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
 	"ecommerce-ganador/backend/src/core/entities/products"
@@ -25,17 +28,36 @@ type ProductDAO struct {
 }
 
 func (d ProductDAO) ToEntity() products.Product {
+	var images []string
+	cleanSub := d.Subtitle
+	if strings.Contains(d.Subtitle, "@@META@@") {
+		parts := strings.Split(d.Subtitle, "@@META@@")
+		cleanSub = strings.TrimSpace(parts[0])
+		if len(parts) > 1 {
+			var meta struct {
+				Images []string `json:"images"`
+			}
+			if err := json.Unmarshal([]byte(parts[1]), &meta); err == nil && len(meta.Images) > 0 {
+				images = meta.Images
+			}
+		}
+	}
+	if len(images) == 0 && d.Image != "" {
+		images = []string{d.Image}
+	}
+
 	return products.Product{
 		ID:            d.ID,
 		CategoryID:    d.CategoryID,
 		CategoryName:  d.CategoryName,
 		Title:         d.Title,
-		Subtitle:      d.Subtitle,
+		Subtitle:      cleanSub,
 		Description:   d.Description,
 		Price:         d.Price,
 		OriginalPrice: d.OriginalPrice,
 		Stock:         d.Stock,
 		Image:         d.Image,
+		Images:        images,
 		Rating:        d.Rating,
 		ReviewsCount:  d.ReviewsCount,
 		CreatedAt:     d.CreatedAt,
@@ -45,17 +67,41 @@ func (d ProductDAO) ToEntity() products.Product {
 }
 
 func ToDAO(p products.Product) ProductDAO {
+	sub := p.Subtitle
+	primaryImg := p.Image
+	if primaryImg == "" && len(p.Images) > 0 {
+		primaryImg = p.Images[0]
+	}
+
+	if len(p.Images) > 0 {
+		var meta map[string]interface{}
+		cleanSub := sub
+		if strings.Contains(sub, "@@META@@") {
+			parts := strings.Split(sub, "@@META@@")
+			cleanSub = strings.TrimSpace(parts[0])
+			if len(parts) > 1 {
+				_ = json.Unmarshal([]byte(parts[1]), &meta)
+			}
+		}
+		if meta == nil {
+			meta = make(map[string]interface{})
+		}
+		meta["images"] = p.Images
+		metaBytes, _ := json.Marshal(meta)
+		sub = fmt.Sprintf("%s @@META@@%s", cleanSub, string(metaBytes))
+	}
+
 	return ProductDAO{
 		ID:            p.ID,
 		CategoryID:    p.CategoryID,
 		CategoryName:  p.CategoryName,
 		Title:         p.Title,
-		Subtitle:      p.Subtitle,
+		Subtitle:      sub,
 		Description:   p.Description,
 		Price:         p.Price,
 		OriginalPrice: p.OriginalPrice,
 		Stock:         p.Stock,
-		Image:         p.Image,
+		Image:         primaryImg,
 		Rating:        p.Rating,
 		ReviewsCount:  p.ReviewsCount,
 		CreatedAt:     p.CreatedAt,

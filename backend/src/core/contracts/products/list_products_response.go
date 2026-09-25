@@ -15,6 +15,7 @@ type ProductDTO struct {
 	OriginalPrice *float64 `json:"original_price,omitempty"`
 	Stock         int      `json:"stock"`
 	Image         string   `json:"image"`
+	Images        []string `json:"images,omitempty"`
 	Rating        float64  `json:"rating"`
 	ReviewsCount  int      `json:"reviews_count"`
 }
@@ -25,6 +26,10 @@ type ListProductsResponse struct {
 }
 
 func ToProductDTO(p products.Product) ProductDTO {
+	imgs := p.Images
+	if len(imgs) == 0 && p.Image != "" {
+		imgs = []string{p.Image}
+	}
 	return ProductDTO{
 		ID:            p.ID,
 		CategoryID:    p.CategoryID,
@@ -36,6 +41,7 @@ func ToProductDTO(p products.Product) ProductDTO {
 		OriginalPrice: p.OriginalPrice,
 		Stock:         p.Stock,
 		Image:         p.Image,
+		Images:        imgs,
 		Rating:        p.Rating,
 		ReviewsCount:  p.ReviewsCount,
 	}

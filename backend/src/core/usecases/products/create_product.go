@@ -18,6 +18,7 @@ type CreateProductInput struct {
 	OriginalPrice *float64
 	Stock         int
 	Image         string
+	Images        []string
 }
 
 type CreateProductOutput struct {
@@ -37,6 +38,14 @@ func NewCreateProductImpl(persistor prodProviders.ProductsPersistor) CreateProdu
 }
 
 func (uc CreateProductImpl) Execute(ctx context.Context, input CreateProductInput) (CreateProductOutput, error) {
+	primaryImg := input.Image
+	if primaryImg == "" && len(input.Images) > 0 {
+		primaryImg = input.Images[0]
+	}
+	imgs := input.Images
+	if len(imgs) == 0 && primaryImg != "" {
+		imgs = []string{primaryImg}
+	}
 	newProd := products.Product{
 		CategoryID:    input.CategoryID,
 		CategoryName:  input.CategoryName,
@@ -46,7 +55,8 @@ func (uc CreateProductImpl) Execute(ctx context.Context, input CreateProductInpu
 		Price:         input.Price,
 		OriginalPrice: input.OriginalPrice,
 		Stock:         input.Stock,
-		Image:         input.Image,
+		Image:         primaryImg,
+		Images:        imgs,
 		Rating:        5.0,
 		ReviewsCount:  0,
 		CreatedAt:     time.Now(),

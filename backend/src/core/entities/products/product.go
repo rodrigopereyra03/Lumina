@@ -15,6 +15,7 @@ type Product struct {
 	OriginalPrice *float64
 	Stock         int
 	Image         string
+	Images        []string
 	Rating        float64
 	ReviewsCount  int
 	CreatedAt     time.Time
