@@ -17,13 +17,18 @@ const CUSTOM_CATEGORIES_KEY = 'lumina_custom_categories'
 
 const OLD_CAT_SLUGS = ['electronics', 'fashion', 'home', 'beauty', 'sports']
 
-const DEFAULT_PERFUME_CATEGORY: BackendCategoryDTO = {
-  id: 'cat-perfumes',
-  name: 'Perfumes',
-  slug: 'perfumes',
-  icon: 'spa',
-  products_count: 0,
-}
+const DEFAULT_PERFUME_CATEGORIES: BackendCategoryDTO[] = [
+  { id: 'lattafa', name: 'Lattafa', slug: 'lattafa', icon: 'spa' },
+  { id: 'maison-alhambra', name: 'Maison Alhambra', slug: 'maison-alhambra', icon: 'spa' },
+  { id: 'armaf', name: 'Armaf', slug: 'armaf', icon: 'spa' },
+  { id: 'french-avenue', name: 'French Avenue', slug: 'french-avenue', icon: 'spa' },
+  { id: 'afnan', name: 'Afnan', slug: 'afnan', icon: 'spa' },
+  { id: 'paris-corner', name: 'Paris Corner', slug: 'paris-corner', icon: 'spa' },
+  { id: 'rayhaan', name: 'Rayhaan', slug: 'rayhaan', icon: 'spa' },
+  { id: 'rasasi', name: 'Rasasi', slug: 'rasasi', icon: 'spa' },
+  { id: 'bharara', name: 'Bharara', slug: 'bharara', icon: 'spa' },
+  { id: 'al-haramain', name: 'Al Haramain', slug: 'al-haramain', icon: 'spa' },
+]
 
 export const categoriesApi = {
   getCategories: async (): Promise<ListCategoriesResponseContent> => {
@@ -48,10 +53,10 @@ export const categoriesApi = {
     const stored = localStorage.getItem(CUSTOM_CATEGORIES_KEY)
     let localCategories: BackendCategoryDTO[] = stored
       ? JSON.parse(stored).filter((c: any) => !OLD_CAT_SLUGS.includes(c.slug))
-      : [DEFAULT_PERFUME_CATEGORY]
+      : DEFAULT_PERFUME_CATEGORIES
 
     if (localCategories.length === 0) {
-      localCategories = [DEFAULT_PERFUME_CATEGORY]
+      localCategories = DEFAULT_PERFUME_CATEGORIES
     }
 
     localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(localCategories))

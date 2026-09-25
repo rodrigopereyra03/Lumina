@@ -203,8 +203,6 @@ const FAMILIES = [
   'Gourmand Nocturno',
 ]
 
-const HOUSES = ['Todas', 'Afnan', 'Armaf', 'Lattafa']
-
 export const ProductGrid: React.FC<ProductGridProps> = ({
   selectedCategorySlug,
   onProductClick,
@@ -295,12 +293,51 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     fetchDbProducts()
   }, [selectedCategorySlug])
 
-  // Combine items, avoiding duplicate IDs
+  // Combine items: DB products prioritize official imported catalog
   const allCatalogItems = useMemo(() => {
-    const flagships = [...LUXURY_CATALOG_ITEMS]
-    const customOnly = dbProducts.filter((db) => !flagships.some((f) => f.id === db.id))
-    return [...flagships, ...customOnly]
+    if (dbProducts && dbProducts.length > 0) {
+      return dbProducts
+    }
+    return LUXURY_CATALOG_ITEMS
   }, [dbProducts])
+
+  // Dynamic list of perfume houses with product counts
+  const availableHouses = useMemo(() => {
+    const counts: { [brand: string]: number } = {}
+    allCatalogItems.forEach((item) => {
+      const b = item.brandHouse?.trim()
+      if (b && b !== 'Lumina' && b !== 'General') {
+        counts[b] = (counts[b] || 0) + 1
+      }
+    })
+    const sorted = Object.keys(counts).sort((a, b) => counts[b] - counts[a])
+    return [
+      { name: 'Todas', brand: 'Todas', count: allCatalogItems.length },
+      ...sorted.map((name) => ({ name, brand: name, count: counts[name] })),
+    ]
+  }, [allCatalogItems])
+
+  // Synchronize with category slug if passed from navigation
+  useEffect(() => {
+    if (selectedCategorySlug && selectedCategorySlug !== 'all') {
+      const slug = selectedCategorySlug.toLowerCase()
+      const match = availableHouses.find(
+        (h) =>
+          h.brand.toLowerCase() === slug ||
+          h.brand.toLowerCase().replace(/\s+/g, '-') === slug ||
+          slug.includes(h.brand.toLowerCase().replace(/\s+/g, '-'))
+      )
+      if (match) {
+        setSelectedHouse(match.brand)
+      } else {
+        setSelectedHouse('Todas')
+      }
+      setCurrentPage(1)
+    } else if (selectedCategorySlug === 'all') {
+      setSelectedHouse('Todas')
+      setCurrentPage(1)
+    }
+  }, [selectedCategorySlug, availableHouses])
 
   // Volume price formula helper
   const calculatePrice = (basePrice: number, volume: number, defaultVol: number): number => {
@@ -324,13 +361,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
         if (!item.brandHouse.toLowerCase().includes(selectedHouse.toLowerCase())) return false
       }
 
-      // 3. Search Query
+      // 3. Category Slug fallback filter (if house wasn't matched)
+      if (selectedCategorySlug && selectedCategorySlug !== 'all' && selectedHouse === 'Todas') {
+        const slug = selectedCategorySlug.toLowerCase()
+        const matchCat = (item.family || '').toLowerCase().includes(slug)
+        const matchBrand = (item.brandHouse || '').toLowerCase().includes(slug)
+        if (!matchCat && !matchBrand) return false
+      }
+
+      // 4. Search Query
       if (searchQuery && searchQuery.trim()) {
         const q = searchQuery.toLowerCase().trim()
         const matchTitle = item.title.toLowerCase().includes(q)
         const matchSub = item.subtitle.toLowerCase().includes(q)
         const matchDesc = item.description.toLowerCase().includes(q)
-        const matchBrand = item.brandTag.toLowerCase().includes(q)
+        const matchBrand = item.brandTag.toLowerCase().includes(q) || item.brandHouse.toLowerCase().includes(q)
         const matchNotes = item.notesPills.some((n) => n.toLowerCase().includes(q))
         if (!matchTitle && !matchSub && !matchDesc && !matchBrand && !matchNotes) return false
       }
@@ -348,15 +393,37 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     }
 
     return list
-  }, [allCatalogItems, selectedFamily, selectedHouse, searchQuery, sortBy])
+  }, [allCatalogItems, selectedFamily, selectedHouse, selectedCategorySlug, searchQuery, sortBy])
 
-  // Pagination (6 items per page)
-  const itemsPerPage = 6
+  // Pagination (12 items per page)
+  const itemsPerPage = 12
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage))
   const paginatedProducts = useMemo(() => {
     const start = (currentPage - 1) * itemsPerPage
     return filteredProducts.slice(start, start + itemsPerPage)
   }, [filteredProducts, currentPage])
+
+  // Helper for pagination numbers with ellipses
+  const getPaginationItems = (current: number, total: number): (number | string)[] => {
+    if (total <= 7) {
+      return Array.from({ length: total }, (_, i) => i + 1)
+    }
+    if (current <= 4) {
+      return [1, 2, 3, 4, 5, '...', total]
+    }
+    if (current >= total - 3) {
+      return [1, '...', total - 4, total - 3, total - 2, total - 1, total]
+    }
+    return [1, '...', current - 1, current, current + 1, '...', total]
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setCurrentPage(newPage)
+    const el = document.getElementById('catalog-section')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
 
   // Handle Add to Cart
   const handleAddToCart = (e: React.MouseEvent, item: LuxuryCatalogItem) => {
@@ -567,86 +634,112 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       </section>
 
       {/* ========================================================================= */}
-      {/* 2. FILTERS & CONTROLS BAR (Olfactive Families, Houses & Sort)             */}
+      {/* 2. FILTERS & CONTROLS BAR (Houses, Olfactive Families & Sort)             */}
       {/* ========================================================================= */}
-      <section className="relative z-10 pb-10">
-        <div className="max-w-[1440px] mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-          {/* Families Filter Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none text-xs font-medium">
-            {FAMILIES.map((family) => {
-              const isActive = selectedFamily === family
+      <section className="relative z-10 pb-8 space-y-4">
+        <div className="max-w-[1440px] mx-auto space-y-4">
+          {/* 2A. BRAND HOUSES (Dedicated Luxury Scroll Bar) */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-amber-400 font-bold px-3 py-2 rounded-xl bg-amber-400/10 border border-amber-400/20 shrink-0">
+              Casas:
+            </span>
+            {availableHouses.map((house) => {
+              const isActive = selectedHouse === house.brand
               return (
                 <button
-                  key={family}
+                  key={house.brand}
                   onClick={() => {
-                    setSelectedFamily(family)
+                    setSelectedHouse(house.brand)
                     setCurrentPage(1)
                   }}
-                  className={`px-4 py-2 rounded-full whitespace-nowrap transition cursor-pointer ${
+                  className={`px-4 py-2 rounded-xl whitespace-nowrap transition cursor-pointer flex items-center gap-2 text-xs font-semibold ${
                     isActive
-                      ? 'bg-white text-black font-bold shadow-lg shadow-white/10'
+                      ? 'bg-white text-black font-extrabold shadow-lg shadow-white/20 scale-[1.02]'
                       : 'bg-white/[0.04] border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/20'
                   }`}
                 >
-                  {family}
+                  <span>{house.brand}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      isActive ? 'bg-black/10 text-black' : 'bg-white/10 text-gray-400'
+                    }`}
+                  >
+                    {house.count}
+                  </span>
                 </button>
               )
             })}
           </div>
 
-          {/* Right Filtering Actions: Brand Houses & Sort Dropdown */}
-          <div className="flex items-center gap-3 self-end lg:self-auto w-full lg:w-auto justify-between lg:justify-end">
-            {/* Brand House Selector */}
-            <div className="flex items-center gap-1.5 text-xs text-gray-400">
-              <span className="text-[11px] uppercase tracking-wider text-gray-400 mr-1 hidden sm:inline">
-                Casas:
+          {/* 2B. OLFACTIVE FAMILIES & SORT ROW */}
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-1">
+            {/* Families Filter Tabs */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2 lg:pb-0 scrollbar-none text-xs font-medium">
+              <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mr-1 hidden sm:inline">
+                Familias:
               </span>
-              {HOUSES.map((house) => {
-                const isActive = selectedHouse === house
+              {FAMILIES.map((family) => {
+                const isActive = selectedFamily === family
                 return (
                   <button
-                    key={house}
+                    key={family}
                     onClick={() => {
-                      setSelectedHouse(house)
+                      setSelectedFamily(family)
                       setCurrentPage(1)
                     }}
-                    className={`px-3 py-1.5 rounded-lg border transition cursor-pointer ${
+                    className={`px-3.5 py-1.5 rounded-full whitespace-nowrap transition cursor-pointer text-xs ${
                       isActive
-                        ? 'bg-white text-black font-bold border-white shadow-md'
-                        : 'bg-white/[0.04] hover:bg-white/10 text-gray-200 border-white/10'
+                        ? 'bg-rose-500 text-white font-bold shadow-md shadow-rose-500/20'
+                        : 'bg-white/[0.03] border border-white/10 text-gray-300 hover:text-white hover:bg-white/10'
                     }`}
                   >
-                    {house}
+                    {family}
                   </button>
                 )
               })}
             </div>
 
-            {/* Sort Select */}
-            <div className="relative">
-              <select
-                aria-label="Ordenar fragancias"
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="appearance-none bg-[#121217] border border-white/15 text-white text-xs rounded-xl px-4 py-2 pr-9 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer backdrop-blur-md"
-              >
-                <option value="relevance" className="bg-[#121217] text-white">
-                  Relevancia &amp; Prestigio
-                </option>
-                <option value="price-desc" className="bg-[#121217] text-white">
-                  Precio: Mayor a Menor
-                </option>
-                <option value="price-asc" className="bg-[#121217] text-white">
-                  Precio: Menor a Mayor
-                </option>
-                <option value="new" className="bg-[#121217] text-white">
-                  Nuevos Lanzamientos
-                </option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white/50">
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
-                </svg>
+            {/* Sort Select & Active Filter Reset */}
+            <div className="flex items-center justify-between lg:justify-end gap-3 w-full lg:w-auto">
+              {(selectedHouse !== 'Todas' || selectedFamily !== 'Todas las Familias' || searchQuery) && (
+                <button
+                  onClick={() => {
+                    setSelectedHouse('Todas')
+                    setSelectedFamily('Todas las Familias')
+                    if (onClearSearch) onClearSearch()
+                    setCurrentPage(1)
+                  }}
+                  className="text-xs text-rose-400 hover:text-rose-300 underline underline-offset-4 cursor-pointer whitespace-nowrap"
+                >
+                  Restablecer filtros
+                </button>
+              )}
+
+              <div className="relative shrink-0">
+                <select
+                  aria-label="Ordenar fragancias"
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className="appearance-none bg-[#121217] border border-white/15 text-white text-xs rounded-xl px-4 py-2 pr-9 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer backdrop-blur-md"
+                >
+                  <option value="relevance" className="bg-[#121217] text-white">
+                    Relevancia &amp; Prestigio
+                  </option>
+                  <option value="price-desc" className="bg-[#121217] text-white">
+                    Precio: Mayor a Menor
+                  </option>
+                  <option value="price-asc" className="bg-[#121217] text-white">
+                    Precio: Menor a Mayor
+                  </option>
+                  <option value="new" className="bg-[#121217] text-white">
+                    Nuevos Lanzamientos
+                  </option>
+                </select>
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white/50">
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                  </svg>
+                </div>
               </div>
             </div>
           </div>
@@ -882,53 +975,68 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {/* 4. BOTTOM PAGINATION CONTROLS                                             */}
       {/* ========================================================================= */}
       {totalPages > 1 && (
-        <section className="relative z-10 pb-6">
-          <div className="max-w-[1440px] mx-auto flex items-center justify-between border-t border-white/10 pt-8">
+        <section className="relative z-10 pb-8">
+          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-8">
             {/* Arrows */}
             <div className="flex items-center gap-2">
               <button
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 aria-label="Página anterior"
-                className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 flex items-center justify-center text-gray-300 hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/30 flex items-center gap-2 text-xs font-semibold text-gray-300 hover:text-white transition disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                 </svg>
+                <span>Anterior</span>
               </button>
               <button
-                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 aria-label="Página siguiente"
-                className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/10 hover:border-white/30 flex items-center justify-center text-gray-300 hover:text-white transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/30 flex items-center gap-2 text-xs font-semibold text-gray-300 hover:text-white transition disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer"
               >
+                <span>Siguiente</span>
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
                 </svg>
               </button>
             </div>
 
-            {/* Page Numbers */}
-            <div className="flex items-center gap-1.5 text-xs font-semibold">
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`w-9 h-9 rounded-full flex items-center justify-center transition cursor-pointer ${
-                    currentPage === pageNum
-                      ? 'bg-white text-black font-bold shadow-md'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
-                  }`}
-                >
-                  {pageNum}
-                </button>
-              ))}
+            {/* Smart Page Numbers with Ellipses (Clean & Compact) */}
+            <div className="flex items-center gap-1.5 text-xs font-semibold overflow-x-auto max-w-full py-1">
+              {getPaginationItems(currentPage, totalPages).map((item, idx) => {
+                if (typeof item === 'string') {
+                  return (
+                    <span
+                      key={`dots-${idx}`}
+                      className="w-8 h-8 flex items-center justify-center text-gray-500 font-bold select-none text-sm tracking-widest"
+                    >
+                      …
+                    </span>
+                  )
+                }
+                const isActive = currentPage === item
+                return (
+                  <button
+                    key={item}
+                    onClick={() => handlePageChange(item)}
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition cursor-pointer text-xs font-bold ${
+                      isActive
+                        ? 'bg-white text-black font-extrabold shadow-lg shadow-white/20 scale-105'
+                        : 'bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/10 border border-white/5'
+                    }`}
+                  >
+                    {item}
+                  </button>
+                )
+              })}
             </div>
 
             {/* Secondary Page Info */}
-            <div className="hidden sm:block text-xs text-gray-400 font-medium">
+            <div className="text-xs text-gray-400 font-medium">
               Página <span className="text-white font-semibold">{currentPage}</span> de{' '}
-              <span className="text-white font-semibold">{totalPages}</span>
+              <span className="text-white font-semibold">{totalPages}</span> ({filteredProducts.length} creaciones)
             </div>
           </div>
         </section>
