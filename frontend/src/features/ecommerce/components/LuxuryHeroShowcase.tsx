@@ -17,6 +17,7 @@ interface PerfumeShowcaseItem {
   tags: string[]
   volumeLabel: string
   availableVolumes: number[]
+  stock?: number
   description: string
 }
 
@@ -87,6 +88,7 @@ const getInitialShowcaseItems = (): PerfumeShowcaseItem[] => {
             tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
             volumeLabel: vols.map((v: number) => `${v} ml`).join(' • '),
             availableVolumes: vols,
+            stock: typeof p.stock === 'number' ? p.stock : 10,
             description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
           }
         })
@@ -141,6 +143,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
               tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
               volumeLabel: vols.map((v) => `${v} ml`).join(' • '),
               availableVolumes: vols,
+              stock: typeof p.stock === 'number' ? p.stock : 10,
               description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
             }
           })
@@ -195,6 +198,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
         ? Math.round((current.price * 0.75) / 1000) * 1000
         : Math.round((current.price * 1.35) / 1000) * 1000
       : 0
+  const isOutOfStock = typeof current?.stock === 'number' && current.stock <= 0
 
   // Handle 3D Tilt calculation (Skill: 3d-web-experience)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -350,7 +354,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
               </span>
 
               {/* Perfume Main Title (Montserrat Bold 700) */}
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-[1.05]">
+              <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] ${isOutOfStock ? 'text-white/60 line-through decoration-red-500/70' : 'text-white'}`}>
                 {current.title}
               </h1>
 
@@ -361,6 +365,12 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
               {/* Characteristic Tags */}
               <div className="flex flex-wrap gap-2 pt-1">
+                {isOutOfStock && (
+                  <span className="text-[11px] font-black tracking-widest text-red-300 bg-red-950/80 border border-red-500/60 px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 uppercase">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                    SIN STOCK
+                  </span>
+                )}
                 {current.tags.map((tag, idx) => (
                   <span
                     key={idx}
@@ -527,15 +537,24 @@ export const LuxuryHeroShowcase: React.FC = () => {
                   x: { type: 'spring', damping: 16, stiffness: 180, mass: 0.8 },
                 }}
                 style={{ transformStyle: 'preserve-3d' }}
-                className="flex items-center justify-center pointer-events-auto"
+                className="relative flex items-center justify-center pointer-events-auto"
               >
+                {isOutOfStock && (
+                  <div className="absolute z-50 flex items-center justify-center pointer-events-none">
+                    <span className="px-5 py-2 rounded-2xl bg-black/85 border border-red-500/60 text-red-400 font-extrabold tracking-[0.25em] text-xs sm:text-sm uppercase shadow-2xl backdrop-blur-md">
+                      AGOTADO • SIN STOCK
+                    </span>
+                  </div>
+                )}
                 <img
                   src={current.imageUrl}
                   alt={current.title}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
                   }}
-                  className="max-h-[280px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[580px] xl:max-h-[630px] h-[34vh] sm:h-[46vh] lg:h-[55vh] w-auto object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.75)] select-none pointer-events-none"
+                  className={`max-h-[280px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[580px] xl:max-h-[630px] h-[34vh] sm:h-[46vh] lg:h-[55vh] w-auto object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.75)] select-none pointer-events-none ${
+                    isOutOfStock ? 'opacity-70 grayscale-[30%]' : ''
+                  }`}
                 />
               </motion.div>
             </motion.div>
@@ -597,10 +616,15 @@ export const LuxuryHeroShowcase: React.FC = () => {
         </div>
 
         {/* CENTER: Price (Centered on mobile, laser aligned at 50% on desktop) */}
-        <div className="w-full sm:w-auto text-center sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center justify-center">
-          <span className="text-3xl sm:text-5xl font-bold text-white tracking-tight">
+        <div className="w-full sm:w-auto text-center sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center justify-center gap-3">
+          <span className={`text-3xl sm:text-5xl font-bold tracking-tight ${isOutOfStock ? 'text-white/40 line-through decoration-red-500/80' : 'text-white'}`}>
             ${currentPrice.toLocaleString('es-AR')}
           </span>
+          {isOutOfStock && (
+            <span className="text-xs sm:text-sm font-black text-red-400 tracking-widest uppercase px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 shadow-lg">
+              Sin Stock
+            </span>
+          )}
         </div>
 
         {/* RIGHT: Circular Prev/Next Controls & Pill "Añadir a la Cesta" Button */}
@@ -626,11 +650,23 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
           {/* Pill "Añadir a la Cesta" Button (Buy Now style - Bold 700) */}
           <button
-            onClick={handleAddToCart}
-            className="flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 rounded-full bg-white text-black font-bold text-xs uppercase tracking-wider shadow-2xl hover:bg-neutral-100 hover:scale-[1.04] active:scale-[0.97] transition-all flex items-center justify-center gap-2 cursor-pointer ml-1"
+            disabled={isOutOfStock}
+            onClick={() => {
+              if (isOutOfStock) return
+              handleAddToCart()
+            }}
+            className={`flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider shadow-2xl transition-all flex items-center justify-center gap-2 ml-1 ${
+              isOutOfStock
+                ? 'bg-neutral-800 text-neutral-400 border border-neutral-700/80 cursor-not-allowed shadow-none'
+                : 'bg-white text-black hover:bg-neutral-100 hover:scale-[1.04] active:scale-[0.97] cursor-pointer'
+            }`}
           >
-            <span className="material-symbols-outlined text-[18px]">shopping_cart</span>
-            <span>{isAddedToast ? '¡Añadido!' : 'Añadir a la Cesta'}</span>
+            <span className="material-symbols-outlined text-[18px]">
+              {isOutOfStock ? 'do_not_disturb_on' : 'shopping_cart'}
+            </span>
+            <span className={isOutOfStock ? 'line-through decoration-red-400' : ''}>
+              {isOutOfStock ? 'Sin Stock' : isAddedToast ? '¡Añadido!' : 'Añadir a la Cesta'}
+            </span>
           </button>
 
         </div>

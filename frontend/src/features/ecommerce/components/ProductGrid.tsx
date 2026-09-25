@@ -28,6 +28,7 @@ interface LuxuryCatalogItem {
   availableVolumes: number[]
   defaultVolume: number
   basePrice: number // Price for default volume (usually 100ml)
+  stock: number
   description: string
 }
 
@@ -159,6 +160,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 availableVolumes: volumes,
                 defaultVolume: defaultVol,
                 basePrice: p.price,
+                stock: typeof p.stock === 'number' ? p.stock : 10,
                 description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
               }
             })
@@ -695,6 +697,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               const currentVolume = selectedVolumes[item.id] || item.defaultVolume
               const currentPrice = calculatePrice(item.basePrice, currentVolume, item.defaultVolume)
               const fluidOz = (currentVolume * 0.0338).toFixed(1)
+              const isOutOfStock = typeof item.stock === 'number' && item.stock <= 0
 
               return (
                 <motion.article
@@ -714,17 +717,24 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   className={`absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl pointer-events-none transition duration-700 ${item.glowClass}`}
                 />
 
-                {/* Card Top: Brand & Glowing Dot */}
+                {/* Card Top: Brand & Glowing Dot / Out of Stock Badge */}
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className={`text-[10px] tracking-[0.25em] uppercase font-bold ${item.accentTextColor}`}>
                       {item.brandTag}
                     </span>
-                    <span className={`w-2 h-2 rounded-full ${item.dotClass}`}></span>
+                    {isOutOfStock ? (
+                      <span className="px-2.5 py-0.5 rounded-full bg-red-950/85 border border-red-500/60 text-red-300 text-[9px] font-black tracking-widest uppercase flex items-center gap-1 shadow-lg">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                        SIN STOCK
+                      </span>
+                    ) : (
+                      <span className={`w-2 h-2 rounded-full ${item.dotClass}`}></span>
+                    )}
                   </div>
 
                   {/* Product Title (Montserrat Bold 700) */}
-                  <h2 className="text-2xl lg:text-3xl font-bold text-white tracking-tight leading-tight">
+                  <h2 className={`text-2xl lg:text-3xl font-bold tracking-tight leading-tight ${isOutOfStock ? 'text-gray-400 line-through decoration-red-500/70' : 'text-white'}`}>
                     {item.title}
                   </h2>
 
@@ -768,11 +778,20 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
 
                   {/* Cutout Bottle Representation */}
                   <div className="relative z-10 w-48 h-64 flex items-center justify-center transform group-hover:scale-105 transition duration-500">
+                    {isOutOfStock && (
+                      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                        <span className="px-3.5 py-1.5 rounded-xl bg-black/85 border border-red-500/60 text-red-400 font-extrabold tracking-[0.2em] text-[11px] uppercase shadow-2xl backdrop-blur-md">
+                          AGOTADO • SIN STOCK
+                        </span>
+                      </div>
+                    )}
                     {item.flaconType === 'image' && item.imageUrl ? (
                       <img
                         alt={item.altText || item.title}
                         src={item.imageUrl}
-                        className="max-h-full max-w-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.95)]"
+                        className={`max-h-full max-w-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.95)] ${
+                          isOutOfStock ? 'opacity-70 grayscale-[35%]' : ''
+                        }`}
                       />
                     ) : item.flaconType === 'noir' ? (
                       /* Club de Nuit Matte Noir Sculpted Flacon */
@@ -884,24 +903,51 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                       <span className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium">
                         Precio Oficial
                       </span>
-                      <span className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
-                        ${currentPrice.toLocaleString('es-AR')}
-                      </span>
+                      <div className="flex items-baseline gap-2">
+                        <span className={`text-2xl lg:text-3xl font-bold tracking-tight ${isOutOfStock ? 'text-gray-500 line-through decoration-red-500/80' : 'text-white'}`}>
+                          ${currentPrice.toLocaleString('es-AR')}
+                        </span>
+                        {isOutOfStock && (
+                          <span className="text-[10px] font-black text-red-400 tracking-wider uppercase px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30">
+                            Sin Stock
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <button
-                      onClick={(e) => handleAddToCart(e, item)}
-                      className="px-5 py-3 rounded-full bg-white text-black font-bold text-xs hover:bg-gray-200 transition duration-300 flex items-center gap-2 shadow-xl shadow-white/10 active:scale-95 cursor-pointer shrink-0"
+                      disabled={isOutOfStock}
+                      onClick={(e) => {
+                        if (isOutOfStock) {
+                          e.stopPropagation()
+                          return
+                        }
+                        handleAddToCart(e, item)
+                      }}
+                      className={`px-5 py-3 rounded-full font-bold text-xs transition duration-300 flex items-center gap-2 shrink-0 ${
+                        isOutOfStock
+                          ? 'bg-neutral-800 text-neutral-400 border border-neutral-700/80 cursor-not-allowed shadow-none'
+                          : 'bg-white text-black hover:bg-gray-200 shadow-xl shadow-white/10 active:scale-95 cursor-pointer'
+                      }`}
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path
-                          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                        />
-                      </svg>
-                      <span>AÑADIR A LA CESTA</span>
+                      {isOutOfStock ? (
+                        <>
+                          <span className="material-symbols-outlined text-[16px] text-red-400">do_not_disturb_on</span>
+                          <span className="line-through decoration-red-400">SIN STOCK</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path
+                              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth="2"
+                            />
+                          </svg>
+                          <span>AÑADIR A LA CESTA</span>
+                        </>
+                      )}
                     </button>
                   </div>
                 </div>

@@ -61,7 +61,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             ],
             specs: [
               { label: 'Garantía', value: '1 Año Oficial' },
-              { label: 'Disponibilidad', value: `${currentProd.stock} unidades en stock` },
+              { label: 'Disponibilidad', value: currentProd.stock <= 0 ? 'Sin stock (Agotado)' : `${currentProd.stock} unidades en stock` },
               { label: 'Envío', value: 'Express asegurado a todo el país' },
             ],
             detailsCards: [
@@ -133,6 +133,8 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     )
   }
 
+  const isOutOfStock = product.stock <= 0
+
   return (
     <motion.div
       key={product.id}
@@ -159,6 +161,13 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
         <div className="lg:col-span-7 flex flex-col gap-4">
           {/* Main Selected Image Stage */}
           <div className="relative aspect-square sm:aspect-[4/3] lg:aspect-square w-full rounded-3xl glass-panel p-6 flex items-center justify-center overflow-hidden border border-white/70 dark:border-white/10 shadow-sm bg-white/40 dark:bg-white/5 group">
+            {isOutOfStock && (
+              <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+                <span className="px-5 py-2 rounded-2xl bg-black/85 border border-red-500/60 text-red-400 font-extrabold tracking-[0.25em] text-xs sm:text-sm uppercase shadow-2xl backdrop-blur-md">
+                  AGOTADO • SIN STOCK
+                </span>
+              </div>
+            )}
             <motion.img
               key={selectedImage || product.image}
               src={selectedImage || product.image}
@@ -169,7 +178,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
               }}
-              className="max-h-full max-w-full object-contain rounded-2xl select-none"
+              className={`max-h-full max-w-full object-contain rounded-2xl select-none ${
+                isOutOfStock ? 'opacity-70 grayscale-[30%]' : ''
+              }`}
             />
 
             {/* Tag Badge */}
@@ -257,7 +268,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-bold uppercase tracking-widest block">
               Lumina • {product.category}
             </span>
-            <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-[#1b1c1c] dark:text-[#f9fafb]">
+            <h1 className={`text-3xl md:text-4xl font-bold tracking-tight ${isOutOfStock ? 'text-gray-400 line-through decoration-red-500/70' : 'text-[#1b1c1c] dark:text-[#f9fafb]'}`}>
               {product.title}
             </h1>
 
@@ -282,15 +293,21 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
           {/* Price Tag with Clean Formatting */}
           <div className="flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-[#1b1c1c] dark:text-[#f9fafb]">
+            <span className={`text-3xl font-extrabold ${isOutOfStock ? 'text-gray-400 line-through decoration-red-500/80' : 'text-[#1b1c1c] dark:text-[#f9fafb]'}`}>
               ${Math.round(product.price).toLocaleString('es-AR')} ARS
             </span>
-            {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-base line-through text-[#5b403e] dark:text-[#9ca3af]">
-                ${Math.round(product.originalPrice).toLocaleString('es-AR')} ARS
+            {isOutOfStock ? (
+              <span className="text-xs font-bold text-red-500 bg-red-500/10 border border-red-500/20 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                Sin Stock (Agotado)
               </span>
+            ) : (
+              product.originalPrice && product.originalPrice > product.price && (
+                <span className="text-base line-through text-[#5b403e] dark:text-[#9ca3af]">
+                  ${Math.round(product.originalPrice).toLocaleString('es-AR')} ARS
+                </span>
+              )
             )}
-            {product.originalPrice && product.originalPrice > product.price && (
+            {!isOutOfStock && product.originalPrice && product.originalPrice > product.price && (
               <span className="text-xs font-bold text-[#FF4D4F] bg-[#ffdad7]/60 dark:bg-[#FF4D4F]/20 px-2 py-0.5 rounded-full">
                 Ahorras ${Math.round(product.originalPrice - product.price).toLocaleString('es-AR')}
               </span>
@@ -354,11 +371,20 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
               {/* Add to Cart CTA */}
               <button
+                disabled={isOutOfStock}
                 onClick={handleAddToCart}
-                className="flex-1 btn-primary py-3.5 px-4 sm:px-6 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 cursor-pointer shadow-md"
+                className={`flex-1 py-3.5 px-4 sm:px-6 rounded-full text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all ${
+                  isOutOfStock
+                    ? 'bg-neutral-800 text-neutral-400 border border-neutral-700/80 cursor-not-allowed shadow-none'
+                    : 'btn-primary cursor-pointer'
+                }`}
               >
-                <span>{isAdded ? '¡Añadido!' : 'Añadir al Carrito'}</span>
-                <span className="material-symbols-outlined text-[18px]">shopping_bag</span>
+                <span className={isOutOfStock ? 'line-through decoration-red-400' : ''}>
+                  {isOutOfStock ? 'Sin Stock' : isAdded ? '¡Añadido!' : 'Añadir al Carrito'}
+                </span>
+                <span className={`material-symbols-outlined text-[18px] ${isOutOfStock ? 'text-red-400' : ''}`}>
+                  {isOutOfStock ? 'do_not_disturb_on' : 'shopping_bag'}
+                </span>
               </button>
             </div>
 

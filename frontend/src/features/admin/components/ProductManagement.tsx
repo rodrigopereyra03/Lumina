@@ -178,6 +178,37 @@ export const ProductManagement: React.FC = () => {
     setIsModalOpen(true)
   }
 
+  const [statusActionMessage, setStatusActionMessage] = useState<string | null>(null)
+
+  const handleQuickToggleStock = async (product: BackendProductDTO) => {
+    const isCurrentlyOut = product.stock <= 0
+    const newStock = isCurrentlyOut ? 10 : 0
+    
+    // Optimistic local update
+    setProductList((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, stock: newStock } : p))
+    )
+    setStatusActionMessage(
+      newStock === 0
+        ? `"${product.title}" marcado como SIN STOCK (se mostrará tachado en la tienda)`
+        : `"${product.title}" restablecido EN STOCK (${newStock} u.)`
+    )
+    setTimeout(() => setStatusActionMessage(null), 4000)
+
+    try {
+      await productsApi.updateProduct(product.id, {
+        stock: newStock,
+      })
+    } catch (err: any) {
+      console.error('Error toggling stock:', err)
+      setProductList((prev) =>
+        prev.map((p) => (p.id === product.id ? { ...p, stock: product.stock } : p))
+      )
+      setStatusActionMessage('Error al actualizar el stock en el servidor')
+      setTimeout(() => setStatusActionMessage(null), 4000)
+    }
+  }
+
   const handleDelete = async (id: string, title: string) => {
     if (confirm(`¿Estás seguro de que deseas eliminar el producto "${title}"?`)) {
       setProductList((prev) => prev.filter((p) => p.id !== id))
@@ -304,6 +335,22 @@ export const ProductManagement: React.FC = () => {
         </div>
       </div>
 
+      {/* Feedback Toast */}
+      {statusActionMessage && (
+        <div className="p-3.5 rounded-2xl bg-[#1b1c1c] text-white border border-[#FF4D4F]/40 shadow-xl flex items-center justify-between animate-fadeIn">
+          <div className="flex items-center gap-2 text-xs font-semibold">
+            <span className="material-symbols-outlined text-[#FF4D4F] text-[20px]">info</span>
+            <span>{statusActionMessage}</span>
+          </div>
+          <button
+            onClick={() => setStatusActionMessage(null)}
+            className="text-gray-400 hover:text-white p-1 rounded-lg"
+          >
+            <span className="material-symbols-outlined text-[16px]">close</span>
+          </button>
+        </div>
+      )}
+
       {/* Product Table Card */}
       <div className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-4">
         {loading ? (
@@ -390,11 +437,28 @@ export const ProductManagement: React.FC = () => {
                       {/* Stock Count */}
                       <td className="py-3 font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">{p.stock} u.</td>
 
-                      {/* Stock Status Badge */}
+                      {/* Stock Status Badge & Quick Stock Action Button */}
                       <td className="py-3">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeColor}`}>
-                          {stockStatus}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeColor}`}>
+                            {stockStatus}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => handleQuickToggleStock(p)}
+                            title={p.stock > 0 ? 'Marcar inmediatamente como Sin Stock' : 'Restablecer En Stock (10 u.)'}
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 shadow-2xs hover:scale-105 active:scale-95 ${
+                              p.stock > 0
+                                ? 'border-red-500/30 text-red-600 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20'
+                                : 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20'
+                            }`}
+                          >
+                            <span className="material-symbols-outlined text-[13px]">
+                              {p.stock > 0 ? 'block' : 'check_circle'}
+                            </span>
+                            <span>{p.stock > 0 ? 'Agotar' : 'Activar'}</span>
+                          </button>
+                        </div>
                       </td>
 
                       {/* Action Buttons */}
@@ -639,15 +703,37 @@ export const ProductManagement: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Cantidad en Stock</label>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block">Cantidad en Stock</label>
+                      <button
+                        type="button"
+                        onClick={() => setFormStock((prev) => (parseInt(prev, 10) > 0 ? '0' : '10'))}
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer border ${
+                          parseInt(formStock, 10) === 0
+                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
+                            : 'bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20'
+                        }`}
+                      >
+                        {parseInt(formStock, 10) === 0 ? '📦 Activar (10 u.)' : '🚫 Marcar Sin Stock'}
+                      </button>
+                    </div>
                     <input
                       type="number"
+                      min="0"
                       required
                       value={formStock}
                       onChange={(e) => setFormStock(e.target.value)}
-                      className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                      className={`glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none ${
+                        parseInt(formStock, 10) === 0 ? 'border-red-500/50 bg-red-500/5' : ''
+                      }`}
                       placeholder="20"
                     />
+                    {parseInt(formStock, 10) === 0 && (
+                      <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-1.5 flex items-center gap-1">
+                        <span className="material-symbols-outlined text-[14px]">visibility</span>
+                        El producto se mostrará en la tienda tachado y marcado como "Sin Stock".
+                      </p>
+                    )}
                   </div>
                 </div>
 
