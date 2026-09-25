@@ -30,11 +30,38 @@ const DEFAULT_PERFUME_CATEGORIES: BackendCategoryDTO[] = [
   { id: 'al-haramain', name: 'Al Haramain', slug: 'al-haramain', icon: 'spa' },
 ]
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dxxoxzaowyaxpxphqpsd.supabase.co'
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_rGb_wzMIeOiBp2_qyrdvvg_TB5d4lff'
+
+const fetchCategoriesFromSupabase = async (): Promise<BackendCategoryDTO[]> => {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/categories?select=*&order=name.asc`, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    if (!Array.isArray(data)) return []
+    return data
+      .filter((c: any) => !OLD_CAT_SLUGS.includes(c.slug))
+      .map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        icon: c.icon || 'spa',
+      }))
+  } catch {
+    return []
+  }
+}
+
 export const categoriesApi = {
   getCategories: async (): Promise<ListCategoriesResponseContent> => {
-    // 1. Fetch from backend API
+    // 1. Fetch from backend API (if running locally)
     try {
-      const res = await axiosInstance.get('/categories', { timeout: 3000 })
+      const res = await axiosInstance.get('/categories', { timeout: 1500 })
       const remote = res.data.content || res.data
       if (remote?.categories && Array.isArray(remote.categories)) {
         const cleanRemote = remote.categories
@@ -45,11 +72,18 @@ export const categoriesApi = {
           return { categories: cleanRemote }
         }
       }
-    } catch (e) {
-      console.info('Using local categories cache...')
+    } catch {
+      // Backend unreachable or production environment
     }
 
-    // 2. Read local stored categories without old demo categories
+    // 2. Fetch directly from Supabase REST API (works everywhere in production)
+    const remoteSupabase = await fetchCategoriesFromSupabase()
+    if (remoteSupabase.length > 0) {
+      localStorage.setItem(CUSTOM_CATEGORIES_KEY, JSON.stringify(remoteSupabase))
+      return { categories: remoteSupabase }
+    }
+
+    // 3. Read local stored categories without old demo categories
     const stored = localStorage.getItem(CUSTOM_CATEGORIES_KEY)
     let localCategories: BackendCategoryDTO[] = stored
       ? JSON.parse(stored).filter((c: any) => !OLD_CAT_SLUGS.includes(c.slug))

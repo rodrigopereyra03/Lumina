@@ -51,13 +51,87 @@ const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
   }))
 }
 
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dxxoxzaowyaxpxphqpsd.supabase.co'
+const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_rGb_wzMIeOiBp2_qyrdvvg_TB5d4lff'
+
+const fetchProductsFromSupabase = async (categorySlug?: string): Promise<BackendProductDTO[]> => {
+  try {
+    const url = `${SUPABASE_URL}/rest/v1/products?select=*,category:categories(id,name,slug)&deleted_at=is.null&order=price.asc`
+    const res = await fetch(url, {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+      },
+    })
+    if (!res.ok) return []
+    const data = await res.json()
+    if (!Array.isArray(data)) return []
+
+    const mapped: BackendProductDTO[] = data
+      .filter((p: any) => !MOCK_IDS.includes(p.id))
+      .map((p: any) => {
+        let meta: any = {}
+        let cleanSubtitle = p.subtitle || ''
+        if (cleanSubtitle.includes('@@META@@')) {
+          const parts = cleanSubtitle.split('@@META@@')
+          cleanSubtitle = parts[0].trim()
+          try {
+            meta = JSON.parse(parts[1])
+          } catch (e) {}
+        }
+
+        const catName = p.category?.name || p.category_name || meta.brand || 'Perfumes'
+        const catSlug =
+          p.category?.slug ||
+          p.category_slug ||
+          (meta.brand ? meta.brand.toLowerCase().replace(/\s+/g, '-') : 'perfumes')
+        const brand = meta.brand || p.category?.name || p.brand || 'Lumina'
+
+        return {
+          id: p.id,
+          title: p.title,
+          subtitle: cleanSubtitle,
+          description: p.description || '',
+          price: p.price,
+          original_price: p.original_price,
+          stock: p.stock,
+          image: p.image || '',
+          rating: p.rating || 5.0,
+          reviews_count: p.reviews_count || 0,
+          category_name: catName,
+          category_slug: catSlug,
+          volumes: p.volumes || meta.volumes || [50, 100],
+          accent_color: p.accent_color || meta.accent_color || '#fb7185',
+          brand: brand,
+        }
+      })
+
+    localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(mapped))
+
+    if (categorySlug && categorySlug !== 'all') {
+      const target = categorySlug.toLowerCase()
+      return mapped.filter((p) => {
+        const s = (p.category_slug || p.category_name || '').toLowerCase()
+        const b = (p.brand || '').toLowerCase()
+        return s.includes(target) || target.includes(s) || b.includes(target)
+      })
+    }
+
+    return mapped
+  } catch (err) {
+    console.error('Failed to fetch from Supabase REST:', err)
+    return []
+  }
+}
+
 export const productsApi = {
   getProducts: async (categorySlug?: string): Promise<ListProductsResponseContent> => {
+    // 1. Try local Go backend (if running)
     try {
       const url = categorySlug && categorySlug !== 'all' ? `/products?category=${categorySlug}` : '/products'
-      const res = await axiosInstance.get(url, { timeout: 3000 })
+      const res = await axiosInstance.get(url, { timeout: 1500 })
       const remote = res.data.content || res.data
-      if (remote && Array.isArray(remote.products)) {
+      if (remote && Array.isArray(remote.products) && remote.products.length > 0) {
         let mappedRemote: BackendProductDTO[] = remote.products
           .filter((p: any) => !MOCK_IDS.includes(p.id))
           .map((p: any) => {
@@ -110,11 +184,20 @@ export const productsApi = {
           total: filtered.length,
         }
       }
-    } catch (e) {
-      console.info('Backend unreachable, checking clean local product cache...')
+    } catch {
+      // Backend unreachable or production environment
     }
 
-    // Fallback to local cache only if backend is unreachable
+    // 2. Fetch directly from Supabase REST API (production ready!)
+    const supabaseProducts = await fetchProductsFromSupabase(categorySlug)
+    if (supabaseProducts.length > 0) {
+      return {
+        products: supabaseProducts,
+        total: supabaseProducts.length,
+      }
+    }
+
+    // 3. Fallback to local cache only if completely offline
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
     let localProducts: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []
 
@@ -134,10 +217,53 @@ export const productsApi = {
 
   getProductById: async (id: string): Promise<BackendProductDTO> => {
     try {
-      const res = await axiosInstance.get(`/products/${id}`, { timeout: 2500 })
+      const res = await axiosInstance.get(`/products/${id}`, { timeout: 1500 })
       const remote = res.data.content || res.data
       if (remote?.id) return remote
-    } catch (e) {}
+    } catch {}
+
+    // Fallback: Fetch directly from Supabase
+    try {
+      const url = `${SUPABASE_URL}/rest/v1/products?id=eq.${id}&select=*,category:categories(id,name,slug)&limit=1`
+      const res = await fetch(url, {
+        headers: {
+          apikey: SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+        },
+      })
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data) && data.length > 0) {
+          const p = data[0]
+          let meta: any = {}
+          let cleanSubtitle = p.subtitle || ''
+          if (cleanSubtitle.includes('@@META@@')) {
+            const parts = cleanSubtitle.split('@@META@@')
+            cleanSubtitle = parts[0].trim()
+            try {
+              meta = JSON.parse(parts[1])
+            } catch (e) {}
+          }
+          return {
+            id: p.id,
+            title: p.title,
+            subtitle: cleanSubtitle,
+            description: p.description || '',
+            price: p.price,
+            original_price: p.original_price,
+            stock: p.stock,
+            image: p.image || '',
+            rating: p.rating || 5.0,
+            reviews_count: p.reviews_count || 0,
+            category_name: p.category?.name || 'Perfumes',
+            category_slug: p.category?.slug || 'perfumes',
+            volumes: p.volumes || meta.volumes || [50, 100],
+            accent_color: p.accent_color || meta.accent_color || '#fb7185',
+            brand: meta.brand || p.category?.name || 'Lumina',
+          }
+        }
+      }
+    } catch {}
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
     const list: BackendProductDTO[] = stored ? cleanProductList(JSON.parse(stored)) : []

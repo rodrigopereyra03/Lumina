@@ -55,145 +55,7 @@ const LOTUS_INNER_PETALS = [
   { angle: 337.5, color: '#34d399' },
 ]
 
-// 7 Flagship Masterpiece Creations from Stitch Design & Haute Parfumerie Collection
-const LUXURY_CATALOG_ITEMS: LuxuryCatalogItem[] = [
-  {
-    id: 'afnan-9pm-rebel',
-    brandTag: 'AFNAN • HAUTE PARFUMERIE',
-    brandHouse: 'Afnan',
-    title: '9 PM Rebel Afnan',
-    subtitle: 'Bold Night • Dark Caramel Woods • Royal Seduction',
-    notesPills: ['Intense Night', 'Vainilla Bourbon', 'Dubái, EAU'],
-    family: 'Gourmand Nocturno',
-    glowClass: 'bg-rose-700/25 group-hover:bg-rose-600/35',
-    dotClass: 'bg-rose-500 shadow-[0_0_10px_#f43f5e]',
-    accentTextColor: 'text-rose-400',
-    flaconType: 'image',
-    imageUrl: '/hero-perfumes/9pm-rebel.png',
-    altText: 'Frasco de perfume 9 PM Rebel Afnan en cristal rubí con tapón cromado',
-    availableVolumes: [50, 100, 150],
-    defaultVolume: 100,
-    basePrice: 165000,
-    description:
-      'Electrizante, nocturno e intransigente. Cristal rubí profundo con detalles en negro carbón. Sobredosis de frutas caramelizadas y maderas ahumadas.',
-  },
-  {
-    id: 'armaf-odyssey-aqua',
-    brandTag: 'ARMAF • HAUTE PARFUMERIE',
-    brandHouse: 'Armaf',
-    title: 'Odyssey Aqua Edition',
-    subtitle: 'Pure Freshness • Aquatic Seduction • Amber Warmth',
-    notesPills: ['Larga Fijación', 'Eau de Parfum', 'Dubái, EAU'],
-    family: 'Acuáticas & Cítricas',
-    glowClass: 'bg-emerald-700/25 group-hover:bg-emerald-600/35',
-    dotClass: 'bg-emerald-400 shadow-[0_0_10px_#34d399]',
-    accentTextColor: 'text-emerald-400',
-    flaconType: 'image',
-    imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    altText: 'Frasco de perfume Odyssey Aqua Edition Armaf con tapón metálico dorado y líquido turquesa',
-    availableVolumes: [50, 100, 150],
-    defaultVolume: 100,
-    basePrice: 145000,
-    description:
-      'Apertura marina vigorizante con cítricos cristalinos y un lecho cálido de ámbar noble y maderas preciosas. Su frasco esculpido irradia frescura y sofisticación.',
-  },
-  {
-    id: 'armaf-club-de-nuit-intense',
-    brandTag: 'ARMAF • PRIVATE COLLECTION',
-    brandHouse: 'Armaf',
-    title: 'Club de Nuit Intense',
-    subtitle: 'Smoky Woods • Birch Tar • Blackcurrant Spark',
-    notesPills: ['Pure Parfum', 'Humo & Abedul', 'Best Seller'],
-    family: 'Amaderadas & Oud',
-    glowClass: 'bg-zinc-600/20 group-hover:bg-zinc-500/30',
-    dotClass: 'bg-zinc-300 shadow-[0_0_10px_#e4e4e7]',
-    accentTextColor: 'text-zinc-400',
-    flaconType: 'noir',
-    altText: 'Frasco Matte Noir Club de Nuit Intense Man Armaf',
-    availableVolumes: [50, 105, 200],
-    defaultVolume: 105,
-    basePrice: 130000,
-    description:
-      'La icónica firma con notas de grosella negra, limón italiano, abedul ahumado y pachulí. Proyección magnética inigualable reconocida mundialmente.',
-  },
-  {
-    id: 'lattafa-khamrah',
-    brandTag: 'LATTAFA • PRIVE LINE',
-    brandHouse: 'Lattafa',
-    title: 'Khamrah Lattafa',
-    subtitle: 'Sweet Dates • Cinnamon Bark • Praliné & Tonka',
-    notesPills: ['Gourmand Cálido', 'Canela & Dátiles', 'Invierno / Noche'],
-    family: 'Orientales & Vainilla',
-    glowClass: 'bg-amber-600/20 group-hover:bg-amber-500/30',
-    dotClass: 'bg-amber-400 shadow-[0_0_10px_#fbbf24]',
-    accentTextColor: 'text-amber-400',
-    flaconType: 'cognac',
-    altText: 'Decantador de cristal facetado Khamrah Lattafa Perfumes',
-    availableVolumes: [50, 100, 150],
-    defaultVolume: 100,
-    basePrice: 155000,
-    description:
-      'Una sinfonía opulenta inspirada en licores orientales nobles. Canela picante, nuez moscada, dátiles dulces, praliné y un fondo sedoso de haba tonka.',
-  },
-  {
-    id: 'afnan-turathi-blue',
-    brandTag: 'AFNAN • HERITAGE COLLECTION',
-    brandHouse: 'Afnan',
-    title: 'Turathi Blue Afnan',
-    subtitle: 'Juicy Grapefruit • Ambergris • Mineral Musk',
-    notesPills: ['Cítrico Majestuoso', 'Ámbar Gris', 'Firma Elegante'],
-    family: 'Acuáticas & Cítricas',
-    glowClass: 'bg-blue-600/20 group-hover:bg-blue-500/30',
-    dotClass: 'bg-blue-400 shadow-[0_0_10px_#60a5fa]',
-    accentTextColor: 'text-blue-400',
-    flaconType: 'sapphire',
-    altText: 'Frasco de cristal zafiro azul Turathi Blue Afnan',
-    availableVolumes: [50, 90, 150],
-    defaultVolume: 90,
-    basePrice: 140000,
-    description:
-      'Un estallido jugoso de toronja rosada entrelazado con ámbar gris salino y almizcles limpios. La perfecta encarnación de la sofisticación mediterránea y oriental.',
-  },
-  {
-    id: 'afnan-supremacy-not-only-intense',
-    brandTag: 'AFNAN • SUPREMACY LINE',
-    brandHouse: 'Afnan',
-    title: 'Supremacy Not Only Intense',
-    subtitle: 'Blackcurrant • Oakmoss Moss • Extrait Power',
-    notesPills: ['Extrait de Parfum', 'Musgo de Roble', 'Proyección Bestial'],
-    family: 'Amaderadas & Oud',
-    glowClass: 'bg-teal-600/20 group-hover:bg-teal-500/30',
-    dotClass: 'bg-teal-400 shadow-[0_0_10px_#2dd4bf]',
-    accentTextColor: 'text-teal-300',
-    flaconType: 'titanium',
-    altText: 'Frasco de titanio oscuro Supremacy Not Only Intense Afnan',
-    availableVolumes: [50, 100, 150],
-    defaultVolume: 100,
-    basePrice: 175000,
-    description:
-      'Concentración Extrait de alta densidad. Apertura vibrante de bergamota y grosella negra con un corazón terroso de pachulí y un fondo rotundo de musgo de roble.',
-  },
-  {
-    id: 'al-haramain-amber-oud-aqua',
-    brandTag: 'AL HARAMAIN • HAUTE PARFUMERIE',
-    brandHouse: 'Al Haramain',
-    title: 'Amber Oud Aqua Dubai',
-    subtitle: 'Niche Extrait • Marine Ambergris • Pure Prestige',
-    notesPills: ['Extrait de Parfum', 'Ámbar Gris 16h+', 'Colección Niche'],
-    family: 'Acuáticas & Cítricas',
-    glowClass: 'bg-cyan-600/20 group-hover:bg-cyan-500/30',
-    dotClass: 'bg-cyan-400 shadow-[0_0_10px_#38bdf8]',
-    accentTextColor: 'text-cyan-400',
-    flaconType: 'image',
-    imageUrl: '/hero-perfumes/amber-oud.png',
-    altText: 'Frasco facetado Amber Oud Aqua Dubai Al Haramain',
-    availableVolumes: [50, 100, 150],
-    defaultVolume: 100,
-    basePrice: 185000,
-    description:
-      'El lujo absoluto de Dubái en un frasco facetado azul eléctrico. Proyección majestuosa y una densidad marina con ámbar gris auténtico que permanece inalterable.',
-  },
-]
+
 
 const FAMILIES = [
   'Todas las Familias',
@@ -224,81 +86,90 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   // Added to cart feedback toast state
   const [addedItemTitle, setAddedItemTitle] = useState<string | null>(null)
 
-  // Optional DB products from API
+  // DB products from API / Supabase
   const [dbProducts, setDbProducts] = useState<LuxuryCatalogItem[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(true)
 
   useEffect(() => {
+    let isMounted = true
     const fetchDbProducts = async () => {
+      setIsLoading(true)
       try {
         const res = await productsApi.getProducts(selectedCategorySlug)
-        if (res.products && res.products.length > 0) {
-          const mapped: LuxuryCatalogItem[] = res.products.map((p) => {
-            const volumes = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
-            const defaultVol = volumes.includes(100) ? 100 : volumes[0]
-            const brand = p.brand || p.category_name || 'Lumina'
-            const accent = p.accent_color || '#fb7185'
+        if (isMounted) {
+          if (res.products && res.products.length > 0) {
+            const mapped: LuxuryCatalogItem[] = res.products.map((p) => {
+              const volumes = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
+              const defaultVol = volumes.includes(100) ? 100 : volumes[0]
+              const brand = p.brand || p.category_name || 'Lumina'
+              const accent = p.accent_color || '#fb7185'
 
-            let glow = 'bg-rose-700/20 group-hover:bg-rose-600/30'
-            let dot = 'bg-rose-400 shadow-[0_0_10px_#fb7185]'
-            let textAccent = 'text-rose-400'
+              let glow = 'bg-rose-700/20 group-hover:bg-rose-600/30'
+              let dot = 'bg-rose-400 shadow-[0_0_10px_#fb7185]'
+              let textAccent = 'text-rose-400'
 
-            if (accent === '#10b981') {
-              glow = 'bg-emerald-700/20 group-hover:bg-emerald-600/30'
-              dot = 'bg-emerald-400 shadow-[0_0_10px_#34d399]'
-              textAccent = 'text-emerald-400'
-            } else if (accent === '#38bdf8') {
-              glow = 'bg-blue-700/20 group-hover:bg-blue-600/30'
-              dot = 'bg-blue-400 shadow-[0_0_10px_#60a5fa]'
-              textAccent = 'text-blue-400'
-            } else if (accent === '#f59e0b') {
-              glow = 'bg-amber-700/20 group-hover:bg-amber-600/30'
-              dot = 'bg-amber-400 shadow-[0_0_10px_#fbbf24]'
-              textAccent = 'text-amber-400'
-            } else if (accent === '#c084fc') {
-              glow = 'bg-purple-700/20 group-hover:bg-purple-600/30'
-              dot = 'bg-purple-400 shadow-[0_0_10px_#c084fc]'
-              textAccent = 'text-purple-400'
-            } else if (accent === '#94a3b8') {
-              glow = 'bg-zinc-700/20 group-hover:bg-zinc-600/30'
-              dot = 'bg-zinc-400 shadow-[0_0_10px_#e4e4e7]'
-              textAccent = 'text-zinc-400'
-            }
+              if (accent === '#10b981') {
+                glow = 'bg-emerald-700/20 group-hover:bg-emerald-600/30'
+                dot = 'bg-emerald-400 shadow-[0_0_10px_#34d399]'
+                textAccent = 'text-emerald-400'
+              } else if (accent === '#38bdf8') {
+                glow = 'bg-blue-700/20 group-hover:bg-blue-600/30'
+                dot = 'bg-blue-400 shadow-[0_0_10px_#60a5fa]'
+                textAccent = 'text-blue-400'
+              } else if (accent === '#f59e0b') {
+                glow = 'bg-amber-700/20 group-hover:bg-amber-600/30'
+                dot = 'bg-amber-400 shadow-[0_0_10px_#fbbf24]'
+                textAccent = 'text-amber-400'
+              } else if (accent === '#c084fc') {
+                glow = 'bg-purple-700/20 group-hover:bg-purple-600/30'
+                dot = 'bg-purple-400 shadow-[0_0_10px_#c084fc]'
+                textAccent = 'text-purple-400'
+              } else if (accent === '#94a3b8') {
+                glow = 'bg-zinc-700/20 group-hover:bg-zinc-600/30'
+                dot = 'bg-zinc-400 shadow-[0_0_10px_#e4e4e7]'
+                textAccent = 'text-zinc-400'
+              }
 
-            return {
-              id: p.id,
-              brandTag: `${brand.toUpperCase()} • PRIVATE COLLECTION`,
-              brandHouse: brand,
-              title: p.title,
-              subtitle: p.subtitle || 'Haute Fragrance • Luxury Seduction',
-              notesPills: ['Garantía Oficial', 'Batch Code', '100% Original'],
-              family: p.category_name || 'Amaderadas & Oud',
-              glowClass: glow,
-              dotClass: dot,
-              accentTextColor: textAccent,
-              flaconType: 'image',
-              imageUrl: p.image || '/hero-perfumes/odyssey-aqua.png',
-              altText: p.title,
-              availableVolumes: volumes,
-              defaultVolume: defaultVol,
-              basePrice: p.price,
-              description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
-            }
-          })
-          setDbProducts(mapped)
+              return {
+                id: p.id,
+                brandTag: `${brand.toUpperCase()} • PRIVATE COLLECTION`,
+                brandHouse: brand,
+                title: p.title,
+                subtitle: p.subtitle || 'Haute Fragrance • Luxury Seduction',
+                notesPills: ['Garantía Oficial', 'Batch Code', '100% Original'],
+                family: p.category_name || 'Amaderadas & Oud',
+                glowClass: glow,
+                dotClass: dot,
+                accentTextColor: textAccent,
+                flaconType: 'image',
+                imageUrl: p.image || '/hero-perfumes/odyssey-aqua.png',
+                altText: p.title,
+                availableVolumes: volumes,
+                defaultVolume: defaultVol,
+                basePrice: p.price,
+                description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
+              }
+            })
+            setDbProducts(mapped)
+          } else {
+            setDbProducts([])
+          }
         }
       } catch {
-        // Fallback to flagship catalog items
+        if (isMounted) setDbProducts([])
+      } finally {
+        if (isMounted) setIsLoading(false)
       }
     }
     fetchDbProducts()
+    return () => {
+      isMounted = false
+    }
   }, [selectedCategorySlug])
 
-  // Combine items: DB products prioritize official imported catalog
+  // Catalog items strictly from Database
   const allCatalogItems = useMemo(() => {
-    if (dbProducts && dbProducts.length > 0) {
-      return dbProducts
-    }
-    return LUXURY_CATALOG_ITEMS
+    return dbProducts
   }, [dbProducts])
 
   // Dynamic list of perfume houses with product counts
@@ -751,14 +622,63 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {/* ========================================================================= */}
       <main className="relative z-10 pb-16">
         <div className="max-w-[1440px] mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 lg:gap-10">
-          {paginatedProducts.map((item, index) => {
-            const currentVolume = selectedVolumes[item.id] || item.defaultVolume
-            const currentPrice = calculatePrice(item.basePrice, currentVolume, item.defaultVolume)
-            const fluidOz = (currentVolume * 0.0338).toFixed(1)
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, i) => (
+              <div
+                key={`skel-${i}`}
+                className="relative rounded-3xl p-7 min-h-[500px] flex flex-col justify-between overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-xl animate-pulse"
+              >
+                <div className="space-y-3">
+                  <div className="h-3 w-28 bg-white/10 rounded-full" />
+                  <div className="h-7 w-3/4 bg-white/10 rounded-lg" />
+                  <div className="h-4 w-1/2 bg-white/5 rounded-lg" />
+                  <div className="flex gap-2 pt-2">
+                    <div className="h-5 w-16 bg-white/5 rounded-full" />
+                    <div className="h-5 w-20 bg-white/5 rounded-full" />
+                  </div>
+                </div>
+                <div className="my-auto flex items-center justify-center py-10">
+                  <div className="w-36 h-48 bg-white/5 rounded-2xl border border-white/5" />
+                </div>
+                <div className="space-y-3 pt-4 border-t border-white/10">
+                  <div className="flex justify-between items-center">
+                    <div className="h-6 w-24 bg-white/10 rounded-lg" />
+                    <div className="h-6 w-20 bg-white/5 rounded-lg" />
+                  </div>
+                  <div className="h-10 w-full bg-white/10 rounded-2xl" />
+                </div>
+              </div>
+            ))
+          ) : paginatedProducts.length === 0 ? (
+            <div className="col-span-full py-20 text-center flex flex-col items-center justify-center">
+              <span className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl text-gray-400 mb-4">
+                ✨
+              </span>
+              <h3 className="text-xl font-bold text-white mb-2">No se encontraron fragancias</h3>
+              <p className="text-xs text-gray-400 max-w-sm mb-6">
+                No hay productos disponibles para los filtros seleccionados. Intenta restablecer los filtros para explorar todo el catálogo.
+              </p>
+              <button
+                onClick={() => {
+                  setSelectedHouse('Todas')
+                  setSelectedFamily('Todas las Familias')
+                  if (onClearSearch) onClearSearch()
+                  setCurrentPage(1)
+                }}
+                className="px-6 py-2.5 rounded-full bg-white text-black font-bold text-xs hover:bg-gray-200 transition cursor-pointer shadow-lg shadow-white/10"
+              >
+                Restablecer y ver todo el catálogo
+              </button>
+            </div>
+          ) : (
+            paginatedProducts.map((item, index) => {
+              const currentVolume = selectedVolumes[item.id] || item.defaultVolume
+              const currentPrice = calculatePrice(item.basePrice, currentVolume, item.defaultVolume)
+              const fluidOz = (currentVolume * 0.0338).toFixed(1)
 
-            return (
-              <motion.article
-                key={item.id}
+              return (
+                <motion.article
+                  key={item.id}
                 initial={{ opacity: 0, y: 25 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
@@ -967,7 +887,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 </div>
               </motion.article>
             )
-          })}
+          }))}
         </div>
       </main>
 

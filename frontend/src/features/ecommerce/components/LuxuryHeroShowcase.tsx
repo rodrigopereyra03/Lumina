@@ -20,53 +20,8 @@ interface PerfumeShowcaseItem {
   description: string
 }
 
-const PERFUMES_SHOWCASE: PerfumeShowcaseItem[] = [
-  {
-    id: 'armaf-odyssey-aqua',
-    brand: 'ARMAF',
-    title: 'Odyssey Aqua Edition',
-    subtitle: 'Pure Freshness • Aquatic Seduction • Amber Warmth',
-    price: 145000,
-    imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    bgGradient: 'radial-gradient(circle at 55% 48%, #0d5f4e 0%, #084337 40%, #03241d 80%, #01130f 100%)',
-    accentColor: '#10b981',
-    tags: ['Larga Fijación', 'Eau de Parfum', 'Dubái, EAU'],
-    volumeLabel: '100 ml / 3.4 FL. OZ.',
-    availableVolumes: [50, 100, 150],
-    description: 'Apertura marina vigorizante con cítricos cristalinos y un lecho cálido de ámbar noble y maderas preciosas. Su frasco esculpido irradia frescura y sofisticación.',
-  },
-  {
-    id: 'al-haramain-amber-oud-aqua',
-    brand: 'AL HARAMAIN',
-    title: 'Amber Oud Aqua Dubai',
-    subtitle: 'Niche Extrait • Marine Ambergris • Pure Prestige',
-    price: 185000,
-    imageUrl: '/hero-perfumes/amber-oud.png',
-    bgGradient: 'radial-gradient(circle at 55% 48%, #0284c7 0%, #0369a1 40%, #082f49 80%, #021422 100%)',
-    accentColor: '#38bdf8',
-    tags: ['Extrait de Parfum', 'Ámbar Gris 16h+', 'Colección Niche'],
-    volumeLabel: '100 ml / 3.4 FL. OZ.',
-    availableVolumes: [50, 100, 150],
-    description: 'El lujo absoluto de Dubái en un frasco facetado azul eléctrico. Proyección majestuosa y una densidad marina con ámbar gris auténtico que permanece inalterable.',
-  },
-  {
-    id: 'afnan-9pm-rebel',
-    brand: 'AFNAN',
-    title: '9 PM Rebel Afnan',
-    subtitle: 'Bold Night • Dark Caramel Woods • Royal Seduction',
-    price: 165000,
-    imageUrl: '/hero-perfumes/9pm-rebel.png',
-    bgGradient: 'radial-gradient(circle at 55% 48%, #9f1239 0%, #881337 40%, #4c0519 80%, #1f020a 100%)',
-    accentColor: '#fb7185',
-    tags: ['Intense Night', 'Vainilla Bourbon', 'Dubái, EAU'],
-    volumeLabel: '100 ml / 3.4 FL. OZ.',
-    availableVolumes: [50, 100, 150],
-    description: 'Electrizante, nocturno e intransigente. Cristal rubí profundo con detalles en negro carbón. Sobredosis de frutas caramelizadas y maderas ahumadas.',
-  },
-]
-
 export const LuxuryHeroShowcase: React.FC = () => {
-  const [showcaseList, setShowcaseList] = useState<PerfumeShowcaseItem[]>(PERFUMES_SHOWCASE)
+  const [showcaseList, setShowcaseList] = useState<PerfumeShowcaseItem[]>([])
   const [selectedIndex, setSelectedIndex] = useState<number>(0)
   const [selectedSize, setSelectedSize] = useState<string>('100')
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
@@ -78,10 +33,11 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
   // Load custom database products dynamically
   useEffect(() => {
+    let isMounted = true
     const loadDynamicProducts = async () => {
       try {
         const res = await productsApi.getProducts('all')
-        if (res.products && res.products.length > 0) {
+        if (isMounted && res.products && res.products.length > 0) {
           const customItems: PerfumeShowcaseItem[] = res.products.map((p) => {
             const vols = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
             const accent = p.accent_color || '#38bdf8'
@@ -101,21 +57,19 @@ export const LuxuryHeroShowcase: React.FC = () => {
               description: p.description || 'Fragancia exclusiva de alta concentración y fijación prolongada.',
             }
           })
-
-          const merged = [
-            ...PERFUMES_SHOWCASE,
-            ...customItems.filter((c) => !PERFUMES_SHOWCASE.some((p) => p.id === c.id)),
-          ]
-          setShowcaseList(merged)
+          setShowcaseList(customItems)
         }
       } catch (err) {
         console.warn('Showcase dynamic loading fallback:', err)
       }
     }
     loadDynamicProducts()
+    return () => {
+      isMounted = false
+    }
   }, [])
 
-  const current = showcaseList[selectedIndex] || PERFUMES_SHOWCASE[0]
+  const current = showcaseList[selectedIndex] || showcaseList[0]
   const totalCartCount = items.reduce((acc, item) => acc + item.quantity, 0)
 
   // Ensure selectedSize matches one of current perfume's available volumes
@@ -131,13 +85,26 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
   // Calculate dynamic price based on selected volume
   const sizeNum = parseInt(selectedSize, 10) || 100
-  const defaultVol = current.availableVolumes.includes(100) ? 100 : current.availableVolumes[0]
+  const defaultVol = current?.availableVolumes?.includes(100) ? 100 : current?.availableVolumes?.[0] || 100
   const currentPrice =
-    sizeNum === defaultVol
-      ? current.price
-      : sizeNum < defaultVol
-      ? Math.round((current.price * 0.75) / 1000) * 1000
-      : Math.round((current.price * 1.35) / 1000) * 1000
+    current
+      ? sizeNum === defaultVol
+        ? current.price
+        : sizeNum < defaultVol
+        ? Math.round((current.price * 0.75) / 1000) * 1000
+        : Math.round((current.price * 1.35) / 1000) * 1000
+      : 0
+
+  if (!current) {
+    return (
+      <div className="w-full min-h-screen bg-[#070709] flex items-center justify-center text-white font-['Montserrat',sans-serif]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 rounded-full border-2 border-rose-500 border-t-transparent animate-spin" />
+          <span className="text-xs tracking-widest uppercase text-gray-400">Cargando Showcase 3D...</span>
+        </div>
+      </div>
+    )
+  }
 
   // Handle 3D Tilt calculation (Skill: 3d-web-experience)
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
