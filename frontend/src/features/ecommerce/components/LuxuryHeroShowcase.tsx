@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useCartStore } from '../../../store/useCartStore'
 import { CartDrawer } from './CartDrawer'
 import { productsApi } from '../../../api/productsApi'
@@ -72,7 +72,7 @@ const getInitialShowcaseItems = (): PerfumeShowcaseItem[] => {
     if (stored) {
       const list = JSON.parse(stored)
       if (Array.isArray(list) && list.length > 0) {
-        return list.slice(0, 30).map((p: any) => {
+        return list.map((p: any) => {
           const vols = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
           const accent = p.accent_color || '#38bdf8'
           const brand = (p.brand || p.category_name || 'LUMINA').toUpperCase()
@@ -99,8 +99,32 @@ const getInitialShowcaseItems = (): PerfumeShowcaseItem[] => {
 }
 
 export const LuxuryHeroShowcase: React.FC = () => {
+  const [searchParams] = useSearchParams()
+  const targetProductId = searchParams.get('product') || searchParams.get('id')
+
   const [showcaseList, setShowcaseList] = useState<PerfumeShowcaseItem[]>(getInitialShowcaseItems)
-  const [selectedIndex, setSelectedIndex] = useState<number>(0)
+  const [selectedIndex, setSelectedIndex] = useState<number>(() => {
+    if (targetProductId) {
+      const initial = getInitialShowcaseItems()
+      const foundIdx = initial.findIndex(
+        (item) => item.id === targetProductId || item.title.toLowerCase().trim() === targetProductId.toLowerCase().trim()
+      )
+      if (foundIdx !== -1) return foundIdx
+    }
+    return 0
+  })
+
+  useEffect(() => {
+    if (targetProductId && showcaseList.length > 0) {
+      const foundIdx = showcaseList.findIndex(
+        (item) => item.id === targetProductId || item.title.toLowerCase().trim() === targetProductId.toLowerCase().trim()
+      )
+      if (foundIdx !== -1) {
+        setSelectedIndex(foundIdx)
+      }
+    }
+  }, [targetProductId, showcaseList])
+
   const [selectedSize, setSelectedSize] = useState<string>('100')
   const [mousePos, setMousePos] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const [isAddedToast, setIsAddedToast] = useState<boolean>(false)
@@ -148,6 +172,14 @@ export const LuxuryHeroShowcase: React.FC = () => {
             }
           })
           setShowcaseList(customItems)
+          if (targetProductId) {
+            const foundIdx = customItems.findIndex(
+              (item) => item.id === targetProductId || item.title.toLowerCase().trim() === targetProductId.toLowerCase().trim()
+            )
+            if (foundIdx !== -1) {
+              setSelectedIndex(foundIdx)
+            }
+          }
         }
       } catch (err) {
         console.warn('Showcase dynamic loading fallback:', err)

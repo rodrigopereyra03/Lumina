@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { productsApi, type BackendProductDTO } from '../../../api/productsApi'
 import { useCartStore } from '../../../store/useCartStore'
 import type { Product } from '../data/productsData'
@@ -15,6 +16,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   onBack,
   onProductClick,
 }) => {
+  const navigate = useNavigate()
   const [product, setProduct] = useState<Product | null>(null)
   const [recommended, setRecommended] = useState<BackendProductDTO[]>([])
   const [loading, setLoading] = useState<boolean>(true)
@@ -225,6 +227,20 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </button>
               </>
             )}
+
+            {/* Direct Floating 3D Badge on Image */}
+            <button
+              type="button"
+              onClick={() => navigate(`/hero-3d?product=${product.id}`)}
+              className="absolute bottom-4 right-4 z-20 px-3.5 py-1.5 rounded-full bg-black/80 hover:bg-black text-white text-[11px] font-bold border border-white/20 hover:border-emerald-400/60 backdrop-blur-md shadow-xl flex items-center gap-1.5 transition-all hover:scale-105 active:scale-95 cursor-pointer group"
+              title="Ver perfume en Showcase 3D interactivo"
+            >
+              <span className="material-symbols-outlined text-[15px] text-emerald-400 group-hover:rotate-12 transition-transform">
+                view_in_ar
+              </span>
+              <span>Showcase 3D</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399] animate-pulse" />
+            </button>
           </div>
 
           {/* Interactive Thumbnails Selector */}
@@ -387,6 +403,19 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
                 </span>
               </button>
             </div>
+
+            {/* Dedicated Action Button: View in 3D Showcase */}
+            <button
+              type="button"
+              onClick={() => navigate(`/hero-3d?product=${product.id}`)}
+              className="w-full py-3.5 px-6 rounded-2xl font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2.5 transition-all duration-300 border border-emerald-400/40 bg-gradient-to-r from-emerald-500/15 via-teal-500/10 to-emerald-500/15 hover:from-emerald-500/25 hover:to-teal-500/20 text-emerald-300 hover:text-white shadow-lg shadow-emerald-950/30 hover:border-emerald-400/70 hover:scale-[1.01] active:scale-[0.99] cursor-pointer group"
+            >
+              <span className="material-symbols-outlined text-[20px] text-emerald-400 group-hover:rotate-12 transition-transform">
+                view_in_ar
+              </span>
+              <span>Ver en Showcase 3D</span>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_8px_#34d399] animate-pulse"></span>
+            </button>
 
             {/* Value Props Pill Row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-xs text-[#5b403e] dark:text-[#9ca3af] pt-2 sm:pt-3">
