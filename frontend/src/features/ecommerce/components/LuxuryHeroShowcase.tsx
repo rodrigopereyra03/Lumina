@@ -31,6 +31,11 @@ const createShowcaseGradient = (accent: string): string => {
   const g = (num >> 8) & 255
   const b = num & 255
 
+  // Adaptive luminosity for deeper colors (e.g. dark navy/midnight blue)
+  const brightness = (r * 299 + g * 587 + b * 114) / 1000
+  const centerAlpha = brightness < 70 ? 0.8 : 0.65
+  const midAlpha = brightness < 70 ? 0.48 : 0.38
+
   // Luxury chromatic night tones: keeps atmospheric ambiance at the borders
   // avoiding the dead pitch-black void (#06070a)
   const edgeR = Math.round(r * 0.12 + 14)
@@ -41,7 +46,7 @@ const createShowcaseGradient = (accent: string): string => {
   const midG = Math.round(g * 0.28 + 18)
   const midB = Math.round(b * 0.28 + 24)
 
-  return `radial-gradient(circle at 52% 46%, rgba(${r}, ${g}, ${b}, 0.65) 0%, rgba(${r}, ${g}, ${b}, 0.38) 32%, rgb(${midR}, ${midG}, ${midB}) 65%, rgb(${edgeR}, ${edgeG}, ${edgeB}) 100%)`
+  return `radial-gradient(circle at 52% 46%, rgba(${r}, ${g}, ${b}, ${centerAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 32%, rgb(${midR}, ${midG}, ${midB}) 65%, rgb(${edgeR}, ${edgeG}, ${edgeB}) 100%)`
 }
 
 const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [

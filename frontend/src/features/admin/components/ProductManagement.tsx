@@ -792,16 +792,19 @@ export const ProductManagement: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     {[
                       { color: '#ffffff', label: 'Blanco Cristal / Diamante' },
+                      { color: '#00d2ff', label: 'Celeste / Azul Eléctrico' },
+                      { color: '#2563eb', label: 'Azul Francia / Bleu Royal' },
+                      { color: '#1e40af', label: 'Azul Oscuro / Noche' },
+                      { color: '#38bdf8', label: 'Zafiro Océano' },
+                      { color: '#6366f1', label: 'Azul Medianoche' },
+                      { color: '#10b981', label: 'Esmeralda Árabe' },
+                      { color: '#14b8a6', label: 'Turquesa Imperial' },
                       { color: '#f43f5e', label: 'Rubí Pasión' },
                       { color: '#be123c', label: 'Bordeaux Vino' },
                       { color: '#ec4899', label: 'Rose Gold' },
                       { color: '#f59e0b', label: 'Ámbar Cálido' },
                       { color: '#eab308', label: 'Oro Champagne' },
                       { color: '#ea580c', label: 'Coñac & Canela' },
-                      { color: '#10b981', label: 'Esmeralda Árabe' },
-                      { color: '#14b8a6', label: 'Turquesa Imperial' },
-                      { color: '#38bdf8', label: 'Zafiro Océano' },
-                      { color: '#6366f1', label: 'Azul Medianoche' },
                       { color: '#c084fc', label: 'Amatista Mística' },
                       { color: '#94a3b8', label: 'Platino / Titanio' },
                     ].map((swatch) => (

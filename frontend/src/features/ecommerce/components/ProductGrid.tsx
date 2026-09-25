@@ -113,6 +113,18 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 glow = 'bg-emerald-700/20 group-hover:bg-emerald-600/30'
                 dot = 'bg-emerald-400 shadow-[0_0_10px_#34d399]'
                 textAccent = 'text-emerald-400'
+              } else if (accent === '#00d2ff' || accent === '#00f0ff') {
+                glow = 'bg-cyan-500/25 group-hover:bg-cyan-400/35'
+                dot = 'bg-cyan-300 shadow-[0_0_12px_#00d2ff]'
+                textAccent = 'text-cyan-400 font-semibold'
+              } else if (accent === '#2563eb' || accent === '#1d4ed8') {
+                glow = 'bg-blue-600/30 group-hover:bg-blue-500/40'
+                dot = 'bg-blue-500 shadow-[0_0_12px_#2563eb]'
+                textAccent = 'text-blue-400 font-semibold'
+              } else if (accent === '#1e40af' || accent === '#1e3a8a' || accent === '#172554') {
+                glow = 'bg-indigo-900/40 group-hover:bg-indigo-800/50'
+                dot = 'bg-indigo-400 shadow-[0_0_10px_#3b82f6]'
+                textAccent = 'text-indigo-400 font-semibold'
               } else if (accent === '#38bdf8' || accent === '#6366f1') {
                 glow = 'bg-blue-700/20 group-hover:bg-blue-600/30'
                 dot = 'bg-blue-400 shadow-[0_0_10px_#60a5fa]'
