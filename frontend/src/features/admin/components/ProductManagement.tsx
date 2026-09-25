@@ -516,10 +516,10 @@ export const ProductManagement: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
-                    Selecciona las presentaciones activas del perfume (<strong>50 ml</strong>, <strong>90 ml</strong>, <strong>100 ml</strong>, <strong>150 ml</strong>).
+                    Selecciona las presentaciones activas del perfume (<strong>50 ml</strong>, <strong>90 ml</strong>, <strong>100 ml</strong>, <strong>120 ml</strong>, <strong>150 ml</strong>).
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                    {[50, 90, 100, 150].map((vol) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+                    {[50, 90, 100, 120, 150].map((vol) => {
                       const isSelected = formVolumes.includes(vol)
                       return (
                         <button

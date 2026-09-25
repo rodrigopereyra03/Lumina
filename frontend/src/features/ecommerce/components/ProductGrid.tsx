@@ -228,6 +228,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     if (volume === 90 && defaultVol === 100) {
       return Math.round((basePrice * 0.92) / 1000) * 1000
     }
+    if (volume === 120 && defaultVol === 100) {
+      return Math.round((basePrice * 1.15) / 1000) * 1000
+    }
     if (volume < defaultVol) {
       const ratio = Math.pow(volume / defaultVol, 0.75)
       return Math.round((basePrice * ratio) / 1000) * 1000
