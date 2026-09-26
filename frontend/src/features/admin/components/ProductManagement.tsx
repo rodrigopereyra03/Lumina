@@ -720,7 +720,7 @@ export const ProductManagement: React.FC = () => {
                   />
                 </div>
 
-                {/* Volume Selector (50 ml / 80 ml / 90 ml / 100 ml / 120 ml / 150 ml) */}
+                {/* Volume Selector (50 ml / 60 ml / 80 ml / 90 ml / 100 ml / 120 ml / 150 ml) */}
                 <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
@@ -731,10 +731,10 @@ export const ProductManagement: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
-                    Selecciona las presentaciones activas del perfume (<strong>50 ml</strong>, <strong>80 ml</strong>, <strong>90 ml</strong>, <strong>100 ml</strong>, <strong>120 ml</strong>, <strong>150 ml</strong>).
+                    Selecciona las presentaciones activas del perfume (<strong>50 ml</strong>, <strong>60 ml</strong>, <strong>80 ml</strong>, <strong>90 ml</strong>, <strong>100 ml</strong>, <strong>120 ml</strong>, <strong>150 ml</strong>).
                   </p>
-                  <div className="grid grid-cols-2 sm:grid-cols-6 gap-2 pt-1">
-                    {[50, 80, 90, 100, 120, 150].map((vol) => {
+                  <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-1">
+                    {[50, 60, 80, 90, 100, 120, 150].map((vol) => {
                       const isSelected = formVolumes.includes(vol)
                       return (
                         <button
