@@ -74,14 +74,27 @@ export const MercadoLibreConfig: React.FC = () => {
   }
 
   const handleConnectMeli = async () => {
-    try {
-      const res = await mercadoLibreApi.getAuthURL(redirectUrl)
-      if (res.auth_url) {
-        window.open(res.auth_url, '_blank', 'width=600,height=700')
-      }
-    } catch (err: any) {
-      setErrorMsg('Configura primero tu App ID para conectar')
+    const cleanAppId = appId.trim() || '2810037089837236'
+    const cleanRedirectUrl = redirectUrl.trim() || 'https://lumina-d31.pages.dev/admin'
+
+    if (!cleanAppId) {
+      setErrorMsg('Por favor ingresa tu App ID (Client ID)')
+      return
     }
+
+    try {
+      await mercadoLibreApi.updateConfig({
+        app_id: cleanAppId,
+        client_secret: clientSecret.trim(),
+        redirect_url: cleanRedirectUrl,
+        is_active: isActive,
+        sync_stock_automatically: autoSyncStock,
+        price_markup_percent: parseFloat(priceMarkup) || 0,
+      })
+    } catch (e) {}
+
+    const authUrl = `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(cleanRedirectUrl)}`
+    window.open(authUrl, '_blank', 'width=650,height=750')
   }
 
   const handlePublish = async (prod: BackendProductDTO) => {

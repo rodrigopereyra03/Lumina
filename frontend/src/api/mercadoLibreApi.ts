@@ -77,10 +77,19 @@ export const mercadoLibreApi = {
       }
     } catch (e) {}
 
-    // Simulated fallback auth URL
+    const stored = localStorage.getItem(LOCAL_STORAGE_MELI_KEY)
+    let appId = '2810037089837236'
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored)
+        if (parsed.app_id) appId = parsed.app_id
+      } catch (e) {}
+    }
+
+    const targetRedirect = redirectUrl || (typeof window !== 'undefined' ? window.location.origin + '/admin' : 'https://lumina-d31.pages.dev/admin')
     return {
-      auth_url: `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=DEMO_APP_ID&redirect_uri=${encodeURIComponent(
-        redirectUrl || window.location.origin + '/admin'
+      auth_url: `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${appId}&redirect_uri=${encodeURIComponent(
+        targetRedirect
       )}`,
     }
   },
