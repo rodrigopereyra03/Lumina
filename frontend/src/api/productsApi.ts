@@ -18,6 +18,10 @@ export interface BackendProductDTO {
   volumes?: number[]
   accent_color?: string
   brand?: string
+  meli_id?: string
+  meli_permalink?: string
+  meli_status?: string
+  meli_price?: number
 }
 
 export interface ListProductsResponseContent {
@@ -121,6 +125,10 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
           volumes: p.volumes || meta.volumes || [50, 100],
           accent_color: p.accent_color || meta.accent_color || '#fb7185',
           brand: brand,
+          meli_id: p.meli_id,
+          meli_permalink: p.meli_permalink,
+          meli_status: p.meli_status,
+          meli_price: p.meli_price,
         }
       })
 

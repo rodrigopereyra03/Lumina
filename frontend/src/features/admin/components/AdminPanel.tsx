@@ -10,8 +10,9 @@ import { CategoryManagement } from './CategoryManagement'
 import { OrderManagement } from './OrderManagement'
 import { UserDirectory } from './UserDirectory'
 import { PaymentMethodsConfig } from './PaymentMethodsConfig'
+import { MercadoLibreConfig } from './MercadoLibreConfig'
 
-export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'users' | 'payments'
+export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'users' | 'payments' | 'mercadolibre'
 
 export const AdminPanel: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<AdminTab>('dashboard')
@@ -26,6 +27,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'orders', label: 'Órdenes', icon: 'receipt_long' },
     { id: 'users', label: 'Usuarios', icon: 'group' },
     { id: 'payments', label: 'Medios de Pago', icon: 'credit_card' },
+    { id: 'mercadolibre', label: 'Mercado Libre', icon: 'handshake' },
   ] as const
 
   const handleLogout = () => {
@@ -207,6 +209,7 @@ export const AdminPanel: React.FC = () => {
               {currentTab === 'orders' && <OrderManagement />}
               {currentTab === 'users' && <UserDirectory />}
               {currentTab === 'payments' && <PaymentMethodsConfig />}
+              {currentTab === 'mercadolibre' && <MercadoLibreConfig />}
             </motion.div>
           </AnimatePresence>
         </main>
