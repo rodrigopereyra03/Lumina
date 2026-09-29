@@ -22,6 +22,11 @@ type ProductDAO struct {
 	Image         string     `db:"image"`
 	Rating        float64    `db:"rating"`
 	ReviewsCount  int        `db:"reviews_count"`
+	MeliID        string     `db:"meli_id"`
+	MeliPermalink string     `db:"meli_permalink"`
+	MeliStatus    string     `db:"meli_status"`
+	MeliPrice     *float64   `db:"meli_price"`
+	MeliLastSync  *time.Time `db:"meli_last_sync"`
 	CreatedAt     time.Time  `db:"created_at"`
 	UpdatedAt     time.Time  `db:"updated_at"`
 	DeletedAt     *time.Time `db:"deleted_at"`
@@ -46,6 +51,11 @@ func (d ProductDAO) ToEntity() products.Product {
 		images = []string{d.Image}
 	}
 
+	meliStatus := d.MeliStatus
+	if meliStatus == "" {
+		meliStatus = "not_published"
+	}
+
 	return products.Product{
 		ID:            d.ID,
 		CategoryID:    d.CategoryID,
@@ -60,6 +70,11 @@ func (d ProductDAO) ToEntity() products.Product {
 		Images:        images,
 		Rating:        d.Rating,
 		ReviewsCount:  d.ReviewsCount,
+		MeliID:        d.MeliID,
+		MeliPermalink: d.MeliPermalink,
+		MeliStatus:    meliStatus,
+		MeliPrice:     d.MeliPrice,
+		MeliLastSync:  d.MeliLastSync,
 		CreatedAt:     d.CreatedAt,
 		UpdatedAt:     d.UpdatedAt,
 		DeletedAt:     d.DeletedAt,
@@ -91,6 +106,11 @@ func ToDAO(p products.Product) ProductDAO {
 		sub = fmt.Sprintf("%s @@META@@%s", cleanSub, string(metaBytes))
 	}
 
+	meliStatus := p.MeliStatus
+	if meliStatus == "" {
+		meliStatus = "not_published"
+	}
+
 	return ProductDAO{
 		ID:            p.ID,
 		CategoryID:    p.CategoryID,
@@ -104,6 +124,11 @@ func ToDAO(p products.Product) ProductDAO {
 		Image:         primaryImg,
 		Rating:        p.Rating,
 		ReviewsCount:  p.ReviewsCount,
+		MeliID:        p.MeliID,
+		MeliPermalink: p.MeliPermalink,
+		MeliStatus:    meliStatus,
+		MeliPrice:     p.MeliPrice,
+		MeliLastSync:  p.MeliLastSync,
 		CreatedAt:     p.CreatedAt,
 		UpdatedAt:     p.UpdatedAt,
 		DeletedAt:     p.DeletedAt,

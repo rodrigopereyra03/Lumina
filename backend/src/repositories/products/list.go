@@ -30,7 +30,7 @@ func (r *ProductsRepository) List(ctx context.Context, categorySlug string) ([]p
 	}
 
 	query := `
-		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Perfumes'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
+		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Perfumes'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, COALESCE(p.meli_id, ''), COALESCE(p.meli_permalink, ''), COALESCE(p.meli_status, 'not_published'), p.meli_price, p.meli_last_sync, p.created_at, p.updated_at, p.deleted_at
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
 		WHERE p.deleted_at IS NULL
@@ -46,7 +46,7 @@ func (r *ProductsRepository) List(ctx context.Context, categorySlug string) ([]p
 	for rows.Next() {
 		var dao ProductDAO
 		if err := rows.Scan(
-			&dao.ID, &dao.CategoryID, &dao.CategoryName, &dao.Title, &dao.Subtitle, &dao.Description, &dao.Price, &dao.OriginalPrice, &dao.Stock, &dao.Image, &dao.Rating, &dao.ReviewsCount, &dao.CreatedAt, &dao.UpdatedAt, &dao.DeletedAt,
+			&dao.ID, &dao.CategoryID, &dao.CategoryName, &dao.Title, &dao.Subtitle, &dao.Description, &dao.Price, &dao.OriginalPrice, &dao.Stock, &dao.Image, &dao.Rating, &dao.ReviewsCount, &dao.MeliID, &dao.MeliPermalink, &dao.MeliStatus, &dao.MeliPrice, &dao.MeliLastSync, &dao.CreatedAt, &dao.UpdatedAt, &dao.DeletedAt,
 		); err != nil {
 			return nil, fmt.Errorf("failed to scan product: %w", err)
 		}
@@ -67,14 +67,14 @@ func (r *ProductsRepository) GetByID(ctx context.Context, id string) (products.P
 	}
 
 	query := `
-		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Perfumes'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, p.created_at, p.updated_at, p.deleted_at
+		SELECT p.id, COALESCE(p.category_id::text, ''), COALESCE(c.name, 'Perfumes'), p.title, p.subtitle, p.description, p.price, p.original_price, p.stock, p.image, p.rating, p.reviews_count, COALESCE(p.meli_id, ''), COALESCE(p.meli_permalink, ''), COALESCE(p.meli_status, 'not_published'), p.meli_price, p.meli_last_sync, p.created_at, p.updated_at, p.deleted_at
 		FROM products p
 		LEFT JOIN categories c ON p.category_id = c.id
 		WHERE p.id = $1 AND p.deleted_at IS NULL
 	`
 	var dao ProductDAO
 	err := r.db.QueryRow(ctx, query, id).Scan(
-		&dao.ID, &dao.CategoryID, &dao.CategoryName, &dao.Title, &dao.Subtitle, &dao.Description, &dao.Price, &dao.OriginalPrice, &dao.Stock, &dao.Image, &dao.Rating, &dao.ReviewsCount, &dao.CreatedAt, &dao.UpdatedAt, &dao.DeletedAt,
+		&dao.ID, &dao.CategoryID, &dao.CategoryName, &dao.Title, &dao.Subtitle, &dao.Description, &dao.Price, &dao.OriginalPrice, &dao.Stock, &dao.Image, &dao.Rating, &dao.ReviewsCount, &dao.MeliID, &dao.MeliPermalink, &dao.MeliStatus, &dao.MeliPrice, &dao.MeliLastSync, &dao.CreatedAt, &dao.UpdatedAt, &dao.DeletedAt,
 	)
 	if err != nil {
 		// Fallback check memory in case it was a seeded product
@@ -108,18 +108,20 @@ func (r *ProductsRepository) Create(ctx context.Context, product products.Produc
 	}
 
 	query := `
-		INSERT INTO products (id, title, subtitle, description, price, original_price, stock, image, rating, reviews_count, created_at, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+		INSERT INTO products (id, title, subtitle, description, price, original_price, stock, image, rating, reviews_count, meli_id, meli_permalink, meli_status, meli_price, meli_last_sync, created_at, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)
 		ON CONFLICT (id) DO UPDATE
 		SET title = EXCLUDED.title, subtitle = EXCLUDED.subtitle, description = EXCLUDED.description,
-		    price = EXCLUDED.price, stock = EXCLUDED.stock, image = EXCLUDED.image, updated_at = EXCLUDED.updated_at
-		RETURNING id, title, subtitle, description, price, original_price, stock, image, rating, reviews_count, created_at, updated_at
+		    price = EXCLUDED.price, stock = EXCLUDED.stock, image = EXCLUDED.image,
+		    meli_id = EXCLUDED.meli_id, meli_permalink = EXCLUDED.meli_permalink, meli_status = EXCLUDED.meli_status,
+		    meli_price = EXCLUDED.meli_price, meli_last_sync = EXCLUDED.meli_last_sync, updated_at = EXCLUDED.updated_at
+		RETURNING id, title, subtitle, description, price, original_price, stock, image, rating, reviews_count, meli_id, meli_permalink, meli_status, meli_price, meli_last_sync, created_at, updated_at
 	`
 	var created ProductDAO
 	err := r.db.QueryRow(ctx, query,
-		dao.ID, dao.Title, dao.Subtitle, dao.Description, dao.Price, dao.OriginalPrice, dao.Stock, dao.Image, dao.Rating, dao.ReviewsCount, dao.CreatedAt, dao.UpdatedAt,
+		dao.ID, dao.Title, dao.Subtitle, dao.Description, dao.Price, dao.OriginalPrice, dao.Stock, dao.Image, dao.Rating, dao.ReviewsCount, dao.MeliID, dao.MeliPermalink, dao.MeliStatus, dao.MeliPrice, dao.MeliLastSync, dao.CreatedAt, dao.UpdatedAt,
 	).Scan(
-		&created.ID, &created.Title, &created.Subtitle, &created.Description, &created.Price, &created.OriginalPrice, &created.Stock, &created.Image, &created.Rating, &created.ReviewsCount, &created.CreatedAt, &created.UpdatedAt,
+		&created.ID, &created.Title, &created.Subtitle, &created.Description, &created.Price, &created.OriginalPrice, &created.Stock, &created.Image, &created.Rating, &created.ReviewsCount, &created.MeliID, &created.MeliPermalink, &created.MeliStatus, &created.MeliPrice, &created.MeliLastSync, &created.CreatedAt, &created.UpdatedAt,
 	)
 	if err != nil {
 		r.mu.Lock()
@@ -144,18 +146,20 @@ func (r *ProductsRepository) Update(ctx context.Context, product products.Produc
 	}
 
 	query := `
-		INSERT INTO products (id, title, subtitle, description, price, stock, image, updated_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO products (id, title, subtitle, description, price, stock, image, meli_id, meli_permalink, meli_status, meli_price, meli_last_sync, updated_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
 		ON CONFLICT (id) DO UPDATE
 		SET title = EXCLUDED.title, subtitle = EXCLUDED.subtitle, description = EXCLUDED.description,
-		    price = EXCLUDED.price, stock = EXCLUDED.stock, image = EXCLUDED.image, updated_at = EXCLUDED.updated_at
-		RETURNING id, title, subtitle, description, price, stock, image, updated_at
+		    price = EXCLUDED.price, stock = EXCLUDED.stock, image = EXCLUDED.image,
+		    meli_id = EXCLUDED.meli_id, meli_permalink = EXCLUDED.meli_permalink, meli_status = EXCLUDED.meli_status,
+		    meli_price = EXCLUDED.meli_price, meli_last_sync = EXCLUDED.meli_last_sync, updated_at = EXCLUDED.updated_at
+		RETURNING id, title, subtitle, description, price, stock, image, meli_id, meli_permalink, meli_status, meli_price, meli_last_sync, updated_at
 	`
 	var updated ProductDAO
 	err := r.db.QueryRow(ctx, query,
-		dao.ID, dao.Title, dao.Subtitle, dao.Description, dao.Price, dao.Stock, dao.Image, dao.UpdatedAt,
+		dao.ID, dao.Title, dao.Subtitle, dao.Description, dao.Price, dao.Stock, dao.Image, dao.MeliID, dao.MeliPermalink, dao.MeliStatus, dao.MeliPrice, dao.MeliLastSync, dao.UpdatedAt,
 	).Scan(
-		&updated.ID, &updated.Title, &updated.Subtitle, &updated.Description, &updated.Price, &updated.Stock, &updated.Image, &updated.UpdatedAt,
+		&updated.ID, &updated.Title, &updated.Subtitle, &updated.Description, &updated.Price, &updated.Stock, &updated.Image, &updated.MeliID, &updated.MeliPermalink, &updated.MeliStatus, &updated.MeliPrice, &updated.MeliLastSync, &updated.UpdatedAt,
 	)
 	if err != nil {
 		return dao.ToEntity(), nil

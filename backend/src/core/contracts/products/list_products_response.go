@@ -18,6 +18,10 @@ type ProductDTO struct {
 	Images        []string `json:"images,omitempty"`
 	Rating        float64  `json:"rating"`
 	ReviewsCount  int      `json:"reviews_count"`
+	MeliID        string   `json:"meli_id,omitempty"`
+	MeliPermalink string   `json:"meli_permalink,omitempty"`
+	MeliStatus    string   `json:"meli_status,omitempty"`
+	MeliPrice     *float64 `json:"meli_price,omitempty"`
 }
 
 type ListProductsResponse struct {
@@ -44,6 +48,10 @@ func ToProductDTO(p products.Product) ProductDTO {
 		Images:        imgs,
 		Rating:        p.Rating,
 		ReviewsCount:  p.ReviewsCount,
+		MeliID:        p.MeliID,
+		MeliPermalink: p.MeliPermalink,
+		MeliStatus:    p.MeliStatus,
+		MeliPrice:     p.MeliPrice,
 	}
 }
 

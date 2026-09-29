@@ -9,6 +9,7 @@ import (
 	"ecommerce-ganador/backend/src/core/entities/orders"
 	notifProviders "ecommerce-ganador/backend/src/core/providers/notifications"
 	orderProviders "ecommerce-ganador/backend/src/core/providers/orders"
+	prodProviders "ecommerce-ganador/backend/src/core/providers/products"
 )
 
 type CreateOrderItemInput struct {
@@ -39,12 +40,14 @@ type CreateOrder interface {
 
 type CreateOrderImpl struct {
 	persistor     orderProviders.OrdersPersistor
+	productRepo   prodProviders.ProductsPersistor
 	emailProvider notifProviders.EmailProvider
 }
 
-func NewCreateOrderImpl(persistor orderProviders.OrdersPersistor, emailProvider notifProviders.EmailProvider) CreateOrderImpl {
+func NewCreateOrderImpl(persistor orderProviders.OrdersPersistor, productRepo prodProviders.ProductsPersistor, emailProvider notifProviders.EmailProvider) CreateOrderImpl {
 	return CreateOrderImpl{
 		persistor:     persistor,
+		productRepo:   productRepo,
 		emailProvider: emailProvider,
 	}
 }
@@ -96,6 +99,22 @@ func (uc CreateOrderImpl) Execute(ctx context.Context, input CreateOrderInput) (
 	created, err := uc.persistor.Create(ctx, newOrder)
 	if err != nil {
 		return CreateOrderOutput{}, fmt.Errorf("failed to save order: %w", err)
+	}
+
+	// Deduct stock in database for purchased items
+	if uc.productRepo != nil {
+		for _, it := range input.Items {
+			if it.ProductID != "" {
+				if prod, err := uc.productRepo.GetByID(ctx, it.ProductID); err == nil {
+					newStock := prod.Stock - it.Quantity
+					if newStock < 0 {
+						newStock = 0
+					}
+					prod.Stock = newStock
+					_, _ = uc.productRepo.Update(ctx, prod)
+				}
+			}
+		}
 	}
 
 	// Trigger async order created email

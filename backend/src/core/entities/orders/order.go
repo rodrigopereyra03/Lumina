@@ -35,6 +35,8 @@ type Order struct {
 	CustomerPhone   string
 	ShippingAddress string
 	Status          Status
+	Channel         string // 'web', 'mercadolibre'
+	MeliOrderID     *string
 	Subtotal        float64
 	ShippingCost    float64
 	Total           float64

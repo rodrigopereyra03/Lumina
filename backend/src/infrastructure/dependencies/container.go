@@ -8,6 +8,7 @@ import (
 	addrRepos "ecommerce-ganador/backend/src/repositories/addresses"
 	categoryRepos "ecommerce-ganador/backend/src/repositories/categories"
 	couponRepos "ecommerce-ganador/backend/src/repositories/coupons"
+	meliRepos "ecommerce-ganador/backend/src/repositories/mercadolibre"
 	orderRepos "ecommerce-ganador/backend/src/repositories/orders"
 	paymentRepos "ecommerce-ganador/backend/src/repositories/payments"
 	productRepos "ecommerce-ganador/backend/src/repositories/products"
@@ -17,6 +18,7 @@ import (
 	addrUsecases "ecommerce-ganador/backend/src/core/usecases/addresses"
 	categoryUsecases "ecommerce-ganador/backend/src/core/usecases/categories"
 	couponUsecases "ecommerce-ganador/backend/src/core/usecases/coupons"
+	meliUsecases "ecommerce-ganador/backend/src/core/usecases/mercadolibre"
 	orderUsecases "ecommerce-ganador/backend/src/core/usecases/orders"
 	paymentUsecases "ecommerce-ganador/backend/src/core/usecases/payments"
 	productUsecases "ecommerce-ganador/backend/src/core/usecases/products"
@@ -26,6 +28,7 @@ import (
 	addrHandlers "ecommerce-ganador/backend/src/entrypoints/rest/addresses"
 	categoryHandlers "ecommerce-ganador/backend/src/entrypoints/rest/categories"
 	couponHandlers "ecommerce-ganador/backend/src/entrypoints/rest/coupons"
+	meliHandlers "ecommerce-ganador/backend/src/entrypoints/rest/mercadolibre"
 	orderHandlers "ecommerce-ganador/backend/src/entrypoints/rest/orders"
 	paymentHandlers "ecommerce-ganador/backend/src/entrypoints/rest/payments"
 	productHandlers "ecommerce-ganador/backend/src/entrypoints/rest/products"
@@ -33,6 +36,7 @@ import (
 	shippingHandlers "ecommerce-ganador/backend/src/entrypoints/rest/shipping"
 	userHandlers "ecommerce-ganador/backend/src/entrypoints/rest/users"
 
+	meliInfra "ecommerce-ganador/backend/src/infrastructure/mercadolibre"
 	shippingInfra "ecommerce-ganador/backend/src/infrastructure/shipping"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -62,6 +66,7 @@ type Container struct {
 	ProcessPaymentHandler  paymentHandlers.ProcessPaymentHandler
 	PaymentSettingsHandler settingHandlers.PaymentSettingsHandler
 	MercadoPagoHandler     paymentHandlers.MercadoPagoHandler
+	MercadoLibreHandler    meliHandlers.Handler
 	ShippingHandler        shippingHandlers.ShippingHandler
 
 	// Services
@@ -84,6 +89,9 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 	couponRepo := couponRepos.NewCouponsRepository(dbPool)
 	paymentRepo := paymentRepos.NewPaymentsRepository(dbPool)
 	settingRepo := settingRepos.NewSettingsRepository(dbPool)
+	meliRepo := meliRepos.NewRepository(dbPool)
+
+	meliClient := meliInfra.NewClient()
 
 	// Usecases
 	registerUserUc := userUsecases.NewRegisterUserImpl(userRepo, jwtService, emailService, cfg.JWTAccessExpiration)
@@ -100,7 +108,7 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 	listCategoriesUc := categoryUsecases.NewListCategoriesImpl(categoryRepo)
 	createCategoryUc := categoryUsecases.NewCreateCategoryImpl(categoryRepo)
 
-	createOrderUc := orderUsecases.NewCreateOrderImpl(orderRepo, emailService)
+	createOrderUc := orderUsecases.NewCreateOrderImpl(orderRepo, productRepo, emailService)
 	listOrdersUc := orderUsecases.NewListOrdersImpl(orderRepo)
 	updateOrderStatusUc := orderUsecases.NewUpdateOrderStatusImpl(orderRepo, emailService)
 
@@ -115,6 +123,25 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 
 	getSettingsUc := settingUsecases.NewGetPaymentSettingsImpl(settingRepo)
 	updateSettingsUc := settingUsecases.NewUpdatePaymentSettingsImpl(settingRepo)
+
+	// Mercado Libre Usecases
+	getMeliAuthURLUc := meliUsecases.NewGetAuthURLImpl(meliRepo, meliClient)
+	handleMeliCallbackUc := meliUsecases.NewHandleOAuthCallbackImpl(meliRepo, meliClient)
+	publishMeliProductUc := meliUsecases.NewPublishProductImpl(meliRepo, meliClient, productRepo)
+	syncMeliStockUc := meliUsecases.NewSyncStockImpl(meliRepo, meliClient, productRepo)
+	handleMeliWebhookUc := meliUsecases.NewHandleWebhookImpl(meliRepo, meliClient, productRepo, orderRepo)
+	getMeliStatusUc := meliUsecases.NewGetStatusImpl(meliRepo)
+	updateMeliConfigUc := meliUsecases.NewUpdateConfigImpl(meliRepo)
+
+	meliHandler := meliHandlers.NewHandler(
+		getMeliAuthURLUc,
+		handleMeliCallbackUc,
+		publishMeliProductUc,
+		syncMeliStockUc,
+		handleMeliWebhookUc,
+		getMeliStatusUc,
+		updateMeliConfigUc,
+	)
 
 	envioPackService := shippingInfra.NewEnvioPackService("")
 
@@ -141,6 +168,7 @@ func BuildContainer(dbPool *pgxpool.Pool, cfg config.Config) *Container {
 		ProcessPaymentHandler:  paymentHandlers.NewProcessPaymentHandler(processPaymentUc),
 		PaymentSettingsHandler: settingHandlers.NewPaymentSettingsHandler(getSettingsUc, updateSettingsUc),
 		MercadoPagoHandler:     paymentHandlers.NewMercadoPagoHandler(createMPPrefUc, handleMPWebhookUc),
+		MercadoLibreHandler:    meliHandler,
 		ShippingHandler:        shippingHandlers.NewShippingHandler(envioPackService),
 
 		JWTService:       jwtService,

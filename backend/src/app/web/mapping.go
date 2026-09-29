@@ -91,5 +91,22 @@ func MapRoutes(r *gin.Engine, c *dependencies.Container) {
 			adminSettings.GET("/payment-settings", c.PaymentSettingsHandler.HandleGet())
 			adminSettings.PUT("/payment-settings", c.PaymentSettingsHandler.HandleUpdate())
 		}
+
+		// Mercado Libre Integration Routes
+		meli := v1.Group("/mercadolibre")
+		{
+			meli.POST("/webhook", c.MercadoLibreHandler.HandleWebhook)
+			meli.GET("/callback", c.MercadoLibreHandler.HandleCallback)
+
+			adminMeli := meli.Group("")
+			adminMeli.Use(middleware.AuthMiddleware(c.JWTService))
+			{
+				adminMeli.GET("/status", c.MercadoLibreHandler.HandleGetStatus)
+				adminMeli.GET("/auth-url", c.MercadoLibreHandler.HandleGetAuthURL)
+				adminMeli.PUT("/config", c.MercadoLibreHandler.HandleUpdateConfig)
+				adminMeli.POST("/products/:id/publish", c.MercadoLibreHandler.HandlePublishProduct)
+				adminMeli.POST("/products/:id/sync-stock", c.MercadoLibreHandler.HandleSyncStock)
+			}
+		}
 	}
 }

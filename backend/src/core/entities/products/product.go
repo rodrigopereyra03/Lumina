@@ -18,6 +18,11 @@ type Product struct {
 	Images        []string
 	Rating        float64
 	ReviewsCount  int
+	MeliID        string
+	MeliPermalink string
+	MeliStatus    string
+	MeliPrice     *float64
+	MeliLastSync  *time.Time
 	CreatedAt     time.Time
 	UpdatedAt     time.Time
 	DeletedAt     *time.Time
