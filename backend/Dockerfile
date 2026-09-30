@@ -4,6 +4,7 @@ FROM golang:1.24-alpine AS builder
 WORKDIR /app
 
 RUN apk add --no-cache git ca-certificates
+ENV GOTOOLCHAIN=auto
 
 # Cache dependencies
 COPY go.mod go.sum ./
