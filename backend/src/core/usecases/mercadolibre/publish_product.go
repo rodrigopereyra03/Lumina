@@ -3,6 +3,7 @@ package mercadolibre
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"ecommerce-ganador/backend/src/core/entities/mercadolibre"
@@ -80,13 +81,31 @@ func (uc PublishProductImpl) Execute(ctx context.Context, input PublishProductIn
 		brand = "Fórmula 1370"
 	}
 
+	volume := "100 mL"
+	combinedText := strings.ToLower(prod.Title + " " + prod.Subtitle + " " + prod.Description)
+	switch {
+	case strings.Contains(combinedText, "50ml") || strings.Contains(combinedText, "50 ml"):
+		volume = "50 mL"
+	case strings.Contains(combinedText, "30ml") || strings.Contains(combinedText, "30 ml"):
+		volume = "30 mL"
+	case strings.Contains(combinedText, "60ml") || strings.Contains(combinedText, "60 ml"):
+		volume = "60 mL"
+	case strings.Contains(combinedText, "75ml") || strings.Contains(combinedText, "75 ml"):
+		volume = "75 mL"
+	case strings.Contains(combinedText, "125ml") || strings.Contains(combinedText, "125 ml"):
+		volume = "125 mL"
+	case strings.Contains(combinedText, "200ml") || strings.Contains(combinedText, "200 ml"):
+		volume = "200 mL"
+	}
+
 	attributes := []map[string]interface{}{
 		{"id": "BRAND", "value_name": brand},
 		{"id": "LINE", "value_name": prod.Title},
 		{"id": "PERFUME_NAME", "value_name": prod.Title},
-		{"id": "VOLUME", "value_name": "100 mL"},
-		{"id": "ITEM_CONDITION", "value_name": "Nuevo"},
-		{"id": "GENDER", "value_name": "Unisex"},
+		{"id": "UNIT_VOLUME", "value_name": volume},
+		{"id": "ITEM_CONDITION", "value_id": "2230284", "value_name": "Nuevo"},
+		{"id": "GENDER", "value_id": "110461", "value_name": "Sin género"},
+		{"id": "EMPTY_GTIN_REASON", "value_id": "17055160", "value_name": "El producto no tiene código registrado"},
 	}
 
 	publishData := meliProviders.PublishItemData{

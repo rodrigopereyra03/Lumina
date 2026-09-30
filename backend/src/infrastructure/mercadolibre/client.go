@@ -182,8 +182,9 @@ func (c *Client) PublishItem(ctx context.Context, accessToken string, item meliP
 		familyName = "Perfume de Autor"
 	}
 
+	// Payload configured for Mercado Libre User Products (UP):
+	// In UP categories/sellers, family_name is required and title is strictly forbidden.
 	payload := map[string]interface{}{
-		"title":              item.Title,
 		"family_name":        familyName,
 		"category_id":        categoryID,
 		"price":              item.Price,
@@ -192,51 +193,110 @@ func (c *Client) PublishItem(ctx context.Context, accessToken string, item meliP
 		"buying_mode":        buyingMode,
 		"listing_type_id":    listingType,
 		"condition":          condition,
-		"description": map[string]string{
+		"pictures":           pictures,
+	}
+
+	if item.Description != "" {
+		payload["description"] = map[string]string{
 			"plain_text": item.Description,
-		},
-		"pictures": pictures,
+		}
 	}
 
 	if len(item.Attributes) > 0 {
 		payload["attributes"] = item.Attributes
 	}
 
-	bodyBytes, err := json.Marshal(payload)
-	if err != nil {
-		return nil, fmt.Errorf("failed to marshal item: %w", err)
-	}
-
-	req, err := http.NewRequestWithContext(
-		ctx,
-		http.MethodPost,
-		fmt.Sprintf("%s/items", c.baseURL),
-		bytes.NewBuffer(bodyBytes),
-	)
-	if err != nil {
-		return nil, fmt.Errorf("failed to create item request: %w", err)
-	}
-	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err := c.httpClient.Do(req)
-	if err != nil {
-		return nil, fmt.Errorf("item publish request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("mercadolibre item publish error (%d): %s", resp.StatusCode, string(body))
-	}
-
+	var lastErr error
 	var res struct {
 		ID        string `json:"id"`
 		Permalink string `json:"permalink"`
 		Status    string `json:"status"`
 	}
-	if err := json.Unmarshal(body, &res); err != nil {
-		return nil, fmt.Errorf("failed to parse publish response: %w", err)
+
+	needSeparateDescription := false
+
+	// Attempt publishing with automatic recovery if MELI returns field validation mismatches
+	for attempt := 0; attempt < 3; attempt++ {
+		bodyBytes, err := json.Marshal(payload)
+		if err != nil {
+			return nil, fmt.Errorf("failed to marshal item: %w", err)
+		}
+
+		req, err := http.NewRequestWithContext(
+			ctx,
+			http.MethodPost,
+			fmt.Sprintf("%s/items", c.baseURL),
+			bytes.NewBuffer(bodyBytes),
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to create item request: %w", err)
+		}
+		req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+		req.Header.Set("Content-Type", "application/json")
+
+		resp, err := c.httpClient.Do(req)
+		if err != nil {
+			return nil, fmt.Errorf("item publish request failed: %w", err)
+		}
+
+		body, _ := io.ReadAll(resp.Body)
+		resp.Body.Close()
+
+		if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+			if err := json.Unmarshal(body, &res); err != nil {
+				return nil, fmt.Errorf("failed to parse publish response: %w", err)
+			}
+			lastErr = nil
+			break
+		}
+
+		bodyStr := string(body)
+		lastErr = fmt.Errorf("mercadolibre item publish error (%d): %s", resp.StatusCode, bodyStr)
+
+		// Self-healing adjustments
+		modified := false
+		if strings.Contains(bodyStr, "invalid_fields") || strings.Contains(bodyStr, "invalid") {
+			if strings.Contains(bodyStr, "[title]") {
+				delete(payload, "title")
+				payload["family_name"] = familyName
+				modified = true
+			}
+			if strings.Contains(bodyStr, "[family_name]") {
+				delete(payload, "family_name")
+				payload["title"] = item.Title
+				modified = true
+			}
+			if strings.Contains(bodyStr, "[description]") {
+				delete(payload, "description")
+				needSeparateDescription = true
+				modified = true
+			}
+		}
+
+		if strings.Contains(bodyStr, "required_fields") || strings.Contains(bodyStr, "required") {
+			if strings.Contains(bodyStr, "[family_name]") {
+				payload["family_name"] = familyName
+				delete(payload, "title")
+				modified = true
+			}
+			if strings.Contains(bodyStr, "[title]") {
+				payload["title"] = item.Title
+				delete(payload, "family_name")
+				modified = true
+			}
+		}
+
+		if !modified {
+			return nil, lastErr
+		}
+	}
+
+	if lastErr != nil {
+		return nil, lastErr
+	}
+
+	if needSeparateDescription && item.Description != "" && res.ID != "" {
+		_ = c.SetItemDescription(ctx, accessToken, res.ID, item.Description)
 	}
 
 	return &meliProviders.PublishItemResult{
@@ -244,6 +304,31 @@ func (c *Client) PublishItem(ctx context.Context, accessToken string, item meliP
 		Permalink: res.Permalink,
 		Status:    res.Status,
 	}, nil
+}
+
+func (c *Client) SetItemDescription(ctx context.Context, accessToken string, meliItemID string, description string) error {
+	payload := map[string]string{
+		"plain_text": description,
+	}
+	bodyBytes, _ := json.Marshal(payload)
+	req, err := http.NewRequestWithContext(
+		ctx,
+		http.MethodPost,
+		fmt.Sprintf("%s/items/%s/description", c.baseURL, meliItemID),
+		bytes.NewBuffer(bodyBytes),
+	)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", accessToken))
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
 }
 
 func (c *Client) UpdateStock(ctx context.Context, accessToken string, meliItemID string, quantity int) error {
