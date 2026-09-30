@@ -15,7 +15,8 @@ import { MercadoLibreConfig } from './MercadoLibreConfig'
 export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'users' | 'payments' | 'mercadolibre'
 
 export const AdminPanel: React.FC = () => {
-  const [currentTab, setCurrentTab] = useState<AdminTab>('dashboard')
+  const hasAuthCode = typeof window !== 'undefined' && (new URLSearchParams(window.location.search).has('code') || window.location.search.includes('code='))
+  const [currentTab, setCurrentTab] = useState<AdminTab>(hasAuthCode ? 'mercadolibre' : 'dashboard')
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
   const { user, clearAuth } = useAuthStore()
   const navigate = useNavigate()

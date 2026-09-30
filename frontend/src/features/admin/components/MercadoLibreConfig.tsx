@@ -10,12 +10,13 @@ export const MercadoLibreConfig: React.FC = () => {
 
   // Status & Credentials
   const [accountStatus, setAccountStatus] = useState<MeliAccountStatusDTO | null>(null)
-  const [appId, setAppId] = useState('')
+  const [appId, setAppId] = useState('2810037089837236')
   const [clientSecret, setClientSecret] = useState('')
   const [redirectUrl, setRedirectUrl] = useState('')
   const [autoSyncStock, setAutoSyncStock] = useState(true)
   const [priceMarkup, setPriceMarkup] = useState('15')
   const [isActive, setIsActive] = useState(true)
+  const [processingAuth, setProcessingAuth] = useState(false)
 
   // Products catalog
   const [products, setProducts] = useState<BackendProductDTO[]>([])
@@ -25,6 +26,14 @@ export const MercadoLibreConfig: React.FC = () => {
 
   useEffect(() => {
     fetchData()
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'lumina_meli_account_config') {
+        mercadoLibreApi.getStatus().then((st) => setAccountStatus(st))
+      }
+    }
+    window.addEventListener('storage', handleStorageChange)
+    return () => window.removeEventListener('storage', handleStorageChange)
   }, [])
 
   const fetchData = async () => {
@@ -36,12 +45,34 @@ export const MercadoLibreConfig: React.FC = () => {
       ])
 
       setAccountStatus(status)
-      setAppId(status.app_id || '')
-      setRedirectUrl(status.redirect_url || window.location.origin + '/admin')
+      setAppId(status.app_id || '2810037089837236')
+      setClientSecret(status.client_secret || '')
+      setRedirectUrl(status.redirect_url || (typeof window !== 'undefined' ? window.location.origin + '/admin' : 'https://lumina-d31.pages.dev/admin'))
       setAutoSyncStock(status.sync_stock_automatically)
       setPriceMarkup((status.price_markup_percent ?? 15).toString())
       setIsActive(status.is_active)
       setProducts(prodsRes.products || [])
+
+      // Detect OAuth authorization code in URL query string
+      const urlParams = new URLSearchParams(window.location.search)
+      const code = urlParams.get('code')
+      if (code) {
+        setProcessingAuth(true)
+        try {
+          const res = await mercadoLibreApi.handleOAuthCallback(code, status.redirect_url || window.location.origin + '/admin')
+          if (res.success) {
+            setSuccessMsg(`¡Conexión exitosa! Cuenta vinculada con Mercado Libre (${res.nickname || 'Formula 1370'})`)
+            const refreshed = await mercadoLibreApi.getStatus()
+            setAccountStatus(refreshed)
+            // Remove code from address bar without reloading
+            window.history.replaceState({}, document.title, window.location.pathname)
+          }
+        } catch (authErr: any) {
+          setErrorMsg('Error al intercambiar autorización: ' + (authErr.message || authErr))
+        } finally {
+          setProcessingAuth(false)
+        }
+      }
     } catch (err: any) {
       setErrorMsg('No se pudo cargar la información de Mercado Libre')
     } finally {
@@ -57,15 +88,15 @@ export const MercadoLibreConfig: React.FC = () => {
 
     try {
       await mercadoLibreApi.updateConfig({
-        app_id: appId.trim(),
+        app_id: appId.trim() || '2810037089837236',
         client_secret: clientSecret.trim(),
-        redirect_url: redirectUrl.trim(),
+        redirect_url: redirectUrl.trim() || 'https://lumina-d31.pages.dev/admin',
         is_active: isActive,
         sync_stock_automatically: autoSyncStock,
         price_markup_percent: parseFloat(priceMarkup) || 0,
       })
-      setSuccessMsg('Configuración de Mercado Libre guardada correctamente')
-      setTimeout(() => setSuccessMsg(null), 3000)
+      setSuccessMsg('Configuración y credenciales de Mercado Libre guardadas correctamente')
+      setTimeout(() => setSuccessMsg(null), 3500)
     } catch (err: any) {
       setErrorMsg(err.message || 'Error al guardar la configuración')
     } finally {
@@ -94,7 +125,17 @@ export const MercadoLibreConfig: React.FC = () => {
     } catch (e) {}
 
     const authUrl = `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(cleanRedirectUrl)}`
-    window.open(authUrl, '_blank', 'width=650,height=750')
+    // Redirect in current window for seamless OAuth experience without popup blocking
+    window.location.href = authUrl
+  }
+
+  const handleDisconnect = async () => {
+    if (!confirm('¿Seguro que deseas desvincular la cuenta de Mercado Libre?')) return
+    await mercadoLibreApi.disconnect()
+    const st = await mercadoLibreApi.getStatus()
+    setAccountStatus(st)
+    setSuccessMsg('Cuenta de Mercado Libre desvinculada')
+    setTimeout(() => setSuccessMsg(null), 3000)
   }
 
   const handlePublish = async (prod: BackendProductDTO) => {
@@ -338,15 +379,38 @@ export const MercadoLibreConfig: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center justify-between pt-4 border-t border-white/60 dark:border-white/10">
-            <button
-              type="button"
-              onClick={handleConnectMeli}
-              className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#FFE600] text-[#2D3277] hover:bg-[#ffe000] flex items-center gap-2 shadow-sm cursor-pointer transition-all hover:scale-[1.02]"
-            >
-              <span className="material-symbols-outlined text-[18px]">login</span>
-              <span>{accountStatus?.is_connected ? 'Reconectar con Mercado Libre' : 'Conectar con Mercado Libre'}</span>
-            </button>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/60 dark:border-white/10">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleConnectMeli}
+                disabled={processingAuth}
+                className="px-5 py-2.5 rounded-xl font-bold text-xs bg-[#FFE600] text-[#2D3277] hover:bg-[#ffe000] flex items-center gap-2 shadow-sm cursor-pointer transition-all hover:scale-[1.02] disabled:opacity-60"
+              >
+                {processingAuth ? (
+                  <>
+                    <span className="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>
+                    <span>Vinculando cuenta...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-[18px]">login</span>
+                    <span>{accountStatus?.is_connected ? 'Reconectar con Mercado Libre' : 'Conectar con Mercado Libre'}</span>
+                  </>
+                )}
+              </button>
+
+              {accountStatus?.is_connected && (
+                <button
+                  type="button"
+                  onClick={handleDisconnect}
+                  className="px-4 py-2.5 rounded-xl font-bold text-xs bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 hover:bg-red-100 border border-red-200 dark:border-red-900/50 flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">link_off</span>
+                  <span>Desvincular</span>
+                </button>
+              )}
+            </div>
 
             <button
               type="submit"
