@@ -29,6 +29,7 @@ func NewRouter(env string) *gin.Engine {
 		response.Okf(c, http.StatusOK, gin.H{
 			"status":  "healthy",
 			"message": "Lumina E-commerce API is running",
+			"version": "1.0.3-up-fix",
 		})
 	})
 
