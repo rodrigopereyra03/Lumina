@@ -29,6 +29,16 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://dxxoxzaowyaxp
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_rGb_wzMIeOiBp2_qyrdvvg_TB5d4lff'
 const CUSTOM_PRODUCTS_KEY = 'lumina_custom_products'
 
+// Avoid CORS / Mixed-Content errors when running on HTTPS cloud host (Cloudflare Pages)
+const shouldCallBackend = (): boolean => {
+  if (typeof window === 'undefined') return false
+  if (window.location.protocol === 'https:') {
+    const customUrl = import.meta.env.VITE_API_URL
+    return Boolean(customUrl && !customUrl.includes('localhost') && customUrl.startsWith('https://'))
+  }
+  return true
+}
+
 export const mercadoLibreApi = {
   getStatus: async (): Promise<MeliAccountStatusDTO> => {
     const stored = localStorage.getItem(LOCAL_STORAGE_MELI_KEY)
@@ -39,18 +49,20 @@ export const mercadoLibreApi = {
       } catch (e) {}
     }
 
-    try {
-      const res = await axiosInstance.get<{ content: MeliAccountStatusDTO }>('/mercadolibre/status', {
-        timeout: 3000,
-      })
-      if (res.data?.content) {
-        return {
-          ...res.data.content,
-          client_secret: localData.client_secret || res.data.content.client_secret,
+    if (shouldCallBackend()) {
+      try {
+        const res = await axiosInstance.get<{ content: MeliAccountStatusDTO }>('/mercadolibre/status', {
+          timeout: 2500,
+        })
+        if (res.data?.content) {
+          return {
+            ...res.data.content,
+            client_secret: localData.client_secret || res.data.content.client_secret,
+          }
         }
+      } catch (e) {
+        // Fallback to local storage if backend offline
       }
-    } catch (e) {
-      // Fallback to local storage if backend offline
     }
 
     return {
@@ -77,15 +89,17 @@ export const mercadoLibreApi = {
   },
 
   getAuthURL: async (redirectUrl?: string): Promise<{ auth_url: string }> => {
-    try {
-      const res = await axiosInstance.get<{ content: { auth_url: string } }>('/mercadolibre/auth-url', {
-        params: { redirect_url: redirectUrl || window.location.origin + '/admin' },
-        timeout: 3000,
-      })
-      if (res.data?.content?.auth_url) {
-        return res.data.content
-      }
-    } catch (e) {}
+    if (shouldCallBackend()) {
+      try {
+        const res = await axiosInstance.get<{ content: { auth_url: string } }>('/mercadolibre/auth-url', {
+          params: { redirect_url: redirectUrl || window.location.origin + '/admin' },
+          timeout: 2500,
+        })
+        if (res.data?.content?.auth_url) {
+          return res.data.content
+        }
+      } catch (e) {}
+    }
 
     const stored = localStorage.getItem(LOCAL_STORAGE_MELI_KEY)
     let appId = '2810037089837236'
@@ -112,15 +126,16 @@ export const mercadoLibreApi = {
     sync_stock_automatically: boolean
     price_markup_percent: number
   }): Promise<{ success: boolean; message: string }> => {
-    try {
-      const res = await axiosInstance.put('/mercadolibre/config', config, { timeout: 3500 })
-      if (res.data?.content) {
-        // Also persist client secret locally so it does not vanish on refresh
-        const current = await mercadoLibreApi.getStatus()
-        localStorage.setItem(LOCAL_STORAGE_MELI_KEY, JSON.stringify({ ...current, ...config }))
-        return res.data.content
-      }
-    } catch (e) {}
+    if (shouldCallBackend()) {
+      try {
+        const res = await axiosInstance.put('/mercadolibre/config', config, { timeout: 2500 })
+        if (res.data?.content) {
+          const current = await mercadoLibreApi.getStatus()
+          localStorage.setItem(LOCAL_STORAGE_MELI_KEY, JSON.stringify({ ...current, ...config }))
+          return res.data.content
+        }
+      } catch (e) {}
+    }
 
     // Store in localStorage as fallback
     const current = await mercadoLibreApi.getStatus()
@@ -145,26 +160,28 @@ export const mercadoLibreApi = {
     code: string,
     redirectUrl?: string
   ): Promise<{ success: boolean; nickname: string; message: string }> => {
-    try {
-      const res = await axiosInstance.get<{ content: { success: boolean; nickname: string; message: string } }>(
-        '/mercadolibre/callback',
-        {
-          params: { code, redirect_uri: redirectUrl || window.location.origin + '/admin' },
-          timeout: 4000,
+    if (shouldCallBackend()) {
+      try {
+        const res = await axiosInstance.get<{ content: { success: boolean; nickname: string; message: string } }>(
+          '/mercadolibre/callback',
+          {
+            params: { code, redirect_uri: redirectUrl || window.location.origin + '/admin' },
+            timeout: 3000,
+          }
+        )
+        if (res.data?.content?.success) {
+          const current = await mercadoLibreApi.getStatus()
+          const updated: MeliAccountStatusDTO = {
+            ...current,
+            is_connected: true,
+            nickname: res.data.content.nickname || 'Formula 1370 Oficial',
+            meli_user_id: res.data.content.nickname || 'Formula 1370',
+          }
+          localStorage.setItem(LOCAL_STORAGE_MELI_KEY, JSON.stringify(updated))
+          return res.data.content
         }
-      )
-      if (res.data?.content?.success) {
-        const current = await mercadoLibreApi.getStatus()
-        const updated: MeliAccountStatusDTO = {
-          ...current,
-          is_connected: true,
-          nickname: res.data.content.nickname || 'Formula 1370 Oficial',
-          meli_user_id: res.data.content.nickname || 'Formula 1370',
-        }
-        localStorage.setItem(LOCAL_STORAGE_MELI_KEY, JSON.stringify(updated))
-        return res.data.content
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
     // Graceful client fallback: mark connection verified
     const current = await mercadoLibreApi.getStatus()
@@ -196,9 +213,11 @@ export const mercadoLibreApi = {
   },
 
   disconnect: async (): Promise<void> => {
-    try {
-      await axiosInstance.post('/mercadolibre/disconnect', {}, { timeout: 2000 })
-    } catch (e) {}
+    if (shouldCallBackend()) {
+      try {
+        await axiosInstance.post('/mercadolibre/disconnect', {}, { timeout: 2000 })
+      } catch (e) {}
+    }
     const current = await mercadoLibreApi.getStatus()
     const updated: MeliAccountStatusDTO = {
       ...current,
