@@ -9,6 +9,7 @@ import (
 	"log/slog"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	meliProviders "ecommerce-ganador/backend/src/core/providers/mercadolibre"
@@ -173,8 +174,17 @@ func (c *Client) PublishItem(ctx context.Context, accessToken string, item meliP
 		currency = "ARS"
 	}
 
+	familyName := strings.TrimSpace(item.Title)
+	if len(familyName) > 60 {
+		familyName = strings.TrimSpace(familyName[:60])
+	}
+	if familyName == "" {
+		familyName = "Perfume de Autor"
+	}
+
 	payload := map[string]interface{}{
 		"title":              item.Title,
+		"family_name":        familyName,
 		"category_id":        categoryID,
 		"price":              item.Price,
 		"currency_id":        currency,

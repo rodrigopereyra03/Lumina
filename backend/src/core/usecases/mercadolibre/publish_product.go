@@ -75,6 +75,20 @@ func (uc PublishProductImpl) Execute(ctx context.Context, input PublishProductIn
 		listingType = "gold_special" // Clásica
 	}
 
+	brand := prod.CategoryName
+	if brand == "" {
+		brand = "Fórmula 1370"
+	}
+
+	attributes := []map[string]interface{}{
+		{"id": "BRAND", "value_name": brand},
+		{"id": "LINE", "value_name": prod.Title},
+		{"id": "PERFUME_NAME", "value_name": prod.Title},
+		{"id": "VOLUME", "value_name": "100 mL"},
+		{"id": "ITEM_CONDITION", "value_name": "Nuevo"},
+		{"id": "GENDER", "value_name": "Unisex"},
+	}
+
 	publishData := meliProviders.PublishItemData{
 		Title:         prod.Title,
 		Price:         price,
@@ -84,6 +98,7 @@ func (uc PublishProductImpl) Execute(ctx context.Context, input PublishProductIn
 		Condition:     "new",
 		Description:   fmt.Sprintf("%s\n\n%s", prod.Subtitle, prod.Description),
 		Pictures:      pictures,
+		Attributes:    attributes,
 	}
 
 	// Token refresh check
