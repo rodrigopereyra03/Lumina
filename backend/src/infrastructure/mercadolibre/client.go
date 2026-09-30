@@ -286,6 +286,31 @@ func (c *Client) PublishItem(ctx context.Context, accessToken string, item meliP
 			}
 		}
 
+		if strings.Contains(bodyStr, "[GTIN]") || strings.Contains(bodyStr, "missing_conditional_required") {
+			if rawAttrs, ok := payload["attributes"].([]map[string]interface{}); ok {
+				newAttrs := make([]map[string]interface{}, 0, len(rawAttrs)+1)
+				hasEmptyGtin := false
+				for _, attr := range rawAttrs {
+					if attr["id"] == "BRAND" {
+						attr["value_name"] = "Fórmula 1370"
+					}
+					if attr["id"] == "EMPTY_GTIN_REASON" {
+						hasEmptyGtin = true
+					}
+					newAttrs = append(newAttrs, attr)
+				}
+				if !hasEmptyGtin {
+					newAttrs = append(newAttrs, map[string]interface{}{
+						"id":         "EMPTY_GTIN_REASON",
+						"value_id":   "17055160",
+						"value_name": "El producto no tiene código registrado",
+					})
+				}
+				payload["attributes"] = newAttrs
+				modified = true
+			}
+		}
+
 		if !modified {
 			return nil, lastErr
 		}

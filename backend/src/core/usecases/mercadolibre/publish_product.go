@@ -76,9 +76,9 @@ func (uc PublishProductImpl) Execute(ctx context.Context, input PublishProductIn
 		listingType = "gold_special" // Clásica
 	}
 
-	brand := prod.CategoryName
-	if brand == "" {
-		brand = "Fórmula 1370"
+	line := prod.CategoryName
+	if line == "" {
+		line = "Fórmula 1370"
 	}
 
 	volume := "100 mL"
@@ -99,8 +99,8 @@ func (uc PublishProductImpl) Execute(ctx context.Context, input PublishProductIn
 	}
 
 	attributes := []map[string]interface{}{
-		{"id": "BRAND", "value_name": brand},
-		{"id": "LINE", "value_name": prod.Title},
+		{"id": "BRAND", "value_name": "Fórmula 1370"},
+		{"id": "LINE", "value_name": line},
 		{"id": "PERFUME_NAME", "value_name": prod.Title},
 		{"id": "UNIT_VOLUME", "value_name": volume},
 		{"id": "ITEM_CONDITION", "value_id": "2230284", "value_name": "Nuevo"},
