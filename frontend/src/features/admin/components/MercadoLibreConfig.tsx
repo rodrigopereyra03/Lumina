@@ -47,7 +47,10 @@ export const MercadoLibreConfig: React.FC = () => {
       setAccountStatus(status)
       setAppId(status.app_id || '2810037089837236')
       setClientSecret(status.client_secret || '')
-      setRedirectUrl(status.redirect_url || (typeof window !== 'undefined' ? window.location.origin + '/admin' : 'https://lumina-d31.pages.dev/admin'))
+      const initialRedirect = (!status.redirect_url || status.redirect_url.includes('localhost'))
+        ? 'https://lumina-d31.pages.dev/admin'
+        : status.redirect_url
+      setRedirectUrl(initialRedirect)
       setAutoSyncStock(status.sync_stock_automatically)
       setPriceMarkup((status.price_markup_percent ?? 15).toString())
       setIsActive(status.is_active)
@@ -59,7 +62,7 @@ export const MercadoLibreConfig: React.FC = () => {
       if (code) {
         setProcessingAuth(true)
         try {
-          const res = await mercadoLibreApi.handleOAuthCallback(code, status.redirect_url || window.location.origin + '/admin')
+          const res = await mercadoLibreApi.handleOAuthCallback(code, 'https://lumina-d31.pages.dev/admin')
           if (res.success) {
             setSuccessMsg(`¡Conexión exitosa! Cuenta vinculada con Mercado Libre (${res.nickname || 'Formula 1370'})`)
             const refreshed = await mercadoLibreApi.getStatus()
@@ -87,10 +90,14 @@ export const MercadoLibreConfig: React.FC = () => {
     setErrorMsg(null)
 
     try {
+      let cleanRedirect = redirectUrl.trim()
+      if (!cleanRedirect || cleanRedirect.includes('localhost')) {
+        cleanRedirect = 'https://lumina-d31.pages.dev/admin'
+      }
       await mercadoLibreApi.updateConfig({
         app_id: appId.trim() || '2810037089837236',
         client_secret: clientSecret.trim(),
-        redirect_url: redirectUrl.trim() || 'https://lumina-d31.pages.dev/admin',
+        redirect_url: cleanRedirect,
         is_active: isActive,
         sync_stock_automatically: autoSyncStock,
         price_markup_percent: parseFloat(priceMarkup) || 0,
@@ -106,7 +113,10 @@ export const MercadoLibreConfig: React.FC = () => {
 
   const handleConnectMeli = async () => {
     const cleanAppId = appId.trim() || '2810037089837236'
-    const cleanRedirectUrl = redirectUrl.trim() || 'https://lumina-d31.pages.dev/admin'
+    let cleanRedirectUrl = redirectUrl.trim()
+    if (!cleanRedirectUrl || cleanRedirectUrl.includes('localhost') || !cleanRedirectUrl.startsWith('https://')) {
+      cleanRedirectUrl = 'https://lumina-d31.pages.dev/admin'
+    }
 
     if (!cleanAppId) {
       setErrorMsg('Por favor ingresa tu App ID (Client ID)')
@@ -125,7 +135,6 @@ export const MercadoLibreConfig: React.FC = () => {
     } catch (e) {}
 
     const authUrl = `https://auth.mercadolibre.com.ar/authorization?response_type=code&client_id=${cleanAppId}&redirect_uri=${encodeURIComponent(cleanRedirectUrl)}`
-    // Redirect in current window for seamless OAuth experience without popup blocking
     window.location.href = authUrl
   }
 
