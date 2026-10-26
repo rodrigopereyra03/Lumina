@@ -384,15 +384,21 @@ export const LuxuryHeroShowcase: React.FC = () => {
         <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-full bg-white border-2 border-[#121314] neo-box-shadow-sm">
           <Link
             to="/"
-            className="px-5 py-1.5 rounded-full text-xs font-dm font-bold text-[#55575a] hover:text-[#121314] hover:bg-[#f6f4ee] transition-all"
+            className="px-4 py-1.5 rounded-full text-xs font-dm font-bold text-[#55575a] hover:text-[#121314] hover:bg-[#f6f4ee] transition-all"
           >
             Colección
           </Link>
           <button
-            className="px-5 py-1.5 rounded-full text-xs font-dm font-black bg-[#a8d5e3] text-[#121314] border border-[#121314] cursor-default transition-all"
+            className="px-4 py-1.5 rounded-full text-xs font-dm font-black bg-[#a8d5e3] text-[#121314] border border-[#121314] cursor-default transition-all"
           >
             Showcase 3D
           </button>
+          <Link
+            to="/galeria"
+            className="px-4 py-1.5 rounded-full text-xs font-dm font-bold text-[#55575a] hover:text-[#121314] hover:bg-[#f6f4ee] transition-all"
+          >
+            Galería
+          </Link>
         </div>
 
         {/* Right: User Icon & Cart Icon */}

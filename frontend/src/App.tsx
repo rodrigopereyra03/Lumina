@@ -19,7 +19,7 @@ import { AboutEditorialSection } from './features/ecommerce/components/AboutEdit
 import { CatalogBridgeSection } from './features/ecommerce/components/CatalogBridgeSection'
 import { PerfumeCinematicIntro } from './features/ecommerce/components/PerfumeCinematicIntro'
 import { GridLoaderDemoPage } from './features/ecommerce/components/GridLoaderDemoPage'
-import { MotionGraphicShowcase } from './features/ecommerce/components/MotionGraphicShowcase'
+import { GalleryPage } from './features/ecommerce/components/GalleryPage'
 import { useCartStore } from './store/useCartStore'
 import { useAuthStore } from './store/useAuthStore'
 
@@ -158,23 +158,23 @@ function MainStore() {
               <span className="w-2 h-2 rounded-full bg-[#0ffcbe] border border-[#121314] animate-pulse"></span>
             </Link>
             <Link
-              to="/motion-graphic"
+              to="/galeria"
               className="px-4 py-1.5 rounded-lg text-xs font-dm font-bold text-[#121314] hover:bg-[#ff78ac]/20 transition flex items-center gap-1.5"
             >
-              <span>Motion Graphic</span>
+              <span>Galería</span>
               <span className="w-2 h-2 rounded-full bg-[#ff78ac] border border-[#121314]"></span>
             </Link>
           </nav>
 
           {/* Right Action Icons & Button */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {/* Mobile Direct Access to Motion Graphic */}
+            {/* Mobile Direct Access to Galería */}
             <Link
-              to="/motion-graphic"
+              to="/galeria"
               className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-dm font-bold text-[#121314] bg-[#ff78ac] border-2 border-[#121314] neo-box-shadow-sm active:scale-95 transition"
-              title="Ver Motion Graphic 3D"
+              title="Ver Galería Multimedia"
             >
-              <span>Motion</span>
+              <span>Galería</span>
               <span className="w-2 h-2 rounded-full bg-[#121314] animate-pulse"></span>
             </Link>
 
@@ -400,8 +400,8 @@ function MainStore() {
                 </button>
               </li>
               <li>
-                <Link to="/motion-graphic" className="hover:text-[#121314] hover:underline transition">
-                  Motion Graphic 3D
+                <Link to="/galeria" className="hover:text-[#121314] hover:underline transition">
+                  Galería &amp; Motion Graphics
                 </Link>
               </li>
             </ul>
@@ -454,7 +454,9 @@ function App() {
         <Routes>
           <Route path="/" element={<MainStore />} />
           <Route path="/checkout" element={<Navigate to="/?checkout=true" replace />} />
-          <Route path="/motion-graphic" element={<MotionGraphicShowcase />} />
+          <Route path="/galeria" element={<GalleryPage />} />
+          <Route path="/gallery" element={<Navigate to="/galeria" replace />} />
+          <Route path="/motion-graphic" element={<Navigate to="/galeria" replace />} />
           <Route path="/loader-prototype" element={<GridLoaderDemoPage />} />
           <Route path="/grid-loader" element={<GridLoaderDemoPage />} />
           <Route path="/hero-3d" element={<LuxuryHeroShowcase />} />

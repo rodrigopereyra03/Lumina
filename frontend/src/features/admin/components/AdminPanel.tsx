@@ -10,8 +10,9 @@ import { OrderManagement } from './OrderManagement'
 import { UserDirectory } from './UserDirectory'
 import { PaymentMethodsConfig } from './PaymentMethodsConfig'
 import { MercadoLibreConfig } from './MercadoLibreConfig'
+import { GalleryManagement } from './GalleryManagement'
 
-export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'users' | 'payments' | 'mercadolibre'
+export type AdminTab = 'dashboard' | 'products' | 'categories' | 'orders' | 'users' | 'payments' | 'mercadolibre' | 'gallery'
 
 export const AdminPanel: React.FC = () => {
   const hasAuthCode = typeof window !== 'undefined' && (new URLSearchParams(window.location.search).has('code') || window.location.search.includes('code='))
@@ -28,6 +29,7 @@ export const AdminPanel: React.FC = () => {
     { id: 'users', label: 'Usuarios', icon: 'group' },
     { id: 'payments', label: 'Medios de Pago', icon: 'credit_card' },
     { id: 'mercadolibre', label: 'Mercado Libre', icon: 'handshake' },
+    { id: 'gallery', label: 'Galería Visual', icon: 'photo_library' },
   ] as const
 
   const handleLogout = () => {
@@ -209,6 +211,7 @@ export const AdminPanel: React.FC = () => {
               {currentTab === 'users' && <UserDirectory />}
               {currentTab === 'payments' && <PaymentMethodsConfig />}
               {currentTab === 'mercadolibre' && <MercadoLibreConfig />}
+              {currentTab === 'gallery' && <GalleryManagement />}
             </motion.div>
           </AnimatePresence>
         </main>
