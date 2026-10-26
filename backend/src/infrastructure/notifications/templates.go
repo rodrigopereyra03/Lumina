@@ -17,7 +17,7 @@ func RenderWelcomeEmail(name string) (string, error) {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bienvenido a Lumina</title>
+  <title>Bienvenido a Fórmula 1370</title>
 </head>
 <body style="margin: 0; padding: 0; background-color: #fbf9f8; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1b1c1c;">
   <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background-color: #fbf9f8; padding: 40px 15px;">
@@ -31,7 +31,7 @@ func RenderWelcomeEmail(name string) (string, error) {
               <table role="presentation" cellspacing="0" cellpadding="0" border="0">
                 <tr>
                   <td style="background-color: #FF4D4F; width: 28px; height: 28px; border-radius: 8px; text-align: center; vertical-align: middle; color: #ffffff; font-weight: bold; font-size: 16px;">✦</td>
-                  <td style="padding-left: 10px; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: #1b1c1c;">Lumina Store</td>
+                  <td style="padding-left: 10px; font-size: 18px; font-weight: 800; letter-spacing: -0.5px; color: #1b1c1c;">Fórmula 1370</td>
                 </tr>
               </table>
             </td>
@@ -40,7 +40,7 @@ func RenderWelcomeEmail(name string) (string, error) {
           <!-- Hero Image -->
           <tr>
             <td align="center" style="padding: 0;">
-              <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="Lumina Lifestyle" style="width: 100%; max-height: 220px; object-fit: cover; display: block;">
+              <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&q=80" alt="Fórmula 1370 Lifestyle" style="width: 100%; max-height: 220px; object-fit: cover; display: block;">
             </td>
           </tr>
 
@@ -71,10 +71,10 @@ func RenderWelcomeEmail(name string) (string, error) {
           <tr>
             <td style="padding: 20px 32px 30px; text-align: center; border-top: 1px solid #fbf4f2; background-color: #fcfbfa;">
               <p style="margin: 0 0 8px; font-size: 12px; color: #8e7a78;">
-                ¿Tienes dudas o necesitas ayuda? Escríbenos a <a href="mailto:soporte@lumina.com" style="color: #FF4D4F; text-decoration: none; font-weight: 600;">soporte@lumina.com</a>
+                ¿Tienes dudas o necesitas ayuda? Escríbenos a <a href="mailto:soporte@formula1370.com" style="color: #FF4D4F; text-decoration: none; font-weight: 600;">soporte@formula1370.com</a>
               </p>
               <p style="margin: 0; font-size: 11px; color: #b5a8a6;">
-                &copy; 2026 Lumina Store. Todos los derechos reservados.
+                &copy; 2026 Fórmula 1370. Todos los derechos reservados.
               </p>
             </td>
           </tr>
@@ -352,7 +352,7 @@ func RenderShipmentDispatchedEmail(order orders.Order, trackingCode string, cour
           <tr>
             <td style="padding: 16px 28px 24px; text-align: center; border-top: 1px solid #fbf4f2; background-color: #fcfbfa;">
               <p style="margin: 0; font-size: 11px; color: #b5a8a6;">
-                Si tienes alguna consulta sobre tu entrega, contáctanos a soporte@lumina.com indicando tu orden {{.Order.OrderNumber}}.
+                Si tienes alguna consulta sobre tu entrega, contáctanos a soporte@formula1370.com indicando tu orden {{.Order.OrderNumber}}.
               </p>
             </td>
           </tr>

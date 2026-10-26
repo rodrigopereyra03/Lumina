@@ -62,8 +62,32 @@ func NewCouponsRepository(db *pgxpool.Pool) *CouponsRepository {
 }
 
 func (r *CouponsRepository) seedInMemory() {
-	r.memory["LUMINA10"] = CouponDAO{
+	r.memory["FORMULA10"] = CouponDAO{
 		ID:             "cp-1",
+		Code:           "FORMULA10",
+		DiscountType:   "percentage",
+		DiscountValue:  10.0,
+		MinOrderAmount: 50.0,
+		UsageLimit:     1000,
+		TimesUsed:      0,
+		IsActive:       true,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+	r.memory["F1370"] = CouponDAO{
+		ID:             "cp-1b",
+		Code:           "F1370",
+		DiscountType:   "percentage",
+		DiscountValue:  10.0,
+		MinOrderAmount: 50.0,
+		UsageLimit:     1000,
+		TimesUsed:      0,
+		IsActive:       true,
+		CreatedAt:      time.Now(),
+		UpdatedAt:      time.Now(),
+	}
+	r.memory["LUMINA10"] = CouponDAO{
+		ID:             "cp-2",
 		Code:           "LUMINA10",
 		DiscountType:   "percentage",
 		DiscountValue:  10.0,

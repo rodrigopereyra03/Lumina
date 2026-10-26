@@ -32,6 +32,20 @@
   
   --font-body: 'Inter', sans-serif;
   --font-display: 'Inter', sans-serif;
+  --font-editorial: 'DM Sans', sans-serif;
+
+  /* ========================================================================= */
+  /* 🎨 NEO-EDITORIAL PALETTE TOKENS (Adjustable in 1 line)                      */
+  /* ========================================================================= */
+  --color-canvas: #f6f4ee;
+  --color-canvas-cream: #f2f0ea;
+  --color-accent-teal: #a8d5e3;
+  --color-accent-pink: #ff78ac;
+  --color-accent-mint: #0ffcbe;
+  --color-accent-blue: #106ebe;
+  --color-ink: #121314;
+  --color-ink-muted: #55575a;
+  --color-ink-subtle: #85888d;
 }
 
 @utility glass-card {
@@ -271,5 +285,30 @@ html.dark ::-webkit-scrollbar-thumb {
 
 html.dark ::-webkit-scrollbar-thumb:hover {
   background: #374151;
+}
+
+/* ========================================================================= */
+/* ⚡ NEO-EDITORIAL & FRESH PASTEL UTILITIES                                 */
+/* ========================================================================= */
+.font-dm {
+  font-family: 'DM Sans', sans-serif;
+}
+
+.neo-box-shadow {
+  box-shadow: 4px 4px 0px #121314;
+}
+
+.neo-box-shadow-sm {
+  box-shadow: 2px 2px 0px #121314;
+}
+
+.neo-box-shadow-hover:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #121314;
+}
+
+.neo-box-shadow-active:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0px #121314;
 }
 

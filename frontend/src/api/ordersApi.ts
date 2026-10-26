@@ -47,8 +47,8 @@ export const ordersApi = {
     const subtotal = payload.items.reduce((acc, it) => acc + it.unit_price * it.quantity, 0)
     const newOrder: BackendOrderDTO = {
       id: 'ord_' + Date.now(),
-      order_number: '#LUM-' + Math.floor(100000 + Math.random() * 900000) + '-01',
-      customer_name: payload.customer_name || 'Cliente Lumina',
+      order_number: '#F1370-' + Math.floor(100000 + Math.random() * 900000) + '-01',
+      customer_name: payload.customer_name || 'Cliente Fórmula 1370',
       customer_email: payload.customer_email || 'cliente@ejemplo.com',
       customer_phone: payload.customer_phone || '+54 9 11 4455-6677',
       shipping_address: payload.shipping_address || 'Dirección de Entrega',

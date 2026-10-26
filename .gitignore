@@ -28,3 +28,9 @@ Thumbs.db
 # Database data
 postgres_data/
 *.log
+
+# Backups & Temporary render assets
+*.backup-dark.*
+*.render/
+openedit/
+.codex/

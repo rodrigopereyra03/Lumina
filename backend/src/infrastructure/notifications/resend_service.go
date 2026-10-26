@@ -44,7 +44,7 @@ type ResendEmailService struct {
 
 func NewResendEmailService(apiKey, fromEmail string) *ResendEmailService {
 	if fromEmail == "" {
-		fromEmail = "Lumina Store <onboarding@resend.dev>"
+		fromEmail = "Fórmula 1370 <onboarding@resend.dev>"
 	}
 
 	service := &ResendEmailService{
@@ -155,7 +155,7 @@ func (s *ResendEmailService) SendWelcomeEmail(ctx context.Context, to string, na
 
 	s.enqueue(EmailJob{
 		To:      to,
-		Subject: "¡Bienvenido a Lumina Store! ✨",
+		Subject: "¡Bienvenido a Fórmula 1370! ✨",
 		HTML:    html,
 	})
 	return nil

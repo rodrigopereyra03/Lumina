@@ -32,29 +32,7 @@ interface LuxuryCatalogItem {
   description: string
 }
 
-// 8 Chromatic Palette Facets for the 8 Lotus Petals (matching perfume families)
-const LOTUS_CHROMA_PETALS = [
-  { angle: 0, color: '#f43f5e', name: 'Rubí', desc: '9 PM Rebel' },
-  { angle: 45, color: '#fbbf24', name: 'Champagne', desc: 'Lumina Gold' },
-  { angle: 90, color: '#f59e0b', name: 'Ámbar Coñac', desc: 'Khamrah' },
-  { angle: 135, color: '#c084fc', name: 'Amatista', desc: 'Nocturno' },
-  { angle: 180, color: '#e2e8f0', name: 'Platino', desc: 'Club de Nuit' },
-  { angle: 225, color: '#14b8a6', name: 'Teal Bosque', desc: 'Supremacy' },
-  { angle: 270, color: '#38bdf8', name: 'Zafiro Azul', desc: 'Turathi & Amber Oud' },
-  { angle: 315, color: '#10b981', name: 'Esmeralda', desc: 'Odyssey Aqua' },
-]
 
-// 8 Harmonic Blended Inner Petals (offset 22.5°)
-const LOTUS_INNER_PETALS = [
-  { angle: 22.5, color: '#fb7185' },
-  { angle: 67.5, color: '#fcd34d' },
-  { angle: 112.5, color: '#e879f9' },
-  { angle: 157.5, color: '#a78bfa' },
-  { angle: 202.5, color: '#94a3b8' },
-  { angle: 247.5, color: '#2dd4bf' },
-  { angle: 292.5, color: '#0ea5e9' },
-  { angle: 337.5, color: '#34d399' },
-]
 
 
 
@@ -102,7 +80,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             const mapped: LuxuryCatalogItem[] = res.products.map((p) => {
               const volumes = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
               const defaultVol = volumes.includes(100) ? 100 : volumes[0]
-              const brand = p.brand || p.category_name || 'Lumina'
+              const brand = p.brand || p.category_name || 'Fórmula 1370'
               const accent = p.accent_color || '#fb7185'
 
               let glow = 'bg-rose-700/20 group-hover:bg-rose-600/30'
@@ -215,7 +193,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
     const counts: { [brand: string]: number } = {}
     allCatalogItems.forEach((item) => {
       const b = item.brandHouse?.trim()
-      if (b && b !== 'Lumina' && b !== 'General') {
+      if (b && b !== 'Fórmula 1370' && b !== 'Lumina' && b !== 'General') {
         counts[b] = (counts[b] || 0) + 1
       }
     })
@@ -384,131 +362,18 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
   return (
     <div
       id="catalog-section"
-      className="relative w-full min-h-screen text-white rounded-3xl overflow-hidden font-['Montserrat',sans-serif] selection:bg-white selection:text-black py-8 px-4 sm:px-8 lg:px-12 transition-all"
-      style={{
-        backgroundColor: '#070709',
-        backgroundImage: `
-          radial-gradient(circle at 50% -8%, rgba(68, 12, 28, 0.45) 0%, rgba(20, 6, 12, 0.75) 45%, #070709 85%),
-          radial-gradient(circle at 90% 40%, rgba(5, 45, 35, 0.22) 0%, transparent 60%),
-          radial-gradient(circle at 10% 70%, rgba(50, 10, 24, 0.22) 0%, transparent 60%)
-        `,
-      }}
+      className="relative w-full min-h-screen text-[#121314] font-dm selection:bg-[#ff78ac] selection:text-[#121314] py-8 px-4 sm:px-8 lg:px-12 bg-[#f6f4ee] transition-all"
     >
-      {/* 🌸 AMBIENT BACKGROUND FLOR DE LOTO MULTICOLOR (8 Pétalos Cromáticos)      */}
-      {/* ========================================================================= */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0 flex items-center justify-center opacity-[0.45]">
-        <div className="w-[1100px] h-[1100px] xl:w-[1450px] xl:h-[1450px]">
-          <svg
-            viewBox="-250 -250 500 500"
-            className="w-full h-full filter drop-shadow-[0_20px_45px_rgba(0,0,0,0.9)]"
-          >
-            <defs>
-              <radialGradient id="catalog-lotus-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#fef08a" stopOpacity="0.45" />
-                <stop offset="50%" stopColor="#ffffff" stopOpacity="0.18" />
-                <stop offset="100%" stopColor="#000000" stopOpacity="0" />
-              </radialGradient>
-
-              {/* 8 Outer Petal Independent Soft Gradients */}
-              {LOTUS_CHROMA_PETALS.map((petal, i) => (
-                <linearGradient
-                  key={`chroma-outer-${i}`}
-                  id={`lotus-chroma-outer-${i}`}
-                  x1="0%"
-                  y1="0%"
-                  x2="100%"
-                  y2="100%"
-                >
-                  <stop offset="0%" stopColor={petal.color} stopOpacity="0.45" />
-                  <stop offset="45%" stopColor={petal.color} stopOpacity="0.18" />
-                  <stop offset="100%" stopColor="#070709" stopOpacity="0.30" />
-                </linearGradient>
-              ))}
-
-              {/* 8 Inner Petal Harmonic Blend Gradients */}
-              {LOTUS_INNER_PETALS.map((petal, i) => (
-                <linearGradient
-                  key={`chroma-inner-${i}`}
-                  id={`lotus-chroma-inner-${i}`}
-                  x1="0%"
-                  y1="100%"
-                  x2="100%"
-                  y2="0%"
-                >
-                  <stop offset="0%" stopColor={petal.color} stopOpacity="0.55" />
-                  <stop offset="50%" stopColor={petal.color} stopOpacity="0.22" />
-                  <stop offset="100%" stopColor="#070709" stopOpacity="0.25" />
-                </linearGradient>
-              ))}
-            </defs>
-
-            {/* 🌸 CAPA EXTERIOR: 8 Pétalos Cromáticos (Cada uno con el color de una fragancia) */}
-            {LOTUS_CHROMA_PETALS.map((petal, i) => (
-              <g key={`catalog-outer-${i}`} transform={`rotate(${petal.angle})`}>
-                <path
-                  d="M 0 -85 C 58 -115 68 -180 0 -235 C -68 -180 -58 -115 0 -85 Z"
-                  fill={`url(#lotus-chroma-outer-${i})`}
-                  stroke={petal.color}
-                  strokeOpacity="0.35"
-                  strokeWidth="1.2"
-                />
-                {/* Nervadura central 3D con el color del pétalo */}
-                <path
-                  d="M 0 -85 L 0 -235"
-                  stroke={petal.color}
-                  strokeOpacity="0.32"
-                  strokeWidth="1.2"
-                />
-              </g>
-            ))}
-
-            {/* 🌸 CAPA INTERIOR: 8 Pétalos de Transición Armónica (Offset 22.5°) */}
-            {LOTUS_INNER_PETALS.map((petal, i) => (
-              <g key={`catalog-inner-${i}`} transform={`rotate(${petal.angle})`}>
-                <path
-                  d="M 0 -60 C 44 -85 52 -135 0 -180 C -52 -135 -44 -85 0 -60 Z"
-                  fill={`url(#lotus-chroma-inner-${i})`}
-                  stroke={petal.color}
-                  strokeOpacity="0.38"
-                  strokeWidth="1"
-                />
-              </g>
-            ))}
-
-            {/* Corola Central de Oro Champagne */}
-            <circle
-              r="75"
-              fill="url(#catalog-lotus-glow)"
-              stroke="rgba(254, 240, 138, 0.45)"
-              strokeWidth="2"
-            />
-            <circle
-              r="52"
-              fill="none"
-              stroke="rgba(255, 255, 255, 0.25)"
-              strokeWidth="1.5"
-              strokeDasharray="5 5"
-            />
-            <circle
-              r="28"
-              fill="none"
-              stroke="rgba(254, 240, 138, 0.5)"
-              strokeWidth="1.5"
-            />
-          </svg>
-        </div>
-      </div>
-
       {/* Added to cart Toast */}
       {addedItemTitle && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="fixed top-6 right-6 z-50 bg-white text-black px-5 py-3 rounded-full shadow-2xl flex items-center gap-3 border border-white/20"
+          className="fixed top-6 right-6 z-50 bg-[#0ffcbe] text-[#121314] border-2 border-[#121314] neo-box-shadow px-5 py-3 rounded-xl flex items-center gap-3 font-dm font-black text-xs"
         >
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-          <span className="text-xs font-bold">{addedItemTitle} añadido a la cesta</span>
+          <span className="w-2.5 h-2.5 rounded-full bg-[#121314] animate-ping"></span>
+          <span>{addedItemTitle} añadido a la cesta</span>
         </motion.div>
       )}
 
@@ -516,38 +381,38 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {/* 1. HERO CATALOG HEADER (Colección Exclusiva - Haute Parfumerie)           */}
       {/* ========================================================================= */}
       <section className="relative z-10 pt-2 pb-8">
-        <div className="max-w-[1440px] mx-auto text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-white/10">
+        <div className="max-w-[1440px] mx-auto text-center md:text-left flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b-2 border-[#121314]/15">
           <div>
             {/* Breadcrumb Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] uppercase font-bold tracking-[0.25em] text-rose-300/90 mb-3 shadow-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_8px_#f43f5e]"></span>
-              Haute Parfumerie • Dubái, París &amp; Oriente
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#ff78ac] border-2 border-[#121314] text-[11px] uppercase font-dm font-black tracking-wider text-[#121314] mb-3 neo-box-shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-[#121314]"></span>
+              Haute Parfumerie • Dubái &amp; Oriente
             </div>
 
-            {/* Main Title (Montserrat Bold 700) */}
-            <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold text-white tracking-tight leading-tight">
-              {searchQuery ? `Resultados: "${searchQuery}"` : 'Colección Exclusiva'}
-            </h1>
+            {/* Main Title (DM Sans Black) */}
+            <h2 className="text-3xl md:text-5xl lg:text-6xl font-dm font-black text-[#121314] tracking-tight leading-tight uppercase">
+              {searchQuery ? `Resultados: "${searchQuery}"` : 'Colección de Fragancias'}
+            </h2>
 
             {/* Subtitle */}
-            <p className="mt-3 text-xs md:text-sm text-gray-300 max-w-2xl font-light leading-relaxed">
+            <p className="mt-3 text-xs md:text-sm text-[#55575a] max-w-2xl font-dm font-medium leading-relaxed">
               Extractos puros de concentración extrema, maderas preciosas, resinas orientales y notas nocturnas diseñadas para una estela inconfundible.
             </p>
           </div>
 
           {/* Quick Counter & Certifications */}
-          <div className="flex items-center justify-center md:justify-end gap-3 text-xs text-gray-400">
-            <span className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-gray-300 backdrop-blur-md">
-              <strong className="text-white font-bold">{filteredProducts.length}</strong> Creaciones Disponibles
+          <div className="flex items-center justify-center md:justify-end gap-3 text-xs font-dm">
+            <span className="px-4 py-2 rounded-xl bg-white border-2 border-[#121314] text-[#121314] font-bold neo-box-shadow-sm">
+              <strong className="text-[#106ebe] font-black">{filteredProducts.length}</strong> Creaciones
             </span>
-            <span className="hidden sm:inline-block px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 text-gray-300 backdrop-blur-md">
-              Autenticidad <strong className="text-emerald-400 font-bold">100% Certificada</strong>
+            <span className="hidden sm:inline-block px-4 py-2 rounded-xl bg-white border-2 border-[#121314] text-[#121314] font-bold neo-box-shadow-sm">
+              Autenticidad <strong className="text-[#121314] font-black">100% Original</strong>
             </span>
 
             {searchQuery && onClearSearch && (
               <button
                 onClick={onClearSearch}
-                className="px-4 py-2 rounded-xl bg-rose-500/20 border border-rose-500/30 text-rose-300 hover:bg-rose-500 hover:text-white transition font-semibold cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-[#ff78ac] border-2 border-[#121314] text-[#121314] hover:bg-[#ff5f9c] transition font-black cursor-pointer neo-box-shadow-sm"
               >
                 Limpiar búsqueda
               </button>
@@ -562,8 +427,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       <section className="relative z-10 pb-8 space-y-4">
         <div className="max-w-[1440px] mx-auto space-y-4">
           {/* 2A. BRAND HOUSES (Full Visibility Multi-Row Wrap) */}
+          {/* 2A. BRAND HOUSES (Neo-Editorial Multi-Pills) */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="text-[11px] uppercase tracking-[0.2em] text-amber-400 font-bold px-3 py-1.5 rounded-xl bg-amber-400/10 border border-amber-400/20 shrink-0">
+            <span className="text-[11px] uppercase tracking-wider text-[#121314] font-dm font-black px-3 py-1.5 rounded-xl bg-[#a8d5e3] border-2 border-[#121314] neo-box-shadow-sm shrink-0">
               Casas:
             </span>
             {availableHouses.map((house) => {
@@ -575,16 +441,16 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     setSelectedHouse(house.brand)
                     setCurrentPage(1)
                   }}
-                  className={`px-3 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer flex items-center gap-1.5 text-xs font-semibold ${
+                  className={`px-3.5 py-1.5 rounded-xl whitespace-nowrap transition-all duration-150 cursor-pointer flex items-center gap-2 text-xs font-dm font-bold ${
                     isActive
-                      ? 'bg-white text-black font-extrabold shadow-lg shadow-white/20 scale-[1.02]'
-                      : 'bg-white/[0.04] border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/20'
+                      ? 'bg-[#0ffcbe] text-[#121314] font-black border-2 border-[#121314] neo-box-shadow-sm scale-[1.02]'
+                      : 'bg-white border-2 border-[#121314] text-[#121314] hover:bg-[#f2f0ea]'
                   }`}
                 >
                   <span>{house.brand}</span>
                   <span
                     className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
-                      isActive ? 'bg-black/10 text-black' : 'bg-white/10 text-gray-400'
+                      isActive ? 'bg-[#121314] text-white' : 'bg-[#f2f0ea] text-[#121314] border border-[#121314]'
                     }`}
                   >
                     {house.count}
@@ -597,8 +463,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
           {/* 2B. OLFACTIVE FAMILIES & SORT ROW */}
           <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pt-1">
             {/* Families Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2 text-xs font-medium">
-              <span className="text-[11px] uppercase tracking-wider text-gray-500 font-medium mr-1 hidden sm:inline">
+            <div className="flex flex-wrap items-center gap-2 text-xs font-dm font-bold">
+              <span className="text-[11px] uppercase tracking-wider text-[#55575a] font-bold mr-1 hidden sm:inline">
                 Familias:
               </span>
               {FAMILIES.map((family) => {
@@ -610,10 +476,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                       setSelectedFamily(family)
                       setCurrentPage(1)
                     }}
-                    className={`px-3.5 py-1.5 rounded-full whitespace-nowrap transition cursor-pointer text-xs ${
+                    className={`px-3.5 py-1.5 rounded-xl whitespace-nowrap transition cursor-pointer text-xs font-dm font-bold ${
                       isActive
-                        ? 'bg-rose-500 text-white font-bold shadow-md shadow-rose-500/20'
-                        : 'bg-white/[0.03] border border-white/10 text-gray-300 hover:text-white hover:bg-white/10'
+                        ? 'bg-[#ff78ac] text-[#121314] font-black border-2 border-[#121314] neo-box-shadow-sm'
+                        : 'bg-white border-2 border-[#121314]/30 text-[#55575a] hover:border-[#121314] hover:text-[#121314]'
                     }`}
                   >
                     {family}
@@ -632,7 +498,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     if (onClearSearch) onClearSearch()
                     setCurrentPage(1)
                   }}
-                  className="text-xs text-rose-400 hover:text-rose-300 underline underline-offset-4 cursor-pointer whitespace-nowrap"
+                  className="text-xs text-[#ff78ac] hover:text-[#e0568c] font-dm font-black underline underline-offset-4 cursor-pointer whitespace-nowrap"
                 >
                   Restablecer filtros
                 </button>
@@ -643,24 +509,24 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   aria-label="Ordenar fragancias"
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="appearance-none bg-[#121217] border border-white/15 text-white text-xs rounded-xl px-4 py-2 pr-9 focus:outline-none focus:ring-1 focus:ring-white/40 cursor-pointer backdrop-blur-md"
+                  className="appearance-none bg-white border-2 border-[#121314] text-[#121314] text-xs font-dm font-bold rounded-xl px-4 py-2 pr-9 neo-box-shadow-sm focus:outline-none cursor-pointer"
                 >
-                  <option value="relevance" className="bg-[#121217] text-white">
+                  <option value="relevance" className="bg-white text-[#121314]">
                     Relevancia &amp; Prestigio
                   </option>
-                  <option value="price-desc" className="bg-[#121217] text-white">
+                  <option value="price-desc" className="bg-white text-[#121314]">
                     Precio: Mayor a Menor
                   </option>
-                  <option value="price-asc" className="bg-[#121217] text-white">
+                  <option value="price-asc" className="bg-white text-[#121314]">
                     Precio: Menor a Mayor
                   </option>
-                  <option value="new" className="bg-[#121217] text-white">
+                  <option value="new" className="bg-white text-[#121314]">
                     Nuevos Lanzamientos
                   </option>
                 </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-white/50">
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#121314]">
+                  <svg className="w-3.5 h-3.5 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
                 </div>
               </div>
@@ -678,36 +544,36 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={`skel-${i}`}
-                className="relative rounded-3xl p-7 min-h-[500px] flex flex-col justify-between overflow-hidden border border-white/10 bg-white/[0.02] backdrop-blur-xl animate-pulse"
+                className="relative rounded-2xl p-7 min-h-[500px] flex flex-col justify-between overflow-hidden border-2 border-[#121314]/20 bg-white neo-box-shadow animate-pulse"
               >
                 <div className="space-y-3">
-                  <div className="h-3 w-28 bg-white/10 rounded-full" />
-                  <div className="h-7 w-3/4 bg-white/10 rounded-lg" />
-                  <div className="h-4 w-1/2 bg-white/5 rounded-lg" />
+                  <div className="h-3 w-28 bg-[#121314]/10 rounded-full" />
+                  <div className="h-7 w-3/4 bg-[#121314]/10 rounded-lg" />
+                  <div className="h-4 w-1/2 bg-[#121314]/5 rounded-lg" />
                   <div className="flex gap-2 pt-2">
-                    <div className="h-5 w-16 bg-white/5 rounded-full" />
-                    <div className="h-5 w-20 bg-white/5 rounded-full" />
+                    <div className="h-5 w-16 bg-[#121314]/5 rounded-full" />
+                    <div className="h-5 w-20 bg-[#121314]/5 rounded-full" />
                   </div>
                 </div>
                 <div className="my-auto flex items-center justify-center py-10">
-                  <div className="w-36 h-48 bg-white/5 rounded-2xl border border-white/5" />
+                  <div className="w-36 h-48 bg-[#121314]/5 rounded-2xl border-2 border-[#121314]/10" />
                 </div>
-                <div className="space-y-3 pt-4 border-t border-white/10">
+                <div className="space-y-3 pt-4 border-t-2 border-[#121314]/10">
                   <div className="flex justify-between items-center">
-                    <div className="h-6 w-24 bg-white/10 rounded-lg" />
-                    <div className="h-6 w-20 bg-white/5 rounded-lg" />
+                    <div className="h-6 w-24 bg-[#121314]/10 rounded-lg" />
+                    <div className="h-6 w-20 bg-[#121314]/10 rounded-lg" />
                   </div>
-                  <div className="h-10 w-full bg-white/10 rounded-2xl" />
+                  <div className="h-10 w-full bg-[#121314]/10 rounded-xl" />
                 </div>
               </div>
             ))
           ) : paginatedProducts.length === 0 ? (
             <div className="col-span-full py-20 text-center flex flex-col items-center justify-center">
-              <span className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-2xl text-gray-400 mb-4">
+              <span className="w-16 h-16 rounded-2xl bg-white border-2 border-[#121314] neo-box-shadow flex items-center justify-center text-3xl mb-4">
                 ✨
               </span>
-              <h3 className="text-xl font-bold text-white mb-2">No se encontraron fragancias</h3>
-              <p className="text-xs text-gray-400 max-w-sm mb-6">
+              <h3 className="text-2xl font-dm font-black text-[#121314] uppercase mb-2">No se encontraron fragancias</h3>
+              <p className="text-sm text-[#55575a] font-dm max-w-sm mb-6">
                 No hay productos disponibles para los filtros seleccionados. Intenta restablecer los filtros para explorar todo el catálogo.
               </p>
               <button
@@ -717,7 +583,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   if (onClearSearch) onClearSearch()
                   setCurrentPage(1)
                 }}
-                className="px-6 py-2.5 rounded-full bg-white text-black font-bold text-xs hover:bg-gray-200 transition cursor-pointer shadow-lg shadow-white/10"
+                className="px-6 py-3 rounded-xl bg-[#0ffcbe] hover:bg-[#00eaad] text-[#121314] font-dm font-black text-xs uppercase border-2 border-[#121314] neo-box-shadow cursor-pointer transition"
               >
                 Restablecer y ver todo el catálogo
               </button>
@@ -732,258 +598,221 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
               return (
                 <motion.article
                   key={item.id}
-                initial={{ opacity: 0, y: 25 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: (index % 3) * 0.1 }}
-                onClick={() => onProductClick(item.id)}
-                className="group relative rounded-3xl p-7 flex flex-col justify-between overflow-hidden border border-white/15 hover:border-white/30 backdrop-blur-xl transition-all duration-500 cursor-pointer shadow-[0_20px_45px_-10px_rgba(0,0,0,0.5)] hover:shadow-[0_28px_55px_-12px_rgba(0,0,0,0.7)] hover:-translate-y-1.5"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(13, 13, 17, 0.30) 100%)',
-                }}
-              >
-                {/* Colored Ambient Glow Backing */}
-                <div
-                  className={`absolute -top-20 -right-20 w-72 h-72 rounded-full blur-3xl pointer-events-none transition duration-700 ${item.glowClass}`}
-                />
-
-                {/* Card Top: Brand & Glowing Dot / Out of Stock Badge */}
-                <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className={`text-[10px] tracking-[0.25em] uppercase font-bold ${item.accentTextColor}`}>
-                      {item.brandTag}
-                    </span>
-                    {isOutOfStock ? (
-                      <span className="px-2.5 py-0.5 rounded-full bg-red-950/85 border border-red-500/60 text-red-300 text-[9px] font-black tracking-widest uppercase flex items-center gap-1 shadow-lg">
-                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
-                        SIN STOCK
+                  initial={{ opacity: 0, y: 25 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.45, delay: (index % 3) * 0.1 }}
+                  onClick={() => onProductClick(item.id)}
+                  className="group relative rounded-2xl p-7 flex flex-col justify-between overflow-hidden bg-white border-2 border-[#121314] neo-box-shadow hover:-translate-y-1.5 transition-all duration-300 cursor-pointer"
+                >
+                  {/* Card Top: Brand & Glowing Dot / Out of Stock Badge */}
+                  <div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs tracking-wider uppercase font-dm font-black text-[#106ebe]">
+                        {item.brandTag}
                       </span>
-                    ) : (
-                      <span className={`w-2 h-2 rounded-full ${item.dotClass}`}></span>
-                    )}
-                  </div>
-
-                  {/* Product Title (Montserrat Bold 700) */}
-                  <h2 className={`text-2xl lg:text-3xl font-bold tracking-tight leading-tight ${isOutOfStock ? 'text-gray-400 line-through decoration-red-500/70' : 'text-white'}`}>
-                    {item.title}
-                  </h2>
-
-                  {/* Olfactive Notes Descriptor */}
-                  <p className="text-xs text-gray-300 mt-1 font-medium tracking-wide">
-                    {item.subtitle}
-                  </p>
-
-                  {/* Note Pills */}
-                  <div className="flex flex-wrap gap-2 mt-4">
-                    {item.notesPills.map((pill, pIdx) => (
-                      <span
-                        key={pIdx}
-                        className="px-3 py-1 rounded-full text-[10px] font-semibold bg-white/5 border border-white/10 text-gray-200 backdrop-blur-xs"
-                      >
-                        {pill}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ========================================================================= */}
-                {/* Bottle Stage: Floral Rosette Halo & Sculpted Flacon                       */}
-                {/* ========================================================================= */}
-                <div className="relative py-8 flex items-center justify-center min-h-[290px]">
-                  {/* Concentric floral rosette petals background */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-72 h-72 text-white/10 group-hover:scale-108 transition duration-700">
-                    <svg className="w-full h-full" fill="currentColor" viewBox="0 0 400 400">
-                      <g transform="translate(200, 200)">
-                        <ellipse opacity="0.35" rx="42" ry="120" transform="rotate(0)" />
-                        <ellipse opacity="0.35" rx="42" ry="120" transform="rotate(30)" />
-                        <ellipse opacity="0.35" rx="42" ry="120" transform="rotate(60)" />
-                        <ellipse opacity="0.35" rx="42" ry="120" transform="rotate(90)" />
-                        <ellipse opacity="0.35" rx="42" ry="120" transform="rotate(120)" />
-                        <ellipse opacity="0.35" rx="42" ry="120" transform="rotate(150)" />
-                        <circle fill="none" opacity="0.25" r="60" stroke="currentColor" strokeWidth="1.5" />
-                        <circle fill="none" opacity="0.2" r="95" stroke="currentColor" strokeDasharray="4 4" strokeWidth="1" />
-                      </g>
-                    </svg>
-                  </div>
-
-                  {/* Cutout Bottle Representation */}
-                  <div className="relative z-10 w-48 h-64 flex items-center justify-center transform group-hover:scale-105 transition duration-500">
-                    {isOutOfStock && (
-                      <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-                        <span className="px-3.5 py-1.5 rounded-xl bg-black/85 border border-red-500/60 text-red-400 font-extrabold tracking-[0.2em] text-[11px] uppercase shadow-2xl backdrop-blur-md">
-                          AGOTADO • SIN STOCK
-                        </span>
-                      </div>
-                    )}
-                    {item.flaconType === 'image' && item.imageUrl ? (
-                      <img
-                        alt={item.altText || item.title}
-                        src={item.imageUrl}
-                        className={`max-h-full max-w-full object-contain filter drop-shadow-[0_25px_35px_rgba(0,0,0,0.95)] ${
-                          isOutOfStock ? 'opacity-70 grayscale-[35%]' : ''
-                        }`}
-                      />
-                    ) : item.flaconType === 'noir' ? (
-                      /* Club de Nuit Matte Noir Sculpted Flacon */
-                      <div className="relative w-36 h-56 bg-gradient-to-b from-zinc-800 via-zinc-900 to-black rounded-2xl border border-zinc-700 shadow-[0_25px_35px_rgba(0,0,0,0.95)] flex flex-col items-center justify-between p-4">
-                        <div className="w-14 h-9 bg-zinc-900 border border-zinc-600 rounded -mt-8 shadow-inner flex items-center justify-center">
-                          <span className="w-2.5 h-2.5 rounded-full bg-zinc-300 shadow-[0_0_6px_#ffffff]"></span>
-                        </div>
-                        <div className="text-center my-auto">
-                          <p className="text-[9px] font-bold tracking-[0.25em] text-zinc-400 uppercase">ARMAF</p>
-                          <h3 className="text-xs font-black tracking-widest text-white mt-1 uppercase">CLUB DE NUIT</h3>
-                          <span className="text-[8px] tracking-[0.3em] text-zinc-400 block mt-0.5 font-semibold">INTENSE MAN</span>
-                        </div>
-                        <div className="w-full border-t border-zinc-800 pt-2 flex justify-between items-center text-[8px] text-zinc-400 font-mono">
-                          <span>EAU DE PARFUM</span>
-                          <span>105 ML</span>
-                        </div>
-                      </div>
-                    ) : item.flaconType === 'cognac' ? (
-                      /* Khamrah Lattafa Decanter Flacon */
-                      <div className="relative w-36 h-52 bg-gradient-to-b from-amber-600/50 via-amber-800/80 to-stone-950 rounded-2xl border border-amber-400/40 shadow-[0_25px_35px_rgba(0,0,0,0.95)] flex flex-col items-center justify-between p-4 backdrop-blur-md">
-                        <div className="w-16 h-8 bg-amber-200/70 border border-amber-300 rounded -mt-7 backdrop-blur-lg shadow-lg flex items-center justify-center">
-                          <span className="w-3.5 h-1.5 bg-amber-600 rounded"></span>
-                        </div>
-                        <div className="text-center my-auto">
-                          <p className="text-[9px] font-bold tracking-[0.25em] text-amber-300 uppercase">KHAMRAH</p>
-                          <p className="text-[8px] tracking-[0.1em] text-amber-200/80 mt-1 font-medium">LATTAFA PERFUMES</p>
-                        </div>
-                        <div className="w-full border-t border-amber-500/30 pt-2 flex justify-between items-center text-[8px] text-amber-300 font-mono">
-                          <span>EAU DE PARFUM</span>
-                          <span>100 ML</span>
-                        </div>
-                      </div>
-                    ) : item.flaconType === 'sapphire' ? (
-                      /* Turathi Blue Sapphire Flacon */
-                      <div className="relative w-34 h-54 bg-gradient-to-b from-blue-900/70 via-blue-950 to-neutral-950 rounded-2xl border border-blue-500/40 shadow-[0_25px_35px_rgba(0,0,0,0.95)] flex flex-col items-center justify-between p-4 backdrop-blur-md">
-                        <div className="w-12 h-10 bg-gradient-to-b from-slate-200 to-slate-400 rounded-full -mt-8 shadow-md border border-white/50 flex items-center justify-center">
-                          <span className="w-4 h-4 rounded-full bg-blue-900"></span>
-                        </div>
-                        <div className="text-center my-auto">
-                          <p className="text-[9px] font-bold tracking-[0.25em] text-blue-300 uppercase">AFNAN</p>
-                          <h3 className="text-xs font-black tracking-widest text-white mt-1 uppercase">TURATHI</h3>
-                          <span className="text-[8px] tracking-[0.3em] text-blue-400 block mt-0.5 font-bold">BLUE</span>
-                        </div>
-                        <div className="w-full border-t border-blue-500/20 pt-2 flex justify-between items-center text-[8px] text-blue-300 font-mono">
-                          <span>EAU DE PARFUM</span>
-                          <span>90 ML</span>
-                        </div>
-                      </div>
-                    ) : (
-                      /* Supremacy Titanium Flacon */
-                      <div className="relative w-36 h-52 bg-gradient-to-b from-zinc-700 via-zinc-900 to-black rounded-3xl border border-zinc-500/40 shadow-[0_25px_35px_rgba(0,0,0,0.95)] flex flex-col items-center justify-between p-4 backdrop-blur-md">
-                        <div className="w-14 h-9 bg-zinc-400 border border-white/40 rounded-t-xl -mt-7 flex items-center justify-center shadow-lg">
-                          <span className="w-3 h-3 rounded-full bg-zinc-900"></span>
-                        </div>
-                        <div className="text-center my-auto">
-                          <p className="text-[8px] font-bold tracking-[0.2em] text-zinc-400 uppercase">AFNAN</p>
-                          <h3 className="text-[11px] font-black tracking-widest text-white mt-1 uppercase leading-tight">SUPREMACY</h3>
-                          <span className="text-[7px] tracking-[0.2em] text-teal-400 block mt-0.5 font-bold">NOT ONLY INTENSE</span>
-                        </div>
-                        <div className="w-full border-t border-zinc-800 pt-2 flex justify-between items-center text-[8px] text-zinc-400 font-mono">
-                          <span>EXTRAIT DE PARFUM</span>
-                          <span>100 ML</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* ========================================================================= */}
-                {/* Card Bottom: Volume Selector, Description, Price & CTA                    */}
-                {/* ========================================================================= */}
-                <div className="mt-2 pt-5 border-t border-white/10">
-                  {/* Volume Selector Row */}
-                  <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[10px] uppercase tracking-wider text-gray-400 mr-1 font-semibold">
-                        Vol:
-                      </span>
-                      {item.availableVolumes.map((vol) => {
-                        const isSelected = currentVolume === vol
-                        return (
-                          <button
-                            key={vol}
-                            onClick={(e) => handleSelectVolume(e, item.id, vol)}
-                            className={`w-7 h-7 rounded-full text-[10px] transition flex items-center justify-center cursor-pointer ${
-                              isSelected
-                                ? 'font-bold text-black bg-white shadow-md'
-                                : 'font-medium text-gray-400 bg-white/5 hover:bg-white/15 border border-white/10'
-                            }`}
-                          >
-                            {vol}
-                          </button>
-                        )
-                      })}
-                    </div>
-                    <span className="text-[11px] text-gray-400 font-mono">
-                      {currentVolume} ml / {fluidOz} FL. OZ.
-                    </span>
-                  </div>
-
-                  {/* Description Snippet */}
-                  <p className="text-xs text-gray-400 line-clamp-2 mb-5 font-light leading-relaxed">
-                    {item.description}
-                  </p>
-
-                  {/* Price & Add to Cart Button */}
-                  <div className="flex items-center justify-between gap-4">
-                    <div>
-                      <span className="block text-[10px] uppercase tracking-wider text-gray-400 font-medium">
-                        Precio Oficial
-                      </span>
-                      <div className="flex items-baseline gap-2">
-                        <span className={`text-2xl lg:text-3xl font-bold tracking-tight ${isOutOfStock ? 'text-gray-500 line-through decoration-red-500/80' : 'text-white'}`}>
-                          ${currentPrice.toLocaleString('es-AR')}
-                        </span>
-                        {isOutOfStock && (
-                          <span className="text-[10px] font-black text-red-400 tracking-wider uppercase px-2 py-0.5 rounded-md bg-red-500/15 border border-red-500/30">
-                            Sin Stock
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <button
-                      disabled={isOutOfStock}
-                      onClick={(e) => {
-                        if (isOutOfStock) {
-                          e.stopPropagation()
-                          return
-                        }
-                        handleAddToCart(e, item)
-                      }}
-                      className={`px-5 py-3 rounded-full font-bold text-xs transition duration-300 flex items-center gap-2 shrink-0 ${
-                        isOutOfStock
-                          ? 'bg-neutral-800 text-neutral-400 border border-neutral-700/80 cursor-not-allowed shadow-none'
-                          : 'bg-white text-black hover:bg-gray-200 shadow-xl shadow-white/10 active:scale-95 cursor-pointer'
-                      }`}
-                    >
                       {isOutOfStock ? (
-                        <>
-                          <span className="material-symbols-outlined text-[16px] text-red-400">do_not_disturb_on</span>
-                          <span className="line-through decoration-red-400">SIN STOCK</span>
-                        </>
+                        <span className="px-2.5 py-0.5 rounded-md bg-[#121314] border-2 border-[#121314] text-white text-[9px] font-dm font-black tracking-wider uppercase flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                          SIN STOCK
+                        </span>
                       ) : (
-                        <>
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path
-                              d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth="2"
-                            />
-                          </svg>
-                          <span>AÑADIR A LA CESTA</span>
-                        </>
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#0ffcbe] border border-[#121314]"></span>
                       )}
-                    </button>
+                    </div>
+
+                    {/* Product Title (DM Sans Black) */}
+                    <h3 className={`text-2xl lg:text-3xl font-dm font-black tracking-tight leading-tight uppercase group-hover:text-[#106ebe] transition ${isOutOfStock ? 'text-gray-400 line-through' : 'text-[#121314]'}`}>
+                      {item.title}
+                    </h3>
+
+                    {/* Olfactive Notes Descriptor */}
+                    <p className="text-xs text-[#55575a] mt-1 font-dm font-semibold tracking-wide">
+                      {item.subtitle}
+                    </p>
+
+                    {/* Note Pills */}
+                    <div className="flex flex-wrap gap-1.5 mt-3">
+                      {item.notesPills.map((pill, pIdx) => (
+                        <span
+                          key={pIdx}
+                          className="px-2.5 py-0.5 rounded-md text-[10px] font-dm font-bold bg-[#f2f0ea] border border-[#121314] text-[#121314]"
+                        >
+                          {pill}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </motion.article>
-            )
-          }))}
+
+                  {/* Bottle Stage: Halo & Flacon */}
+                  <div className="relative py-8 flex items-center justify-center min-h-[290px]">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none w-72 h-72 text-[#121314]/08 group-hover:scale-105 transition duration-500">
+                      <svg className="w-full h-full" fill="currentColor" viewBox="0 0 400 400">
+                        <g transform="translate(200, 200)">
+                          <ellipse opacity="0.4" rx="42" ry="120" transform="rotate(0)" />
+                          <ellipse opacity="0.4" rx="42" ry="120" transform="rotate(30)" />
+                          <ellipse opacity="0.4" rx="42" ry="120" transform="rotate(60)" />
+                          <ellipse opacity="0.4" rx="42" ry="120" transform="rotate(90)" />
+                          <ellipse opacity="0.4" rx="42" ry="120" transform="rotate(120)" />
+                          <ellipse opacity="0.4" rx="42" ry="120" transform="rotate(150)" />
+                          <circle fill="none" opacity="0.3" r="60" stroke="currentColor" strokeWidth="1.5" />
+                          <circle fill="none" opacity="0.2" r="95" stroke="currentColor" strokeDasharray="4 4" strokeWidth="1" />
+                        </g>
+                      </svg>
+                    </div>
+
+                    {/* Bottle Image or Sculpted Flacon */}
+                    <div className="relative z-10 w-48 h-64 flex items-center justify-center transform group-hover:scale-105 transition duration-500">
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
+                          <span className="px-3.5 py-1.5 rounded-xl bg-[#121314] border-2 border-[#121314] text-white font-dm font-black tracking-wider text-[11px] uppercase neo-box-shadow">
+                            AGOTADO
+                          </span>
+                        </div>
+                      )}
+                      {item.flaconType === 'image' && item.imageUrl ? (
+                        <img
+                          alt={item.altText || item.title}
+                          src={item.imageUrl}
+                          className={`max-h-full max-w-full object-contain filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.18)] ${
+                            isOutOfStock ? 'opacity-60 grayscale-[40%]' : ''
+                          }`}
+                        />
+                      ) : item.flaconType === 'noir' ? (
+                        <div className="relative w-36 h-56 bg-[#121314] rounded-2xl border-2 border-[#121314] neo-box-shadow flex flex-col items-center justify-between p-4 text-white">
+                          <div className="w-14 h-9 bg-zinc-800 border border-zinc-600 rounded -mt-8 flex items-center justify-center">
+                            <span className="w-2.5 h-2.5 rounded-full bg-zinc-300"></span>
+                          </div>
+                          <div className="text-center my-auto">
+                            <p className="text-[9px] font-dm font-bold tracking-wider text-zinc-400 uppercase">ARMAF</p>
+                            <h4 className="text-xs font-dm font-black tracking-widest text-white mt-1 uppercase">CLUB DE NUIT</h4>
+                            <span className="text-[8px] tracking-wider text-zinc-400 block mt-0.5 font-bold">INTENSE MAN</span>
+                          </div>
+                          <div className="w-full border-t border-zinc-800 pt-2 flex justify-between items-center text-[8px] text-zinc-400 font-mono">
+                            <span>EDP</span>
+                            <span>105 ML</span>
+                          </div>
+                        </div>
+                      ) : item.flaconType === 'cognac' ? (
+                        <div className="relative w-36 h-52 bg-gradient-to-b from-amber-600 via-amber-800 to-amber-950 rounded-2xl border-2 border-[#121314] neo-box-shadow flex flex-col items-center justify-between p-4 text-white">
+                          <div className="w-16 h-8 bg-amber-200 border-2 border-[#121314] rounded -mt-7 flex items-center justify-center">
+                            <span className="w-3.5 h-1.5 bg-amber-800 rounded"></span>
+                          </div>
+                          <div className="text-center my-auto">
+                            <p className="text-[9px] font-dm font-black tracking-wider text-amber-200 uppercase">KHAMRAH</p>
+                            <p className="text-[8px] font-dm text-amber-300 mt-1 font-bold">LATTAFA</p>
+                          </div>
+                          <div className="w-full border-t border-amber-500/40 pt-2 flex justify-between items-center text-[8px] text-amber-200 font-mono">
+                            <span>EDP</span>
+                            <span>100 ML</span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="relative w-34 h-54 bg-gradient-to-b from-blue-700 via-blue-900 to-blue-950 rounded-2xl border-2 border-[#121314] neo-box-shadow flex flex-col items-center justify-between p-4 text-white">
+                          <div className="w-12 h-10 bg-slate-200 border-2 border-[#121314] rounded-full -mt-8 flex items-center justify-center">
+                            <span className="w-3 h-3 rounded-full bg-blue-900"></span>
+                          </div>
+                          <div className="text-center my-auto">
+                            <p className="text-[9px] font-dm font-black tracking-wider text-blue-200 uppercase">TURATHI</p>
+                            <h4 className="text-xs font-dm font-black tracking-widest text-white mt-1 uppercase">BLUE</h4>
+                          </div>
+                          <div className="w-full border-t border-blue-400/30 pt-2 flex justify-between items-center text-[8px] text-blue-200 font-mono">
+                            <span>EDP</span>
+                            <span>90 ML</span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Card Bottom: Volume, Description, Price & CTA */}
+                  <div className="mt-2 pt-5 border-t-2 border-[#121314]/15">
+                    {/* Volume Selector Row */}
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[10px] uppercase tracking-wider text-[#55575a] mr-1 font-dm font-bold">
+                          Vol:
+                        </span>
+                        {item.availableVolumes.map((vol) => {
+                          const isSelected = currentVolume === vol
+                          return (
+                            <button
+                              key={vol}
+                              onClick={(e) => handleSelectVolume(e, item.id, vol)}
+                              className={`w-7 h-7 rounded-lg text-[10px] font-dm transition flex items-center justify-center cursor-pointer ${
+                                isSelected
+                                  ? 'font-black text-[#121314] bg-[#a8d5e3] border-2 border-[#121314] neo-box-shadow-sm'
+                                  : 'font-bold text-[#55575a] bg-white border border-[#121314]/40 hover:border-[#121314]'
+                              }`}
+                            >
+                              {vol}
+                            </button>
+                          )
+                        })}
+                      </div>
+                      <span className="text-[11px] text-[#55575a] font-dm font-bold">
+                        {currentVolume} ml / {fluidOz} FL. OZ.
+                      </span>
+                    </div>
+
+                    {/* Description Snippet */}
+                    <p className="text-xs text-[#55575a] font-dm line-clamp-2 mb-5 font-normal leading-relaxed">
+                      {item.description}
+                    </p>
+
+                    {/* Price & Add to Cart Button */}
+                    <div className="flex items-center justify-between gap-4">
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-wider text-[#55575a] font-dm font-bold">
+                          Precio Oficial
+                        </span>
+                        <div className="flex items-baseline gap-2">
+                          <span className={`text-2xl lg:text-3xl font-dm font-black tracking-tight ${isOutOfStock ? 'text-gray-400 line-through' : 'text-[#121314]'}`}>
+                            ${currentPrice.toLocaleString('es-AR')}
+                          </span>
+                          {isOutOfStock && (
+                            <span className="text-[10px] font-dm font-black text-white tracking-wider uppercase px-2 py-0.5 rounded-md bg-[#121314]">
+                              Sin Stock
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <button
+                        disabled={isOutOfStock}
+                        onClick={(e) => {
+                          if (isOutOfStock) {
+                            e.stopPropagation()
+                            return
+                          }
+                          handleAddToCart(e, item)
+                        }}
+                        className={`px-5 py-3 rounded-xl font-dm font-black text-xs uppercase tracking-wider transition-all duration-150 flex items-center gap-2 shrink-0 ${
+                          isOutOfStock
+                            ? 'bg-gray-200 text-gray-400 border-2 border-gray-300 cursor-not-allowed shadow-none'
+                            : 'bg-[#0ffcbe] hover:bg-[#00eaad] text-[#121314] border-2 border-[#121314] neo-box-shadow-sm neo-box-shadow-hover neo-box-shadow-active cursor-pointer'
+                        }`}
+                      >
+                        {isOutOfStock ? (
+                          <span>SIN STOCK</span>
+                        ) : (
+                          <>
+                            <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path
+                                d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              />
+                            </svg>
+                            <span>Añadir</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                </motion.article>
+              )
+            }))}
         </div>
       </main>
 
@@ -992,17 +821,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       {/* ========================================================================= */}
       {totalPages > 1 && (
         <section className="relative z-10 pb-8">
-          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/10 pt-8">
+          <div className="max-w-[1440px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 border-t-2 border-[#121314]/15 pt-8">
             {/* Arrows */}
             <div className="flex items-center gap-2">
               <button
                 onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 aria-label="Página anterior"
-                className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/30 flex items-center gap-2 text-xs font-semibold text-gray-300 hover:text-white transition disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-white border-2 border-[#121314] neo-box-shadow-sm hover:bg-[#f2f0ea] flex items-center gap-2 text-xs font-dm font-bold text-[#121314] transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M15 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 <span>Anterior</span>
               </button>
@@ -1010,11 +839,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                 onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
                 disabled={currentPage === totalPages}
                 aria-label="Página siguiente"
-                className="px-4 py-2 rounded-xl bg-white/[0.04] border border-white/10 hover:border-white/30 flex items-center gap-2 text-xs font-semibold text-gray-300 hover:text-white transition disabled:opacity-25 disabled:cursor-not-allowed cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-white border-2 border-[#121314] neo-box-shadow-sm hover:bg-[#f2f0ea] flex items-center gap-2 text-xs font-dm font-bold text-[#121314] transition disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
               >
                 <span>Siguiente</span>
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" />
+                <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M9 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
             </div>
@@ -1026,7 +855,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   return (
                     <span
                       key={`dots-${idx}`}
-                      className="w-8 h-8 flex items-center justify-center text-gray-500 font-bold select-none text-sm tracking-widest"
+                      className="w-8 h-8 flex items-center justify-center text-[#55575a] font-dm font-bold select-none text-sm tracking-widest"
                     >
                       …
                     </span>
@@ -1037,10 +866,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                   <button
                     key={item}
                     onClick={() => handlePageChange(item)}
-                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition cursor-pointer text-xs font-bold ${
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center transition cursor-pointer text-xs font-dm ${
                       isActive
-                        ? 'bg-white text-black font-extrabold shadow-lg shadow-white/20 scale-105'
-                        : 'bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/10 border border-white/5'
+                        ? 'bg-[#ff78ac] text-[#121314] font-black border-2 border-[#121314] neo-box-shadow-sm scale-105'
+                        : 'bg-white text-[#121314] font-bold border-2 border-[#121314]/30 hover:border-[#121314] hover:bg-[#f2f0ea]'
                     }`}
                   >
                     {item}
@@ -1050,9 +879,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
             </div>
 
             {/* Secondary Page Info */}
-            <div className="text-xs text-gray-400 font-medium">
-              Página <span className="text-white font-semibold">{currentPage}</span> de{' '}
-              <span className="text-white font-semibold">{totalPages}</span> ({filteredProducts.length} creaciones)
+            <div className="text-xs font-dm text-[#55575a] font-medium">
+              Página <span className="text-[#121314] font-black">{currentPage}</span> de{' '}
+              <span className="text-[#121314] font-black">{totalPages}</span> ({filteredProducts.length} creaciones)
             </div>
           </div>
         </section>

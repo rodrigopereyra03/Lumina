@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #F1EFE8; font-family: Arial, sans-serif; }
+      #viewport { position: relative; width: 100%; height: 100%; overflow: hidden; }
+      #mapStage { position: absolute; left: 0; top: 0; width: 2560px; height: 1600px; transform-origin: 0 0; filter: saturate(1.35) contrast(1.05); }
+      #mapStage svg { position: absolute; left: 0; top: 0; }
+
+      .road-label { position: absolute; font-size: 22px; font-weight: 600; color: #4D5F5A; letter-spacing: 0.02em; white-space: nowrap; }
+      .place-label { position: absolute; font-size: 34px; font-weight: 800; color: #1C1C1C; letter-spacing: -0.01em; white-space: nowrap; text-shadow: 0 0 6px #fff, 0 0 6px #fff; }
+      .road-badge { position: absolute; background: #fff; border: 2px solid #1C1C1C; border-radius: 6px; padding: 4px 10px; font-size: 20px; font-weight: 700; color: #1C1C1C; }
+
+      #textLayer { position: absolute; inset: 0; z-index: 20; display: flex; align-items: center; justify-content: center; pointer-events: none; perspective: 1300px; }
+      .word-wrap { position: absolute; opacity: 0; transform-style: preserve-3d; white-space: nowrap; }
+      .word, .word-ghost { font-size: 170px; font-weight: 900; letter-spacing: -0.02em; text-transform: uppercase; white-space: nowrap; }
+      .word { color: #0B0B0C; position: relative; z-index: 3; text-shadow: 0 18px 0 rgba(0,0,0,0.16), 0 40px 40px rgba(0,0,0,0.25); }
+      .word-ghost { position: absolute; left: 0; top: 0; mix-blend-mode: screen; }
+      .ghost-cyan { color: #00E5FF; z-index: 1; }
+      .ghost-magenta { color: #FF2E8A; z-index: 2; }
+
+      #bokeh { position: absolute; inset: 0; z-index: 24; pointer-events: none; overflow: hidden; }
+      .bk { position: absolute; border-radius: 50%; filter: blur(7px); }
+
+      #tiltTop, #tiltBottom { position: absolute; left: 0; right: 0; z-index: 26; pointer-events: none; backdrop-filter: blur(9px); }
+      #tiltTop { top: 0; height: 240px; -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%); mask-image: linear-gradient(to bottom, #000 0%, transparent 100%); }
+      #tiltBottom { bottom: 0; height: 260px; -webkit-mask-image: linear-gradient(to top, #000 0%, transparent 100%); mask-image: linear-gradient(to top, #000 0%, transparent 100%); }
+
+      #scanlines {
+        position: absolute; inset: -4px; z-index: 30; pointer-events: none;
+        background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.16) 0px, rgba(0,0,0,0.16) 1px, transparent 1px, transparent 4px);
+        opacity: 0.55;
+      }
+      #vignette { position: absolute; inset: 0; z-index: 31; pointer-events: none; box-shadow: inset 0 0 240px 80px rgba(10,10,10,0.38); }
+      #flash { position: absolute; inset: 0; z-index: 32; pointer-events: none; background: #fff; opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="12" data-width="1920" data-height="1080">
+      <div id="viewport">
+        <div id="mapStage">
+          <svg id="mapSvg" width="2560" height="1600" viewBox="0 0 2560 1600"></svg>
+        </div>
+
+        <div id="textLayer">
+          <div class="word-wrap" id="w1">
+            <div class="word-ghost ghost-cyan">Cerca.</div>
+            <div class="word-ghost ghost-magenta">Cerca.</div>
+            <div class="word">Cerca.</div>
+          </div>
+          <div class="word-wrap" id="w2">
+            <div class="word-ghost ghost-cyan">Lejos.</div>
+            <div class="word-ghost ghost-magenta">Lejos.</div>
+            <div class="word">Lejos.</div>
+          </div>
+          <div class="word-wrap" id="w3">
+            <div class="word-ghost ghost-cyan" style="font-size:120px;">Siempre con vos.</div>
+            <div class="word-ghost ghost-magenta" style="font-size:120px;">Siempre con vos.</div>
+            <div class="word" style="font-size:120px;">Siempre con vos.</div>
+          </div>
+        </div>
+
+        <div id="bokeh"></div>
+        <div id="tiltTop"></div>
+        <div id="tiltBottom"></div>
+        <div id="scanlines"></div>
+        <div id="vignette"></div>
+        <div id="flash"></div>
+      </div>
+    </div>
+
+    <script>
+      function mulberry32(seed) {
+        return function () {
+          seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const rand = mulberry32(2024);
+      const NS = 'http://www.w3.org/2000/svg';
+      const svg = document.getElementById('mapSvg');
+      function el(tag, attrs, parent) {
+        const e = document.createElementNS(NS, tag);
+        for (const k in attrs) e.setAttribute(k, attrs[k]);
+        (parent || svg).appendChild(e);
+        return e;
+      }
+
+      // --- ciudad procedural: calles = huecos entre manzanas; edificios con sombra desplazada ---
+      el('rect', { x: 0, y: 0, width: 2560, height: 1600, fill: '#F6F4EC' });
+      const city = el('g', { transform: 'rotate(-9 1280 800)' });
+      el('rect', { x: -700, y: -700, width: 3960, height: 3000, fill: '#FFFFFF' }, city);
+      const CW = 124, CH = 104;
+      const blockFills = ['#E9E4D3', '#EDE8D9', '#E3DECD', '#F0ECDF'];
+      const shadows = el('g', {}, city);
+      const blocks = el('g', {}, city);
+      const bldgs = el('g', {}, city);
+      for (let gx = -600; gx < 3200; gx += CW) {
+        for (let gy = -600; gy < 2200; gy += CH) {
+          if (rand() < 0.07) continue;
+          const bx = gx + 14, by = gy + 14, bw = CW - 28, bh = CH - 28;
+          el('rect', { x: bx, y: by, width: bw, height: bh, rx: 4, fill: blockFills[Math.floor(rand() * blockFills.length)] }, blocks);
+          const n = 1 + Math.floor(rand() * 3);
+          for (let i = 0; i < n; i++) {
+            const w = 22 + rand() * (bw * 0.5), h = 18 + rand() * (bh * 0.55);
+            const x = bx + 4 + rand() * (bw - w - 8), y = by + 4 + rand() * (bh - h - 8);
+            el('rect', { x: x + 7, y: y + 9, width: w, height: h, fill: 'rgba(40,40,30,0.22)' }, shadows);
+            const shade = 205 + Math.floor(rand() * 35);
+            el('rect', { x, y, width: w, height: h, fill: `rgb(${shade},${shade - 4},${shade - 14})`, stroke: 'rgba(120,115,100,0.35)', 'stroke-width': 1 }, bldgs);
+          }
+        }
+      }
+
+      // avenidas diagonales con borde
+      const avenues = [
+        'M-100 420 L700 300 L1500 520 L2700 360',
+        'M-100 1180 L800 1020 L1700 1180 L2700 1000',
+        'M520 -100 L640 700 L520 1700',
+        'M1780 -100 L1660 800 L1820 1700',
+        'M-100 760 L1200 840 L2700 700',
+      ];
+      avenues.forEach((d) => el('path', { d, stroke: '#CFCABB', 'stroke-width': 40, fill: 'none', 'stroke-linecap': 'round' }));
+      avenues.forEach((d) => el('path', { d, stroke: '#FFFFFF', 'stroke-width': 30, fill: 'none', 'stroke-linecap': 'round' }));
+      ['M-100 600 L900 560 L1700 660 L2700 580', 'M1000 -100 L1060 800 L980 1700'].forEach((d) => {
+        el('path', { d, stroke: '#C98F12', 'stroke-width': 20, fill: 'none', 'stroke-linecap': 'round' });
+        el('path', { d, stroke: '#F7C948', 'stroke-width': 13, fill: 'none', 'stroke-linecap': 'round' });
+      });
+
+      // parques con árboles y sombra
+      const parks = [
+        '0,860 330,820 560,980 450,1260 90,1320 -60,1100',
+        '1560,80 1900,40 2140,220 2010,430 1680,400',
+        '2120,880 2560,830 2560,1320 2260,1380 2090,1160',
+      ];
+      parks.forEach((pts) => el('polygon', { points: pts, fill: '#B9E3A8', stroke: '#9CCB88', 'stroke-width': 4 }));
+      for (let i = 0; i < 140; i++) {
+        const p = parks[Math.floor(rand() * parks.length)].split(' ').map((s) => s.split(',').map(Number));
+        const cx = p.reduce((a, b) => a + b[0], 0) / p.length, cy = p.reduce((a, b) => a + b[1], 0) / p.length;
+        const x = cx + (rand() - 0.5) * 360, y = cy + (rand() - 0.5) * 300, r = 9 + rand() * 13;
+        el('circle', { cx: x + 5, cy: y + 7, r, fill: 'rgba(20,60,20,0.25)' });
+        el('circle', { cx: x, cy: y, r, fill: `rgb(${70 + Math.floor(rand() * 40)},${150 + Math.floor(rand() * 50)},${70 + Math.floor(rand() * 30)})` });
+      }
+
+      // agua con orilla
+      el('path', { d: 'M1700 1600 C1900 1300 2100 1200 2200 1000 C2320 780 2560 700 2560 700 L2560 1600 Z', fill: '#7FCBE6', stroke: '#5DB3D4', 'stroke-width': 8 });
+      el('path', { d: 'M-50 380 C250 470 300 620 550 640 C800 660 820 500 1050 480', stroke: '#5DB3D4', 'stroke-width': 62, fill: 'none', 'stroke-linecap': 'round' });
+      el('path', { d: 'M-50 380 C250 470 300 620 550 640 C800 660 820 500 1050 480', stroke: '#8FD6EE', 'stroke-width': 50, fill: 'none', 'stroke-linecap': 'round' });
+    </script>
+
+    <script>
+      // etiquetas sobre el mapa (se agregan al stage para que se muevan con la cámara)
+      const stage = document.getElementById('mapStage');
+      function addLabel(cls, text, left, top, rot) {
+        const d = document.createElement('div');
+        d.className = cls; d.textContent = text;
+        d.style.left = left + 'px'; d.style.top = top + 'px';
+        if (rot) d.style.transform = `rotate(${rot}deg)`;
+        stage.appendChild(d);
+      }
+      addLabel('road-badge', 'A1205', 260, 330);
+      addLabel('road-badge', 'M25', 1870, 270);
+      addLabel('road-badge', 'B507', 620, 830);
+      addLabel('place-label', 'POPLAR', 420, 700);
+      addLabel('place-label', 'CANARY WHARF', 1150, 980);
+      addLabel('place-label', 'BARKING ROAD', 1780, 600);
+      addLabel('place-label', 'MARSH WALL', 260, 1180);
+      addLabel('place-label', 'THE O2', 2150, 1000);
+      addLabel('road-label', 'GREENWICH — WAPPING', 60, 250, 8);
+      addLabel('road-label', 'EASTERN AVE', 1550, 200, -12);
+      addLabel('road-label', 'LOWER LEA CROSSING', 900, 1350, 3);
+
+      // --- bokeh: círculos desenfocados cerca de la cámara ---
+      const bokeh = document.getElementById('bokeh');
+      const bkColors = ['rgba(255,255,255,0.55)', 'rgba(255,225,140,0.45)', 'rgba(150,215,255,0.40)', 'rgba(255,170,200,0.32)'];
+      const bks = [];
+      for (let i = 0; i < 16; i++) {
+        const d = document.createElement('div');
+        const s = 70 + rand() * 210;
+        d.className = 'bk';
+        d.style.cssText = `width:${s}px;height:${s}px;left:${rand() * 1920 - s / 2}px;top:${rand() * 1080 - s / 2}px;background:radial-gradient(circle, ${bkColors[i % bkColors.length]} 0%, ${bkColors[i % bkColors.length]} 55%, transparent 72%);`;
+        bokeh.appendChild(d);
+        bks.push(d);
+      }
+
+      const DURATION = 12;
+      const tl = gsap.timeline({ paused: true });
+
+      // --- cámara sobre el mapa: deriva + zoom + leve giro ---
+      tl.fromTo('#mapStage',
+        { x: -100, y: -60, scale: 0.8, rotation: 0 },
+        { x: -700, y: -460, scale: 1.12, rotation: -2.5, duration: DURATION, ease: 'power1.inOut' }, 0);
+
+      tl.to('#scanlines', { backgroundPositionY: '400px', duration: DURATION, ease: 'none' }, 0);
+
+      bks.forEach((b, i) => {
+        tl.to(b, { x: (i % 2 ? 1 : -1) * (80 + (i * 17) % 120), y: (i % 3 ? -1 : 1) * (50 + (i * 23) % 90), duration: DURATION, ease: 'none' }, 0);
+        tl.to(b, { opacity: 0.45, duration: 1.4 + (i % 4) * 0.3, repeat: 8, yoyo: true, ease: 'sine.inOut' }, 0);
+      });
+
+      // --- palabras: cada una entra con un ángulo/movimiento de cámara distinto ---
+      function glitchIn(sel, start, from, drift, hold) {
+        tl.set(sel, { opacity: 1, ...from, filter: 'blur(12px)' }, start);
+        tl.to(sel, { x: 0, y: 0, z: 0, rotationX: drift.rx0, rotationY: drift.ry0, rotationZ: drift.rz0, scale: 1, filter: 'blur(0px)', duration: 0.35, ease: 'power3.out' }, start);
+        tl.to(`${sel} .ghost-cyan`, { x: -7, y: 2, duration: 0.08 }, start);
+        tl.to(`${sel} .ghost-magenta`, { x: 7, y: -2, duration: 0.08 }, start);
+        tl.to(`${sel} .ghost-cyan`, { x: -2, y: 0, duration: 0.3, ease: 'power2.out' }, start + 0.08);
+        tl.to(`${sel} .ghost-magenta`, { x: 2, y: 0, duration: 0.3, ease: 'power2.out' }, start + 0.08);
+        tl.to('#flash', { opacity: 0.5, duration: 0.03 }, start);
+        tl.to('#flash', { opacity: 0, duration: 0.12 }, start + 0.03);
+        tl.to(sel, { rotationX: drift.rx1, rotationY: drift.ry1, rotationZ: drift.rz1, z: drift.z1, duration: hold - 0.35, ease: 'sine.inOut' }, start + 0.35);
+        tl.to(sel, { opacity: 0, x: drift.exitX, filter: 'blur(8px)', duration: 0.16, ease: 'power1.in' }, start + hold);
+        return start + hold + 0.16;
+      }
+
+      let t = glitchIn('#w1', 0.1,
+        { x: -420, z: -500, rotationY: -70, rotationX: 8, scale: 0.8 },
+        { rx0: 4, ry0: -22, rz0: -2, rx1: -3, ry1: 14, rz1: 1, z1: 90, exitX: 300 }, 3.2);
+      t = glitchIn('#w2', t + 0.1,
+        { y: 260, z: -400, rotationX: 70, rotationY: 8, scale: 0.85 },
+        { rx0: -18, ry0: 6, rz0: 0, rx1: 10, ry1: -8, rz1: -2, z1: 110, exitX: -300 }, 3.2);
+      glitchIn('#w3', t + 0.1,
+        { x: 460, z: -600, rotationY: 75, rotationZ: 6, scale: 0.8 },
+        { rx0: 6, ry0: 20, rz0: -3, rx1: -6, ry1: -12, rz1: 1, z1: 140, exitX: 0 }, 4.0);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

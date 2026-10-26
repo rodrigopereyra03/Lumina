@@ -45,8 +45,8 @@ export const mercadoPagoApi = {
 
     const sanitizedItems = payload.items.map((it, idx) => ({
       id: it.id || `item-${idx + 1}`,
-      title: it.title || 'Producto Lumina',
-      description: it.description || it.title || 'Producto de Lumina Store',
+      title: it.title || 'Producto Fórmula 1370',
+      description: it.description || it.title || 'Producto de Fórmula 1370 Store',
       picture_url: it.picture_url || 'https://images.unsplash.com/photo-1526738549149-8e07eca6c147?w=800&q=80',
       quantity: Math.max(1, it.quantity || 1),
       unit_price: Number(it.unit_price) > 0 ? Number(it.unit_price) : 10.0,
@@ -85,8 +85,8 @@ export const mercadoPagoApi = {
       items: sanitizedItems,
       payer: {
         name: payload.payer.name || 'Cliente',
-        surname: payload.payer.surname || 'Lumina',
-        email: payload.payer.email || 'comprador@lumina.com',
+        surname: payload.payer.surname || 'Fórmula 1370',
+        email: payload.payer.email || 'comprador@formula1370.com',
       },
       back_urls: {
         success: `${baseUrl}/order-success?status=approved&order_id=${cleanOrderId}`,
@@ -95,7 +95,7 @@ export const mercadoPagoApi = {
       },
       auto_return: 'approved',
       external_reference: cleanOrderId,
-      statement_descriptor: 'LUMINA STORE',
+      statement_descriptor: 'FORMULA 1370',
     }
 
     console.log('📡 Enviando petición directa a https://api.mercadopago.com/checkout/preferences:', mpBody)

@@ -1,0 +1,123 @@
+{
+  "_nota": "Banco de opciones del motor de variedad. 'tested' = construido y renderizado en esta sesión (ver examples/). 'untested' = documentado pero nunca renderizado: usar solo si se avisa y se prueba con snapshot antes.",
+
+  "palettes": {
+    "1":  { "name": "Negro + glow naranja cálido", "group": "warm-dark", "lightness": "dark" },
+    "2":  { "name": "Blanco + pasteles difuminados", "group": "light-soft", "lightness": "light" },
+    "3":  { "name": "Editorial papel", "group": "editorial", "lightness": "light" },
+    "4":  { "name": "Neón cyberpunk", "group": "neon", "lightness": "dark" },
+    "5":  { "name": "Infográfico / data", "group": "data-dark", "lightness": "dark" },
+    "6":  { "name": "Tierra / orgánico", "group": "earth", "lightness": "light" },
+    "7":  { "name": "Monocromo + 1 acento (brutalista)", "group": "brutalist", "lightness": "light" },
+    "8":  { "name": "Noche profunda violeta/azul (SaaS premium)", "group": "night-saas", "lightness": "dark" },
+    "9":  { "name": "Atardecer / gradiente cálido", "group": "sunset", "lightness": "dark" },
+    "10": { "name": "Menta fresca / salud", "group": "mint", "lightness": "light" },
+    "11": { "name": "Retro 70s", "group": "retro", "lightness": "light" },
+    "12": { "name": "Dark UI neutro (dev tools)", "group": "devtools", "lightness": "dark" },
+    "13": { "name": "Alto contraste amarillo/negro", "group": "alert", "lightness": "dark" },
+    "14": { "name": "Océano / cian profundo", "group": "ocean", "lightness": "dark" }
+  },
+
+  "groups": {
+    "warm-dark":  { "type": ["editorial-serif", "tech", "expressive"], "texture": ["grain", "vignette", "flare", "rgb-split"], "motion": ["cinematic-smooth", "spring-overshoot"] },
+    "light-soft": { "type": ["tech", "soft", "expressive"], "texture": ["grain", "vignette", "bokeh-soft"], "motion": ["cinematic-smooth", "spring-overshoot", "snappy-tech"] },
+    "editorial":  { "type": ["editorial-serif", "soft"], "texture": ["grain", "halftone", "vignette"], "motion": ["stepped-twos", "cinematic-smooth"] },
+    "neon":       { "type": ["futurist", "tech", "mono", "expressive"], "texture": ["scanlines", "rgb-split", "grain", "flare"], "motion": ["snappy-tech", "spring-overshoot"] },
+    "data-dark":  { "type": ["tech", "mono"], "texture": ["grain", "vignette"], "motion": ["snappy-tech", "cinematic-smooth"] },
+    "earth":      { "type": ["editorial-serif", "soft"], "texture": ["grain", "halftone", "vignette"], "motion": ["stepped-twos", "cinematic-smooth"] },
+    "brutalist":  { "type": ["condensed", "expressive"], "texture": ["halftone", "rgb-split", "none"], "motion": ["snappy-tech", "stepped-twos"] },
+    "night-saas": { "type": ["tech", "futurist"], "texture": ["grain", "flare", "vignette"], "motion": ["cinematic-smooth", "snappy-tech"] },
+    "sunset":     { "type": ["editorial-serif", "expressive", "soft"], "texture": ["grain", "bokeh-soft", "flare"], "motion": ["cinematic-smooth", "spring-overshoot"] },
+    "mint":       { "type": ["soft", "tech"], "texture": ["grain", "bokeh-soft"], "motion": ["spring-overshoot", "snappy-tech", "cinematic-smooth"] },
+    "retro":      { "type": ["editorial-serif", "expressive", "condensed"], "texture": ["grain", "halftone", "scanlines"], "motion": ["stepped-twos", "spring-overshoot"] },
+    "devtools":   { "type": ["mono", "tech"], "texture": ["scanlines", "grain", "none"], "motion": ["snappy-tech"] },
+    "alert":      { "type": ["condensed", "tech"], "texture": ["grain", "rgb-split", "scanlines"], "motion": ["snappy-tech", "stepped-twos"] },
+    "ocean":      { "type": ["tech", "soft", "editorial-serif"], "texture": ["grain", "bokeh-soft", "vignette"], "motion": ["cinematic-smooth", "spring-overshoot"] }
+  },
+
+  "typePairs": {
+    "1":  { "name": "Space Grotesk + Inter", "group": "tech" },
+    "2":  { "name": "Playfair Display + Source Sans 3", "group": "editorial-serif" },
+    "3":  { "name": "Bricolage Grotesque + DM Sans", "group": "expressive" },
+    "4":  { "name": "Fraunces + Inter", "group": "editorial-serif" },
+    "5":  { "name": "Syne + Manrope", "group": "expressive" },
+    "6":  { "name": "Anton + Inter", "group": "condensed" },
+    "7":  { "name": "JetBrains Mono + Inter", "group": "mono" },
+    "8":  { "name": "Instrument Serif + Geist", "group": "editorial-serif" },
+    "9":  { "name": "Unbounded + Outfit", "group": "futurist" },
+    "10": { "name": "Sora + Plus Jakarta Sans", "group": "soft" },
+    "11": { "name": "Bebas Neue + Source Sans 3", "group": "condensed" },
+    "12": { "name": "DM Serif Display + DM Sans", "group": "editorial-serif" },
+    "13": { "name": "Space Mono + Space Grotesk", "group": "mono" }
+  },
+
+  "motionPersonalities": {
+    "stepped-twos":     "Movimiento 'a dos': steps(n) en easing, sin curvas suaves; look hecho a mano (ejemplo: editorial-cards-particles).",
+    "cinematic-smooth": "Curvas sine.inOut / power2.inOut, duraciones largas 0.8-1.2s, cámara fluida (ejemplo: flythrough-3d-cine).",
+    "spring-overshoot": "back.out(1.4-2.4) en entradas de elementos héroe, rebote de íconos (ejemplo: dark-3d-flip-cards).",
+    "snappy-tech":      "power3.out 0.2-0.4s, cortes limpios, sin rebote (ejemplo: data-infographic-particle-logo, widget-wall)."
+  },
+
+  "textures": ["grain", "vignette", "flare", "rgb-split", "scanlines", "halftone", "bokeh-soft", "none"],
+
+  "formats": {
+    "editorial-cards": {
+      "status": "tested", "example": "editorial-cards-particles.html + dark-3d-flip-cards.html",
+      "needs": "solo texto/ícono; sin assets",
+      "cameras": ["css-parallax-drift", "css-3d-tilt-cards"],
+      "openings": ["kinetic-question", "counter-hook", "abstract-shapes-morph"],
+      "closings": ["kinetic-statement", "particle-logo-close", "counter-final"],
+      "core": ["paper-cards", "flip-card-3d", "label-callout", "counter-odometer", "grid-pattern-break", "ghost-trails-type"],
+      "backgrounds": ["shape-drift-parallax", "seeded-particles", "bokeh-circles", "mesh-gradient", "radial-glow"]
+    },
+    "flythrough-3d": {
+      "status": "tested", "example": "flythrough-3d-cine.html",
+      "needs": "objetos 3D por primitivas (ver references/worlds-3d.md); sin assets",
+      "cameras": ["threejs-proxy-flythrough"],
+      "openings": ["3d-dolly-title", "letterbox-reveal"],
+      "closings": ["particle-logo-close", "wide-pullback-fade", "kinetic-statement"],
+      "core": ["3d-object-per-beat", "anamorphic-flare", "label-callout"],
+      "backgrounds": ["three-fog-dust", "bokeh-circles", "radial-glow"]
+    },
+    "widget-wall": {
+      "status": "tested", "example": "widget-wall-camera-shots.html (+ vertical)",
+      "needs": "widgets propios en HTML/CSS; marca genérica, nunca logos reales",
+      "cameras": ["fixed-origin-shots"],
+      "openings": ["abstract-shapes-morph", "letterbox-reveal"],
+      "closings": ["wide-pullback-fade", "kinetic-statement"],
+      "core": ["widget-live-anim", "stroke-draw-route", "counter-odometer", "glass-focus"],
+      "backgrounds": ["radial-glow", "bokeh-circles", "mesh-gradient"]
+    },
+    "map-kinetic-type": {
+      "status": "tested", "example": "map-kinetic-type-glitch.html",
+      "needs": "ninguno (mapa procedural en SVG)",
+      "cameras": ["continuous-drift-3d-type"],
+      "openings": ["map-drift-word"],
+      "closings": ["kinetic-statement", "particle-logo-close"],
+      "core": ["kinetic-3d-word", "ghost-trails-type", "rgb-split-glitch"],
+      "backgrounds": ["procedural-city-map"]
+    },
+    "data-infographic": {
+      "status": "tested", "example": "data-infographic-particle-logo.html",
+      "needs": "datos reales provistos por el usuario (no inventar cifras)",
+      "cameras": ["locked-off", "css-parallax-drift"],
+      "openings": ["kinetic-question", "counter-hook"],
+      "closings": ["particle-logo-close", "counter-final"],
+      "core": ["chart-morph-bars", "glass-focus", "grid-pattern-break", "counter-odometer"],
+      "backgrounds": ["radial-glow", "mesh-gradient", "shape-drift-parallax"]
+    },
+    "ui-mockup-demo": {
+      "status": "tested", "example": "ui-mockup-demo.html",
+      "needs": "mockups propios en CSS (chat + ventana de navegador genérica); marca y logo propios o provistos por el cliente, nunca logos reales ni bezels de Apple",
+      "cameras": ["css-3d-tilt-cards"],
+      "openings": ["brand-pills-reveal"],
+      "closings": ["spark-tagline", "kinetic-statement"],
+      "core": ["typewriter-in-mockup", "browser-window-3d", "code-backdrop", "sweep-highlight", "anamorphic-flare"],
+      "backgrounds": ["radial-glow"]
+    }
+  },
+
+  "transitions": ["camera-fly", "push-slide", "flip-3d", "whip-blur", "scale-fade", "shutter-wipe"],
+
+  "keyDims": ["format", "palette", "typePair", "motion", "camera", "opening", "closing"]
+}

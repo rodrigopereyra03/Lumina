@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "design-taste-frontend": {
+      "source": "Leonxlnx/taste-skill",
+      "sourceType": "github",
+      "skillPath": "skills/taste-skill/SKILL.md",
+      "computedHash": "53590ee9325bee34d7888bf0d81bd3941a108b1e7850df46802d93104e3f2b90"
+    },
+    "open-edit": {
+      "source": "veedstudio/open-edit",
+      "sourceType": "github",
+      "skillPath": ".claude/skills/open-edit/SKILL.md",
+      "computedHash": "62d9c1899976062f5c69b5ad4341fa08dac8c4445c107d58f93f847048c643b9"
+    }
+  }
+}

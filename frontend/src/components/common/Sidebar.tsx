@@ -24,15 +24,15 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onTabChange }) => 
         <div
           className="flex items-center gap-3 min-w-0 cursor-pointer select-none"
           onClick={isCollapsed ? toggleSidebar : () => onTabChange('home')}
-          title={isCollapsed ? 'Clic para expandir menú' : 'Lumina'}
+          title={isCollapsed ? 'Clic para expandir menú' : 'Fórmula 1370'}
         >
           <img
             className="w-10 h-10 rounded-full object-cover shadow-xs shrink-0 hover:scale-105 transition-transform"
-            alt="Lumina Logo"
+            alt="Fórmula 1370 Logo"
             src="https://lh3.googleusercontent.com/aida-public/AB6AXuBulvxzsc88ka2rhIvod-_Vy0QoT7AE_g5UWuh5ZXFp4NHO38ZscTvvwpRWJ9XIU5Fz_fhVXbEh-hKEJ4yXjdl9-7wLZHOpCCIfEDYhD6-0j-3-13HdMRP8GS8pqqBGnepWKBFRR0AB_w1505fUl0D4kha-qL92t3LKZi3QIt7IrqAWU0ChCaSwHBBT5BOIEGCyt0CZcGpORRfSfvSpgiErOc2gPt1NwOcPZ-IjsVsWSFnP8Mxy6eIq"
           />
           {!isCollapsed && (
-            <h2 className="text-2xl font-bold text-[#FF4D4F] tracking-tight">Lumina</h2>
+            <h2 className="text-xl font-bold text-[#FF4D4F] tracking-tight">Fórmula 1370</h2>
           )}
         </div>
 

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,100..900&family=Unbounded:wght@300..900&family=Space+Grotesk:wght@300..700&family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Anton&family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@400..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #000; }
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; overflow: hidden; }
+      .tag { position: absolute; left: 40px; top: 32px; font: 600 26px 'DM Sans', sans-serif; letter-spacing: 0.08em; text-transform: uppercase; padding: 8px 16px; border-radius: 8px; background: rgba(255,255,255,0.9); color: #111; z-index: 50; }
+
+      /* S1: glow cálido (radial-gradient) */
+      #s1 { background: #0E0C0B; }
+      .glow-warm{position:absolute;width:900px;height:900px;border-radius:50%;
+        background:radial-gradient(circle,rgba(232,116,59,.55) 0%,rgba(232,116,59,.18) 35%,transparent 70%);}
+      #s1 h1 { position: relative; font: 300 200px 'Fraunces', serif; color: #F4EDE6; }
+
+      /* S2: neón frío + rgb-split por text-shadow + scanlines */
+      #s2 { background: #08060F; }
+      #s2.scan::after{content:"";position:absolute;inset:0;pointer-events:none;
+        background:repeating-linear-gradient(to bottom,rgba(0,0,0,0) 0,rgba(0,0,0,0) 2px,rgba(0,0,0,.18) 3px,rgba(0,0,0,.18) 4px);}
+      .neon-cold{color:#e6fbff;text-shadow:0 0 6px #19e3ff,0 0 18px #19e3ff,0 0 40px rgba(25,227,255,.6);}
+      .rgb-split{color:#fff;text-shadow:-3px 0 rgba(255,0,60,.8),3px 0 rgba(0,200,255,.8);}
+      #s2 h1 { font: 800 220px 'Unbounded', sans-serif; }
+      #s2 h2 { font: 700 110px 'Unbounded', sans-serif; margin-top: 20px; }
+
+      /* S3: filtro SVG RGB + grano feTurbulence + halftone */
+      #s3 { background: #0F172A; }
+      .halftone{position:absolute;left:0;top:0;width:640px;height:1080px;background-image:radial-gradient(circle,#38BDF8 28%,transparent 30%);background-size:14px 14px;opacity:.55;}
+      .grain{position:absolute;inset:0;pointer-events:none;opacity:.12;filter:url(#grain);background:#888}
+      .glitch{filter:url(#rgb)}
+      #s3 .mark { position: relative; font: 700 200px 'Space Grotesk', sans-serif; color: #E2E8F0; }
+
+      /* S4: mesh gradient + glass */
+      #s4 { background:
+        radial-gradient(at 20% 25%,#7C5CFF 0,transparent 50%),
+        radial-gradient(at 80% 20%,#3DD6F5 0,transparent 45%),
+        radial-gradient(at 70% 85%,#FF7A59 0,transparent 50%),
+        #0B0B1A; }
+      .glass{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:24px;
+        backdrop-filter:blur(18px) saturate(150%);padding:70px 110px;text-align:center;}
+      #s4 h1 { font: italic 400 150px 'Instrument Serif', serif; color: #ECECFF; }
+      #s4 p { font: 400 44px 'Geist', sans-serif; color: #ECECFF; margin-top: 12px; }
+
+      /* S5: ghost trails */
+      #s5 { background: #F2F2F2; }
+      #s5 .mv { font: 400 340px 'Anton', sans-serif; color: #0A0A0A; position: absolute; left: 120px; top: 330px; }
+      #s5 .bar { position: absolute; left: 0; bottom: 140px; height: 18px; width: 100%; background: #FF3B00; }
+
+      /* S6: bokeh con rng + atardecer */
+      #s6 { background: linear-gradient(to bottom, #1B0F2E, #FF7A59); }
+      .bokeh{position:absolute;border-radius:50%;
+        background:radial-gradient(circle,rgba(255,255,255,.35) 0%,rgba(255,255,255,.12) 55%,transparent 72%);}
+      #s6 h1 { position: relative; font: 400 190px 'DM Serif Display', serif; color: #FFF3E8; }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute">
+      <filter id="rgb" x="-5%" y="-5%" width="110%" height="110%" color-interpolation-filters="sRGB">
+        <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0" result="r"/>
+        <feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0" result="gb"/>
+        <feOffset id="rgbOff" in="r" dx="4" dy="0" result="r2"/>
+        <feBlend in="r2" in2="gb" mode="screen"/>
+      </filter>
+      <filter id="grain"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="3" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/></filter>
+    </svg>
+
+    <div id="root" data-composition-id="main" data-start="0" data-duration="18" data-width="1920" data-height="1080">
+      <div class="scene" id="s1"><div class="tag">glow cálido · radial-gradient · Fraunces</div>
+        <div class="glow-warm" id="glow1"></div><h1>IA cálida</h1></div>
+
+      <div class="scene scan" id="s2"><div class="tag">neón frío · rgb-split · scanlines · Unbounded</div>
+        <h1 class="neon-cold">NEÓN</h1><h2 class="rgb-split">GLITCH</h2></div>
+
+      <div class="scene" id="s3"><div class="tag">filtro SVG rgb · grano feTurbulence · halftone · Space Grotesk</div>
+        <div class="halftone"></div><div class="mark glitch">SVG RGB</div><div class="grain"></div></div>
+
+      <div class="scene" id="s4"><div class="tag">mesh gradient · glassmorphism (backdrop-filter) · Instrument Serif</div>
+        <div class="glass"><h1>Cristal</h1><p>backdrop-filter blur 18px</p></div></div>
+
+      <div class="scene" id="s5"><div class="tag">ghost trails · motion blur falso · Anton</div>
+        <div class="mv" id="mv">MOVE</div><div class="bar"></div></div>
+
+      <div class="scene" id="s6"><div class="tag">bokeh con PRNG · gradiente atardecer · DM Serif Display</div>
+        <div id="bokehHost" style="position:absolute;inset:0"></div><h1>Bokeh</h1></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const starts = [0, 3, 6, 9, 12, 15];
+      ['#s1','#s2','#s3','#s4','#s5','#s6'].forEach((s, i) => {
+        tl.set(s, { opacity: 1 }, starts[i]);
+        if (i > 0) tl.set(['#s1','#s2','#s3','#s4','#s5','#s6'][i - 1], { opacity: 0 }, starts[i]);
+      });
+
+      // S1
+      tl.fromTo('#glow1', { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1.1, duration: 2.6, ease: 'power2.out' }, 0);
+      tl.fromTo('#s1 h1', { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out' }, 0.2);
+
+      // S2
+      tl.fromTo('#s2 h1', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: 'back.out(2)' }, 3);
+      tl.fromTo('#s2 h2', { opacity: 0, x: -60 }, { opacity: 1, x: 0, duration: 0.5, ease: 'power3.out' }, 3.4);
+
+      // S3
+      tl.fromTo('#s3 .mark', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'power3.out' }, 6);
+      tl.fromTo('#rgbOff', { attr: { dx: 24 } }, { attr: { dx: 4 }, duration: 1.2, ease: 'power2.out' }, 6);
+
+      // S4
+      tl.fromTo('.glass', { opacity: 0, y: 50 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 9);
+
+      // S5: ghost trails (snippet del catálogo, con clases en vez de ids duplicados)
+      const mv = document.getElementById('mv');
+      const N = 6;
+      for (let i = 0; i < N; i++) {
+        const g = mv.cloneNode(true);
+        g.removeAttribute('id');
+        g.style.opacity = 0.5 * (1 - i / N);
+        mv.parentNode.insertBefore(g, mv);
+        tl.fromTo(g, { x: -200 }, { x: 900, duration: 0.8, ease: 'power3.out' }, 12.2 + 0.04 * (i + 1));
+      }
+      tl.fromTo(mv, { x: -200 }, { x: 900, duration: 0.8, ease: 'power3.out' }, 12.2);
+
+      // S6: bokeh con rng del catálogo
+      function rng(s) { return () => (s = (s * 1664525 + 1013904223) % 4294967296) / 4294967296; }
+      const r = rng(7);
+      const host = document.getElementById('bokehHost');
+      for (let i = 0; i < 24; i++) {
+        const d = document.createElement('div');
+        d.className = 'bokeh';
+        const sz = 60 + r() * 260;
+        d.style.cssText = `width:${sz}px;height:${sz}px;left:${r() * 1920}px;top:${r() * 1080}px;opacity:${0.2 + r() * 0.5}`;
+        host.appendChild(d);
+        tl.fromTo(d, { y: 0 }, { y: -80 - r() * 120, duration: 3, ease: 'none' }, 15);
+      }
+      tl.fromTo('#s6 h1', { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.8, ease: 'power3.out' }, 15.2);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

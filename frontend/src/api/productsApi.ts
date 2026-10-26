@@ -56,7 +56,7 @@ const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
       images: imgs,
       volumes: p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100],
       accent_color: p.accent_color || '#fb7185',
-      brand: p.brand || p.category_name || 'Lumina',
+      brand: p.brand || p.category_name || 'Fórmula 1370',
     }
   })
 }
@@ -105,7 +105,7 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
           p.category?.slug ||
           p.category_slug ||
           (meta.brand ? meta.brand.toLowerCase().replace(/\s+/g, '-') : 'perfumes')
-        const brand = meta.brand || p.category?.name || p.brand || 'Lumina'
+        const brand = meta.brand || p.category?.name || p.brand || 'Fórmula 1370'
         const imgs = meta.images && meta.images.length > 0 ? meta.images : (p.image ? [p.image] : [])
 
         return {
@@ -256,7 +256,7 @@ export const productsApi = {
             category_slug: p.category?.slug || 'perfumes',
             volumes: p.volumes || meta.volumes || [50, 100],
             accent_color: p.accent_color || meta.accent_color || '#fb7185',
-            brand: meta.brand || p.category?.name || 'Lumina',
+            brand: meta.brand || p.category?.name || 'Fórmula 1370',
           }
         }
       }
@@ -307,7 +307,7 @@ export const productsApi = {
     const meta = {
       volumes: productData.volumes && productData.volumes.length > 0 ? productData.volumes : [50, 100],
       accent_color: productData.accent_color || '#fb7185',
-      brand: productData.brand || productData.category_name || 'Lumina',
+      brand: productData.brand || productData.category_name || 'Fórmula 1370',
       images: imgs,
     }
 
@@ -425,7 +425,7 @@ export const productsApi = {
     const meta = {
       volumes: productData.volumes || existing?.volumes || [50, 100],
       accent_color: productData.accent_color || existing?.accent_color || '#fb7185',
-      brand: productData.brand || existing?.brand || productData.category_name || existing?.category_name || 'Lumina',
+      brand: productData.brand || existing?.brand || productData.category_name || existing?.category_name || 'Fórmula 1370',
       images: imgs,
     }
 

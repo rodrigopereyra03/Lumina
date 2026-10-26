@@ -25,11 +25,11 @@ export const usersApi = {
     }
 
     // Include standard admin if not present
-    if (!localUsers.some((u) => u.email === 'admin@lumina.com')) {
+    if (!localUsers.some((u) => u.email === 'admin@formula1370.com' || u.email === 'admin@lumina.com')) {
       localUsers.unshift({
         id: 'admin-1',
-        email: 'admin@lumina.com',
-        full_name: 'Administrador Lumina',
+        email: 'admin@formula1370.com',
+        full_name: 'Administrador Fórmula 1370',
         role: 'admin',
         created_at: new Date(Date.now() - 86400000 * 30).toISOString(),
       })
@@ -88,7 +88,7 @@ export const usersApi = {
       await axiosInstance.post('/users/register', {
         name: userData.full_name,
         email: userData.email,
-        password: userData.password || 'lumina123',
+        password: userData.password || 'formula1370_123',
       })
     } catch (e) {
       // Handled

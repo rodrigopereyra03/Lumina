@@ -1,0 +1,1628 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <title>FÓRMULA 1370 • Customer Purchase Journey (Neo-Editorial)</title>
+    <!-- Google Fonts: DM Sans & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <!-- Google Material Symbols -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <!-- Local GSAP for instant zero-latency loading -->
+    <script src="gsap.min.js"></script>
+
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 100%;
+        height: 100%;
+        background: #0d0f12;
+        font-family: 'DM Sans', sans-serif;
+        overflow: hidden;
+        color: #121314;
+        user-select: none;
+      }
+
+      /* Viewport 16:9 */
+      #wrapper {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #0d0f12;
+      }
+
+      #stage {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #0d0f12;
+        background-image: 
+          radial-gradient(circle at 50% 40%, rgba(246, 244, 238, 0.08) 0%, transparent 60%),
+          radial-gradient(circle at 80% 20%, rgba(168, 213, 227, 0.12) 0%, transparent 45%),
+          radial-gradient(circle at 20% 80%, rgba(255, 120, 172, 0.1) 0%, transparent 45%);
+        transform-origin: center center;
+        perspective: 1600px;
+      }
+
+      /* Dynamic Lower-Third Caption Pill (TikTok / Reels Style) */
+      #caption-bar {
+        position: absolute;
+        bottom: 34px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 100;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 4px 4px 0px #121314;
+        border-radius: 999px;
+        padding: 10px 24px;
+        pointer-events: none;
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .caption-step-badge {
+        font-family: 'DM Sans', sans-serif;
+        font-size: 11px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        background: #0ffcbe;
+        color: #121314;
+        border: 1.5px solid #121314;
+        padding: 4px 12px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .caption-text {
+        font-size: 13px;
+        font-weight: 800;
+        color: #121314;
+        letter-spacing: -0.01em;
+      }
+      .caption-desc {
+        font-size: 12px;
+        font-weight: 500;
+        color: #55575a;
+        margin-left: -6px;
+      }
+
+      /* Cursor */
+      #cursor {
+        position: absolute;
+        width: 28px;
+        height: 28px;
+        z-index: 200;
+        pointer-events: none;
+        top: 920px;
+        left: 960px;
+        transform: translate(-3px, -3px);
+        filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+        transition: transform 0.08s ease;
+      }
+
+      /* 3D Browser Window Mockup */
+      #browser-window {
+        position: absolute;
+        left: 100px;
+        top: 40px;
+        width: 1720px;
+        height: 980px;
+        border-radius: 28px;
+        background: #f6f4ee;
+        border: 2.5px solid #121314;
+        box-shadow: 14px 18px 0px rgba(18, 19, 20, 0.95);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        z-index: 10;
+        transform-style: preserve-3d;
+      }
+
+      /* Browser chrome header bar */
+      .browser-bar {
+        height: 48px;
+        background: #ffffff;
+        border-bottom: 2px solid #121314;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 24px;
+        z-index: 20;
+      }
+      .traffic-lights {
+        display: flex;
+        gap: 8px;
+      }
+      .traffic-dot {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border: 1.5px solid #121314;
+      }
+      .traffic-dot.red { background: #ff5f56; }
+      .traffic-dot.yellow { background: #ffbd2e; }
+      .traffic-dot.green { background: #27c93f; }
+
+      .browser-url-pill {
+        background: #f6f4ee;
+        border: 1.5px solid #121314;
+        border-radius: 999px;
+        padding: 3px 26px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: #121314;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .browser-url-pill .ssl-lock { color: #106ebe; font-size: 14px; }
+
+      /* Store Navbar */
+      .store-header {
+        height: 72px;
+        background: #ffffff;
+        border-bottom: 2px solid #121314;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 36px;
+        position: relative;
+        z-index: 20;
+      }
+      .store-brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .monogram-f {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #121314;
+        color: #ffffff;
+        border: 2px solid #121314;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 900;
+        box-shadow: 2px 2px 0px #121314;
+      }
+      .brand-title-wrap h2 {
+        font-size: 14px;
+        font-weight: 900;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: #121314;
+        line-height: 1;
+      }
+      .brand-title-wrap p {
+        font-size: 9px;
+        letter-spacing: 0.25em;
+        text-transform: uppercase;
+        color: #55575a;
+        font-weight: 700;
+        margin-top: 3px;
+      }
+
+      /* Store Tabs */
+      .store-nav-pill-switcher {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px;
+        border-radius: 999px;
+        background: #f6f4ee;
+        border: 2px solid #121314;
+      }
+      .nav-pill-item {
+        padding: 6px 18px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        color: #55575a;
+        transition: all 0.2s ease;
+      }
+      .nav-pill-item.active {
+        background: #121314;
+        color: #ffffff;
+      }
+
+      /* Store Actions */
+      .store-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .icon-action-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 2px 2px 0px #121314;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #121314;
+      }
+      .cart-btn-nav {
+        position: relative;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 2px 2px 0px #121314;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #121314;
+      }
+      .cart-count-badge {
+        position: absolute;
+        top: -4px;
+        right: -4px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: #ff78ac;
+        color: #121314;
+        font-size: 10px;
+        font-weight: 900;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 1.5px solid #121314;
+        transform: scale(0);
+      }
+
+      /* Viewport Content */
+      .viewport-content {
+        position: relative;
+        flex: 1;
+        overflow: hidden;
+      }
+
+      /* ========================================================================= */
+      /* VIEW 1: CATALOG                                                           */
+      /* ========================================================================= */
+      #view-catalog {
+        position: absolute;
+        inset: 0;
+        padding: 24px 44px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        z-index: 5;
+        background: #f6f4ee;
+      }
+      .catalog-header-row {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #121314;
+      }
+      .catalog-breadcrumb {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 3px 12px;
+        border-radius: 999px;
+        background: #a8d5e3;
+        border: 1.5px solid #121314;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #121314;
+        margin-bottom: 6px;
+      }
+      .catalog-title {
+        font-size: 26px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #121314;
+        letter-spacing: -0.02em;
+      }
+      .catalog-stats-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .catalog-stat-pill {
+        padding: 5px 12px;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1.5px solid #121314;
+        font-size: 11px;
+        font-weight: 800;
+        color: #121314;
+        box-shadow: 2px 2px 0px #121314;
+      }
+
+      /* Filters */
+      .filter-houses-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .filter-label-house {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #121314;
+        background: #ff78ac;
+        border: 1.5px solid #121314;
+        padding: 4px 10px;
+        border-radius: 8px;
+      }
+      .house-pill {
+        padding: 5px 14px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #ffffff;
+        border: 1.5px solid #121314;
+        color: #55575a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .house-pill.active {
+        background: #106ebe;
+        color: #ffffff;
+        font-weight: 900;
+        box-shadow: 2px 2px 0px #121314;
+      }
+      .house-count {
+        font-size: 9px;
+        padding: 1px 6px;
+        border-radius: 999px;
+        background: rgba(0,0,0,0.08);
+      }
+      .house-pill.active .house-count {
+        background: rgba(255,255,255,0.25);
+        color: #ffffff;
+      }
+
+      .filter-families-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding-bottom: 4px;
+      }
+      .family-pill {
+        padding: 5px 14px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        background: #ffffff;
+        border: 1.5px solid #121314;
+        color: #55575a;
+      }
+      .family-pill.active {
+        background: #a8d5e3;
+        color: #121314;
+        font-weight: 900;
+        box-shadow: 2px 2px 0px #121314;
+      }
+
+      /* Cards Grid */
+      .catalog-cards-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+        flex: 1;
+      }
+      .product-card {
+        border-radius: 20px;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 4px 4px 0px #121314;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .product-card.hero-focus {
+        border-color: #121314;
+        box-shadow: 8px 10px 0px #121314;
+        transform: translateY(-6px);
+      }
+      .card-image-stage {
+        height: 210px;
+        border-radius: 14px;
+        background: radial-gradient(circle at center, rgba(168, 213, 227, 0.3) 0%, #f6f4ee 75%);
+        border: 1.5px solid #121314;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      }
+      .card-image-stage img {
+        max-height: 180px;
+        object-fit: contain;
+        filter: drop-shadow(0 14px 20px rgba(18, 19, 20, 0.35));
+      }
+      .card-meta-pill {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        padding: 3px 10px;
+        border-radius: 6px;
+        background: #ff78ac;
+        color: #121314;
+        border: 1px solid #121314;
+        font-size: 9px;
+        font-weight: 900;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .card-info {
+        margin-top: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .card-brand {
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #106ebe;
+      }
+      .card-title {
+        font-size: 17px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #121314;
+        letter-spacing: -0.01em;
+      }
+      .card-bottom-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1.5px solid #121314;
+      }
+      .card-price {
+        font-size: 18px;
+        font-weight: 900;
+        color: #121314;
+      }
+      .card-btn-add {
+        padding: 8px 16px;
+        border-radius: 999px;
+        background: #0ffcbe;
+        color: #121314;
+        border: 1.5px solid #121314;
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        box-shadow: 2px 2px 0px #121314;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      /* ========================================================================= */
+      /* VIEW 2: PRODUCT DETAIL                                                    */
+      /* ========================================================================= */
+      #view-detail {
+        position: absolute;
+        inset: 0;
+        padding: 30px 48px;
+        display: grid;
+        grid-template-columns: 1fr 1.1fr;
+        gap: 40px;
+        z-index: 6;
+        opacity: 0;
+        background: #f6f4ee;
+        pointer-events: none;
+      }
+      .detail-visual-box {
+        border-radius: 24px;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 6px 6px 0px #121314;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+      }
+      .detail-visual-box img {
+        max-height: 480px;
+        object-fit: contain;
+        filter: drop-shadow(0 25px 35px rgba(18, 19, 20, 0.4));
+        z-index: 5;
+      }
+      .detail-glow {
+        position: absolute;
+        width: 380px;
+        height: 380px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(168, 213, 227, 0.5) 0%, transparent 70%);
+        pointer-events: none;
+      }
+      .detail-info-panel {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 16px;
+      }
+      .detail-brand-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 12px;
+        border-radius: 999px;
+        background: #106ebe;
+        color: #ffffff;
+        border: 1.5px solid #121314;
+        font-size: 10px;
+        font-weight: 900;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        width: fit-content;
+      }
+      .detail-title {
+        font-size: 40px;
+        font-weight: 900;
+        text-transform: uppercase;
+        color: #121314;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+      }
+      .detail-desc {
+        font-size: 13px;
+        color: #55575a;
+        line-height: 1.6;
+        font-weight: 500;
+      }
+      .notes-pyramid {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .note-badge {
+        padding: 5px 12px;
+        border-radius: 8px;
+        border: 1.5px solid #121314;
+        font-size: 11px;
+        font-weight: 800;
+        box-shadow: 2px 2px 0px #121314;
+      }
+      .note-badge.salida { background: #0ffcbe; color: #121314; }
+      .note-badge.corazon { background: #a8d5e3; color: #121314; }
+      .note-badge.fondo { background: #ff78ac; color: #121314; }
+
+      .volume-selector-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 6px;
+      }
+      .vol-pill-btn {
+        width: 54px;
+        height: 54px;
+        border-radius: 14px;
+        border: 2px solid #121314;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        font-weight: 900;
+        background: #ffffff;
+        color: #121314;
+        box-shadow: 2px 2px 0px #121314;
+      }
+      .vol-pill-btn.active {
+        background: #121314;
+        color: #ffffff;
+        box-shadow: 4px 4px 0px #121314;
+        transform: scale(1.05);
+      }
+      .vol-pill-btn span:last-child {
+        font-size: 9px;
+        opacity: 0.8;
+      }
+
+      .detail-actions-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-top: 10px;
+        padding-top: 16px;
+        border-top: 2px solid #121314;
+      }
+      .btn-add-cart-giant {
+        flex: 1;
+        padding: 16px 28px;
+        border-radius: 999px;
+        background: #0ffcbe;
+        color: #121314;
+        border: 2px solid #121314;
+        box-shadow: 4px 4px 0px #121314;
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      /* ========================================================================= */
+      /* VIEW 3: CART DRAWER SLIDE-OVER                                            */
+      /* ========================================================================= */
+      #cart-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(18, 19, 20, 0.55);
+        backdrop-filter: blur(4px);
+        z-index: 40;
+        opacity: 0;
+        pointer-events: none;
+      }
+      #cart-drawer {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 480px;
+        background: #f6f4ee;
+        border-left: 2.5px solid #121314;
+        box-shadow: -15px 0 40px rgba(0, 0, 0, 0.4);
+        z-index: 50;
+        transform: translateX(100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .drawer-header {
+        padding: 24px;
+        background: #ffffff;
+        border-bottom: 2px solid #121314;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .drawer-body {
+        padding: 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .drawer-item-card {
+        padding: 16px;
+        border-radius: 18px;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 3px 3px 0px #121314;
+        display: flex;
+        gap: 14px;
+        align-items: center;
+      }
+      .drawer-item-img {
+        width: 64px;
+        height: 78px;
+        border-radius: 10px;
+        background: #f6f4ee;
+        border: 1.5px solid #121314;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+      }
+      .drawer-item-img img {
+        max-height: 100%;
+        object-fit: contain;
+      }
+      .drawer-footer {
+        padding: 24px;
+        background: #ffffff;
+        border-top: 2px solid #121314;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .btn-finalizar-pedido {
+        width: 100%;
+        padding: 16px;
+        border-radius: 999px;
+        background: #0ffcbe;
+        color: #121314;
+        border: 2px solid #121314;
+        box-shadow: 4px 4px 0px #121314;
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      /* ========================================================================= */
+      /* VIEW 4: CHECKOUT                                                          */
+      /* ========================================================================= */
+      #view-checkout {
+        position: absolute;
+        inset: 0;
+        padding: 30px 48px;
+        z-index: 6;
+        opacity: 0;
+        background: #f6f4ee;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .checkout-grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 32px;
+        flex: 1;
+      }
+      .checkout-box {
+        border-radius: 20px;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 4px 4px 0px #121314;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .payment-option-pill {
+        padding: 14px 18px;
+        border-radius: 14px;
+        border: 2px solid #121314;
+        background: #f6f4ee;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-weight: 800;
+        font-size: 13px;
+      }
+      .payment-option-pill.active {
+        background: #106ebe;
+        color: #ffffff;
+        box-shadow: 3px 3px 0px #121314;
+      }
+      .btn-pagar-mp {
+        width: 100%;
+        padding: 16px;
+        border-radius: 999px;
+        background: #0ffcbe;
+        color: #121314;
+        border: 2px solid #121314;
+        box-shadow: 4px 4px 0px #121314;
+        font-size: 13px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 14px;
+      }
+
+      /* ========================================================================= */
+      /* VIEW 5: ORDER SUCCESS                                                     */
+      /* ========================================================================= */
+      #view-success {
+        position: absolute;
+        inset: 0;
+        z-index: 7;
+        opacity: 0;
+        background: #f6f4ee;
+        pointer-events: none;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px;
+      }
+      .success-seal-container {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        background: #0ffcbe;
+        border: 3px solid #121314;
+        box-shadow: 6px 6px 0px #121314;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .success-order-num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 13px;
+        font-weight: 800;
+        background: #ffffff;
+        border: 1.5px solid #121314;
+        box-shadow: 2px 2px 0px #121314;
+        padding: 5px 18px;
+        border-radius: 999px;
+        margin-bottom: 12px;
+      }
+
+      /* Playback controls bar */
+      #controls-bar {
+        position: absolute;
+        bottom: 14px;
+        right: 20px;
+        z-index: 150;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: #ffffff;
+        border: 2px solid #121314;
+        box-shadow: 3px 3px 0px #121314;
+        border-radius: 999px;
+        padding: 6px 14px;
+      }
+      .ctrl-btn {
+        background: transparent;
+        border: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 11px;
+        font-weight: 800;
+        font-family: 'DM Sans', sans-serif;
+        color: #121314;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="wrapper">
+      <div id="stage">
+        
+        <!-- Animated Cursor -->
+        <svg id="cursor" viewBox="0 0 24 24" fill="none">
+          <path d="M5.5 3.2L18.4 12.3C19.2 12.8 18.9 14 18 14.1L12.7 14.7L9.8 19.8C9.4 20.5 8.3 20.5 7.9 19.8L3.2 4.6C2.9 3.8 3.8 3.0 4.6 3.4L5.5 3.2Z" fill="#121314" stroke="#ffffff" stroke-width="2"/>
+        </svg>
+
+        <!-- 3D Browser Window Mockup -->
+        <div id="browser-window">
+          
+          <!-- Top Window Chrome Bar -->
+          <div class="browser-bar">
+            <div class="traffic-lights">
+              <span class="traffic-dot red"></span>
+              <span class="traffic-dot yellow"></span>
+              <span class="traffic-dot green"></span>
+            </div>
+            <div class="browser-url-pill">
+              <span class="material-symbols-outlined ssl-lock">lock</span>
+              <span>https://formula1370.com/catalogo</span>
+            </div>
+            <div style="font-size:11px; font-weight:800; color:#55575a;">
+              HAUTE PARFUMERIE
+            </div>
+          </div>
+
+          <!-- Store Header Navbar -->
+          <div class="store-header">
+            <div class="store-brand">
+              <div class="monogram-f">F</div>
+              <div class="brand-title-wrap">
+                <h2>FÓRMULA 1370</h2>
+                <p>HAUTE PARFUMERIE</p>
+              </div>
+            </div>
+
+            <div class="store-nav-pill-switcher">
+              <div class="nav-pill-item active" id="nav-coleccion">Colección</div>
+              <div class="nav-pill-item">Showcase 3D</div>
+              <div class="nav-pill-item">Nosotros</div>
+            </div>
+
+            <div class="store-actions">
+              <div class="icon-action-btn">
+                <span class="material-symbols-outlined" style="font-size:18px;">search</span>
+              </div>
+              <div class="cart-btn-nav" id="btn-cart-nav">
+                <span class="material-symbols-outlined" style="font-size:18px;">shopping_bag</span>
+                <span class="cart-count-badge" id="cart-badge">1</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Viewport Router Content -->
+          <div class="viewport-content">
+
+            <!-- =============================================================== -->
+            <!-- 1. VIEW CATALOG                                                 -->
+            <!-- =============================================================== -->
+            <div id="view-catalog">
+              <div class="catalog-header-row">
+                <div>
+                  <div class="catalog-breadcrumb">
+                    <span class="material-symbols-outlined" style="font-size:13px;">verified</span>
+                    <span>100% ORIGINAL • GARANTÍA OFICIAL DUBÁI</span>
+                  </div>
+                  <h1 class="catalog-title">CATÁLOGO DE AUTOR</h1>
+                </div>
+                <div class="catalog-stats-row">
+                  <div class="catalog-stat-pill">32 Fragancias en Stock</div>
+                  <div class="catalog-stat-pill">Envío Gratis Hoy</div>
+                </div>
+              </div>
+
+              <!-- Houses Filter -->
+              <div class="filter-houses-row">
+                <span class="filter-label-house">CASA</span>
+                <div class="house-pill">Lattafa <span class="house-count">12</span></div>
+                <div class="house-pill active" id="filter-armaf">
+                  Armaf <span class="house-count">8</span>
+                </div>
+                <div class="house-pill">Afnan <span class="house-count">6</span></div>
+                <div class="house-pill">Al Haramain <span class="house-count">4</span></div>
+              </div>
+
+              <!-- Families Filter -->
+              <div class="filter-families-row">
+                <div class="family-pill">Todas las Familias</div>
+                <div class="family-pill active" id="filter-marino">Cítrico Marino</div>
+                <div class="family-pill">Amaderado Especiado</div>
+                <div class="family-pill">Oriental Ámbar</div>
+                <div class="family-pill">Gourmand</div>
+              </div>
+
+              <!-- 3 Products Grid -->
+              <div class="catalog-cards-grid">
+                <!-- Card 1: Asad -->
+                <div class="product-card">
+                  <div class="card-image-stage" style="background: radial-gradient(circle at center, rgba(255, 120, 172, 0.25) 0%, #f6f4ee 75%);">
+                    <span class="card-meta-pill" style="background:#ff78ac;">BESTSELLER</span>
+                    <img src="hero-perfumes/amber-oud.png" />
+                  </div>
+                  <div class="card-info">
+                    <span class="card-brand" style="color:#e11d48;">LATTAFA</span>
+                    <h3 class="card-title">ASAD EAU DE PARFUM</h3>
+                    <p style="font-size:11px; color:#55575a; font-weight:600;">Pimienta negra, café y vainilla noble</p>
+                  </div>
+                  <div class="card-bottom-row">
+                    <span class="card-price">$65.000</span>
+                    <div class="card-btn-add">Añadir</div>
+                  </div>
+                </div>
+
+                <!-- Card 2: Odyssey Aqua (Hero Focus) -->
+                <div class="product-card hero-focus" id="card-hero">
+                  <div class="card-image-stage" style="background: radial-gradient(circle at center, rgba(168, 213, 227, 0.45) 0%, #f6f4ee 75%);">
+                    <span class="card-meta-pill" style="background:#a8d5e3;">EXTRACT 12H+</span>
+                    <img src="hero-perfumes/odyssey-aqua.png" />
+                  </div>
+                  <div class="card-info">
+                    <span class="card-brand" style="color:#106ebe;">ARMAF</span>
+                    <h3 class="card-title">ODYSSEY AQUA</h3>
+                    <p style="font-size:11px; color:#55575a; font-weight:600;">Frescura marina, toronja y ambroxan</p>
+                  </div>
+                  <div class="card-bottom-row">
+                    <span class="card-price">$118.000</span>
+                    <div class="card-btn-add" id="card-btn-hero" style="background:#0ffcbe;">
+                      <span>Añadir</span>
+                      <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Card 3: 9PM Rebel -->
+                <div class="product-card">
+                  <div class="card-image-stage" style="background: radial-gradient(circle at center, rgba(15, 252, 190, 0.25) 0%, #f6f4ee 75%);">
+                    <span class="card-meta-pill" style="background:#0ffcbe;">NUEVO</span>
+                    <img src="hero-perfumes/9pm-rebel.png" />
+                  </div>
+                  <div class="card-info">
+                    <span class="card-brand" style="color:#0ea5e9;">AFNAN</span>
+                    <h3 class="card-title">9PM REBEL</h3>
+                    <p style="font-size:11px; color:#55575a; font-weight:600;">Manzana silvestre, cedro y haba tonka</p>
+                  </div>
+                  <div class="card-bottom-row">
+                    <span class="card-price">$78.000</span>
+                    <div class="card-btn-add">Añadir</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- =============================================================== -->
+            <!-- 2. VIEW DETAIL                                                  -->
+            <!-- =============================================================== -->
+            <div id="view-detail">
+              <div class="detail-visual-box">
+                <div class="detail-glow"></div>
+                <img src="hero-perfumes/odyssey-aqua.png" />
+                <div style="position:absolute; bottom:20px; display:flex; gap:10px;">
+                  <span style="padding:4px 12px; border-radius:999px; background:#ffffff; border:1.5px solid #121314; font-size:10px; font-weight:900;">
+                    3D VIEW &bull; ROTACIÓN 360°
+                  </span>
+                </div>
+              </div>
+
+              <div class="detail-info-panel">
+                <div class="detail-brand-badge">ARMAF • HAUTE PARFUMERIE</div>
+                <h1 class="detail-title">ODYSSEY AQUA</h1>
+                <p class="detail-desc">
+                  Una apertura oceánica vibrante con toronja de Sicilia y bergamota, evolucionando hacia un corazón de ambroxan y lavanda sobre un fondo cálido de maderas nobles.
+                </p>
+
+                <!-- Pyramid -->
+                <div class="notes-pyramid">
+                  <div class="note-badge salida">Salida: Toronja & Menta</div>
+                  <div class="note-badge corazon">Corazón: Ambroxan & Lavanda</div>
+                  <div class="note-badge fondo">Fondo: Pachulí & Cedro</div>
+                </div>
+
+                <!-- Volume Selector -->
+                <div class="volume-selector-row">
+                  <span style="font-size:11px; font-weight:900; text-transform:uppercase; color:#55575a;">Volumen:</span>
+                  <div class="vol-pill-btn">
+                    <span>50</span><span>ML</span>
+                  </div>
+                  <div class="vol-pill-btn active">
+                    <span>100</span><span>ML</span>
+                  </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="detail-actions-row">
+                  <div>
+                    <div style="font-size:11px; color:#55575a; font-weight:700;">PRECIO FINAL</div>
+                    <div style="font-size:32px; font-weight:900; color:#121314; line-height:1;">$118.000</div>
+                  </div>
+                  <div class="btn-add-cart-giant" id="btn-add-cart-detail">
+                    <span class="material-symbols-outlined" style="font-size:20px;">shopping_bag</span>
+                    <span>Añadir a la Cesta</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Backdrop -->
+            <div id="cart-backdrop"></div>
+
+            <!-- =============================================================== -->
+            <!-- 3. VIEW CART DRAWER                                             -->
+            <!-- =============================================================== -->
+            <div id="cart-drawer">
+              <div>
+                <div class="drawer-header">
+                  <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="width:10px; height:10px; border-radius:50%; background:#0ffcbe; border:1.5px solid #121314;"></span>
+                    <span style="font-size:15px; font-weight:900; text-transform:uppercase; color:#121314;">Tu Selección (1 Ítem)</span>
+                  </div>
+                  <div style="width:32px; height:32px; border-radius:50%; border:1.5px solid #121314; background:#ffffff; display:flex; align-items:center; justify-content:center;">
+                    <span class="material-symbols-outlined" style="font-size:18px;">close</span>
+                  </div>
+                </div>
+
+                <div class="drawer-body">
+                  <div style="padding:10px 14px; border-radius:12px; background:#ffffff; border:1.5px solid #121314; display:flex; align-items:center; gap:8px; font-size:11px; font-weight:800;">
+                    <span class="material-symbols-outlined" style="color:#106ebe; font-size:18px;">local_shipping</span>
+                    <span>Envío asegurado gratis a todo el país incluido</span>
+                  </div>
+
+                  <div class="drawer-item-card">
+                    <div class="drawer-item-img">
+                      <img src="hero-perfumes/odyssey-aqua.png" />
+                    </div>
+                    <div style="flex:1;">
+                      <div style="font-size:13px; font-weight:900; text-transform:uppercase; color:#121314;">Armaf Odyssey Aqua</div>
+                      <div style="font-size:11px; color:#55575a; font-weight:700;">100ml &bull; Extract</div>
+                      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+                        <span style="font-size:14px; font-weight:900; color:#121314;">$118.000</span>
+                        <div style="padding:2px 10px; border-radius:999px; border:1.5px solid #121314; background:#f6f4ee; font-size:11px; font-weight:900;">
+                          Cant: 1
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="drawer-footer">
+                <div style="display:flex; justify-content:space-between; align-items:baseline;">
+                  <span style="font-size:12px; font-weight:800; color:#55575a; text-transform:uppercase;">Total Final</span>
+                  <span style="font-size:24px; font-weight:900; color:#121314;">$118.000</span>
+                </div>
+                <div class="btn-finalizar-pedido" id="btn-finalizar-pedido">
+                  <span>Finalizar Pedido</span>
+                  <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- =============================================================== -->
+            <!-- 4. VIEW CHECKOUT                                                -->
+            <!-- =============================================================== -->
+            <div id="view-checkout">
+              <h2 style="font-size:24px; font-weight:900; text-transform:uppercase; color:#121314;">
+                CHECKOUT EXPRESS &bull; MERCADO PAGO
+              </h2>
+
+              <div class="checkout-grid">
+                <!-- Columna Izquierda -->
+                <div class="checkout-box">
+                  <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="font-size:12px; font-weight:900; text-transform:uppercase; color:#106ebe;">1. Datos de Entrega</span>
+                    <span style="font-size:11px; font-weight:800; color:#0ffcbe; background:#121314; padding:2px 8px; border-radius:6px;">VALIDADO</span>
+                  </div>
+                  <div style="padding:12px; border-radius:12px; background:#f6f4ee; border:1.5px solid #121314; font-size:12px; font-weight:700;">
+                    <div>Rodrigo Rossi &bull; CABA, Buenos Aires</div>
+                    <div style="font-size:11px; color:#55575a; margin-top:2px;">Av. Santa Fe 3420, Piso 8B &bull; CP 1425</div>
+                  </div>
+
+                  <span style="font-size:12px; font-weight:900; text-transform:uppercase; color:#106ebe; margin-top:8px;">2. Método de Pago</span>
+                  <div class="payment-option-pill active" id="pay-opt-mp">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span class="material-symbols-outlined" style="color:#ffffff;">credit_card</span>
+                      <div>
+                        <div>Mercado Pago Oficial</div>
+                        <div style="font-size:10px; opacity:0.85;">Tarjetas de crédito, débito o dinero en cuenta</div>
+                      </div>
+                    </div>
+                    <span style="font-size:10px; background:#ffffff; color:#121314; padding:3px 8px; border-radius:6px; font-weight:900;">6 CUOTAS</span>
+                  </div>
+
+                  <div class="payment-option-pill" id="pay-opt-transf">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <span class="material-symbols-outlined" style="color:#121314;">account_balance</span>
+                      <div>
+                        <div>Transferencia Bancaria Directa</div>
+                        <div style="font-size:10px; color:#55575a;">10% de descuento automático</div>
+                      </div>
+                    </div>
+                    <span style="font-size:10px; background:#0ffcbe; color:#121314; border:1px solid #121314; padding:3px 8px; border-radius:6px; font-weight:900;">-10% OFF</span>
+                  </div>
+                </div>
+
+                <!-- Columna Derecha -->
+                <div class="checkout-box" style="justify-content:space-between;">
+                  <div>
+                    <span style="font-size:12px; font-weight:900; text-transform:uppercase; color:#106ebe;">Resumen del Pedido</span>
+                    
+                    <div style="display:flex; gap:12px; align-items:center; margin-top:14px; padding-bottom:14px; border-bottom:1.5px solid #121314;">
+                      <div style="width:54px; height:64px; border-radius:10px; background:#f6f4ee; border:1.5px solid #121314; display:flex; align-items:center; justify-content:center;">
+                        <img src="hero-perfumes/odyssey-aqua.png" style="max-height:48px; object-fit:contain;" />
+                      </div>
+                      <div>
+                        <div style="font-size:13px; font-weight:900; text-transform:uppercase; color:#121314;">Armaf Odyssey Aqua</div>
+                        <div style="font-size:11px; color:#55575a; font-weight:700;">100ml &bull; $118.000 ARS</div>
+                      </div>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:14px; font-size:12px; font-weight:700;">
+                      <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#55575a;">Subtotal</span>
+                        <span style="color:#121314; font-weight:900;">$118.000</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between;">
+                        <span style="color:#55575a;">Envío Express</span>
+                        <span style="color:#106ebe; font-weight:900;">Gratis</span>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; font-size:16px; font-weight:900; padding-top:10px; border-top:1.5px solid #121314; margin-top:6px;">
+                        <span>TOTAL</span>
+                        <span style="font-size:22px; color:#121314;">$118.000</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="btn-pagar-mp" id="btn-submit-checkout">
+                    <span>Pagar con Mercado Pago</span>
+                    <span class="material-symbols-outlined" style="font-size:18px;">lock</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- =============================================================== -->
+            <!-- 5. VIEW SUCCESS                                                 -->
+            <!-- =============================================================== -->
+            <div id="view-success">
+              <div class="success-seal-container" id="success-seal">
+                <span class="material-symbols-outlined" style="font-size:52px; color:#121314; font-weight:900;">check</span>
+              </div>
+              
+              <div class="success-order-num" id="success-order-badge">ORDEN #F1370-98421</div>
+              
+              <h1 style="font-size:38px; font-weight:900; text-transform:uppercase; color:#121314; letter-spacing:-0.02em; margin-bottom:8px;">
+                ¡PAGO ACREDITADO & PEDIDO CONFIRMADO!
+              </h1>
+              
+              <p style="font-size:14px; color:#55575a; max-width:620px; line-height:1.6; font-weight:600; margin-bottom:24px;">
+                Tu frasco de <strong>Armaf Odyssey Aqua</strong> ha sido reservado en bodega climatizada y se prepara para despacho con garantía oficial.
+              </p>
+
+              <div style="display:flex; gap:14px;">
+                <div style="padding:10px 20px; border-radius:999px; background:#ffffff; border:2px solid #121314; box-shadow:3px 3px 0px #121314; font-size:12px; font-weight:900; color:#121314; display:flex; align-items:center; gap:8px;">
+                  <span class="material-symbols-outlined" style="color:#106ebe; font-size:18px;">local_shipping</span>
+                  <span>Despacho Express en 24hs</span>
+                </div>
+                <div style="padding:10px 20px; border-radius:999px; background:#ffffff; border:2px solid #121314; box-shadow:3px 3px 0px #121314; font-size:12px; font-weight:900; color:#121314; display:flex; align-items:center; gap:8px;">
+                  <span class="material-symbols-outlined" style="color:#0ffcbe; font-size:18px;">mark_email_read</span>
+                  <span>Comprobante & Seguimiento en tu Email</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Dynamic Lower-Third Subtitle Bar -->
+        <div id="caption-bar">
+          <div class="caption-step-badge" id="caption-badge">
+            <span class="material-symbols-outlined" style="font-size:14px;">play_circle</span>
+            <span id="badge-text">PASO 01 / 05</span>
+          </div>
+          <span class="caption-text" id="caption-headline">EXPLORACIÓN DE CATÁLOGO & FAMILIAS</span>
+          <span class="caption-desc" id="caption-sub">Descubre fragancias exclusivas filtradas por casa y notas olfativas.</span>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Playback Controls -->
+    <div id="controls-bar">
+      <button class="ctrl-btn" id="btn-play">
+        <span class="material-symbols-outlined" style="font-size:18px;">pause</span>
+        <span id="play-text">Pausar</span>
+      </button>
+      <input type="range" id="scrubber" min="0" max="24" step="0.05" value="0" style="width:120px; accent-color:#121314; cursor:pointer;" />
+      <span id="time-display" style="font-size:11px; font-weight:800; font-family:'JetBrains Mono';">00:00 / 00:24</span>
+      <button class="ctrl-btn" id="btn-replay">
+        <span class="material-symbols-outlined" style="font-size:18px;">replay</span>
+      </button>
+      <button class="ctrl-btn" id="btn-fullscreen">
+        <span class="material-symbols-outlined" style="font-size:18px;">fullscreen</span>
+      </button>
+    </div>
+
+    <!-- GSAP Animation Engine -->
+    <script>
+      window.__timelines = {};
+      const tl = gsap.timeline({ paused: false, repeat: -1, repeatDelay: 1.5 });
+      window.__timelines["main"] = tl;
+
+      // Allow OpenEdit to seek smoothly across virtual time
+      window.__seek = function(t) {
+        tl.pause();
+        tl.time(t);
+        updateUI();
+      };
+
+      // Key references
+      const cursor = document.getElementById("cursor");
+      const cardHero = document.getElementById("card-hero");
+      const viewCatalog = document.getElementById("view-catalog");
+      const viewDetail = document.getElementById("view-detail");
+      const btnAddCartDetail = document.getElementById("btn-add-cart-detail");
+      const cartBadge = document.getElementById("cart-badge");
+      const cartBackdrop = document.getElementById("cart-backdrop");
+      const cartDrawer = document.getElementById("cart-drawer");
+      const btnFinalizarPedido = document.getElementById("btn-finalizar-pedido");
+      const viewCheckout = document.getElementById("view-checkout");
+      const payOptMp = document.getElementById("pay-opt-mp");
+      const btnSubmitCheckout = document.getElementById("btn-submit-checkout");
+      const viewSuccess = document.getElementById("view-success");
+      const successSeal = document.getElementById("success-seal");
+      const browserWindow = document.getElementById("browser-window");
+
+      // Caption elements
+      const badgeText = document.getElementById("badge-text");
+      const captionHeadline = document.getElementById("caption-headline");
+      const captionSub = document.getElementById("caption-sub");
+      const captionBadge = document.getElementById("caption-badge");
+
+      function clickAt(timeline, time) {
+        timeline.to(cursor, {
+          scaleX: 0.8,
+          scaleY: 0.8,
+          duration: 0.08,
+          ease: "power2.in"
+        }, time);
+        timeline.to(cursor, {
+          scaleX: 1.0,
+          scaleY: 1.0,
+          duration: 0.16,
+          ease: "back.out(2.5)"
+        }, time + 0.08);
+      }
+
+      function setCaption(step, headline, sub, badgeColor) {
+        badgeText.textContent = step;
+        captionHeadline.textContent = headline;
+        captionSub.textContent = sub;
+        if (badgeColor) captionBadge.style.background = badgeColor;
+      }
+
+      // =========================================================================
+      // TIMELINE SECUENCIAL (24s)
+      // =========================================================================
+
+      // Scene 0: Initial Setup
+      tl.set(cursor, { top: 920, left: 960, scale: 1, opacity: 1 });
+      tl.set(viewCatalog, { opacity: 1, scale: 1, pointerEvents: "auto" });
+      tl.set(viewDetail, { opacity: 0, scale: 1.04, pointerEvents: "none" });
+      tl.set(cartDrawer, { x: "100%" });
+      tl.set(cartBackdrop, { opacity: 0, pointerEvents: "none" });
+      tl.set(cartBadge, { scale: 0 });
+      tl.set(viewCheckout, { opacity: 0, y: 30, pointerEvents: "none" });
+      tl.set(viewSuccess, { opacity: 0, scale: 0.94, pointerEvents: "none" });
+
+      tl.call(() => setCaption("PASO 01 / 05", "EXPLORACIÓN DE CATÁLOGO & FAMILIAS", "Descubre colecciones exclusivas con garantía oficial de Dubái.", "#0ffcbe"), null, 0);
+
+      tl.fromTo(browserWindow, 
+        { rotateX: 4, rotateY: -5, scale: 0.96, opacity: 0 },
+        { rotateX: 0, rotateY: 0, scale: 1, opacity: 1, duration: 1.2, ease: "power4.out" },
+        0
+      );
+
+      // BEAT 1: Move to Hero Card in Catalog (1.2s - 4.0s)
+      tl.to(cursor, {
+        top: 660,
+        left: 880,
+        duration: 1.8,
+        ease: "expo.out"
+      }, 1.2);
+
+      tl.to(cardHero, {
+        y: -10,
+        boxShadow: "10px 14px 0px #121314",
+        duration: 0.5,
+        ease: "power2.out"
+      }, 2.4);
+
+      clickAt(tl, 3.4);
+
+      // BEAT 2: Transition to Product Detail (4.0s - 7.5s)
+      tl.call(() => setCaption("PASO 02 / 05", "DETALLE DE PRODUCTO & SHOWCASE 3D", "Visualización 360°, notas olfativas y selección de volumen en 100ml.", "#a8d5e3"), null, 4.0);
+
+      tl.to(viewCatalog, {
+        opacity: 0,
+        scale: 0.96,
+        duration: 0.45,
+        ease: "power2.in"
+      }, 3.7);
+
+      tl.set(viewCatalog, { pointerEvents: "none" }, 4.2);
+      tl.set(viewDetail, { pointerEvents: "auto" }, 4.2);
+
+      tl.to(viewDetail, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.75,
+        ease: "power3.out"
+      }, 4.0);
+
+      // Cursor moves to "Añadir a la Cesta"
+      tl.to(cursor, {
+        top: 710,
+        left: 1220,
+        duration: 1.4,
+        ease: "expo.out"
+      }, 4.8);
+
+      tl.to(btnAddCartDetail, {
+        scale: 1.04,
+        boxShadow: "6px 8px 0px #121314",
+        duration: 0.25
+      }, 6.0);
+
+      clickAt(tl, 6.4);
+      tl.to(btnAddCartDetail, { scale: 0.96, duration: 0.08 }, 6.4);
+      tl.to(btnAddCartDetail, { scale: 1.0, duration: 0.15 }, 6.48);
+
+      // BEAT 3: Slide-over Cart Drawer (7.5s - 11.5s)
+      tl.call(() => setCaption("PASO 03 / 05", "CESTA DE COMPRA EXPRESS", "Envío asegurado gratis y packaging de lujo incluido.", "#ff78ac"), null, 7.5);
+
+      tl.to(cartBadge, {
+        scale: 1.35,
+        duration: 0.35,
+        ease: "back.out(3)"
+      }, 6.8);
+      tl.to(cartBadge, { scale: 1.0, duration: 0.2 }, 7.15);
+
+      tl.to(cartBackdrop, { opacity: 1, duration: 0.4 }, 7.4);
+
+      tl.to(cartDrawer, {
+        x: "0%",
+        duration: 0.8,
+        ease: "power4.out"
+      }, 7.5);
+
+      // Cursor moves to "Finalizar Pedido"
+      tl.to(cursor, {
+        top: 890,
+        left: 1480,
+        duration: 1.6,
+        ease: "expo.out"
+      }, 8.5);
+
+      tl.to(btnFinalizarPedido, {
+        scale: 1.03,
+        boxShadow: "6px 6px 0px #121314",
+        duration: 0.25
+      }, 9.8);
+
+      clickAt(tl, 10.3);
+
+      // BEAT 4: Checkout Express with Mercado Pago (11.5s - 17.0s)
+      tl.call(() => setCaption("PASO 04 / 05", "CHECKOUT SEGURO & MERCADO PAGO", "Pago protegido con hasta 6 cuotas sin interés y confirmación al instante.", "#106ebe"), null, 11.5);
+
+      tl.to(cartDrawer, { x: "100%", duration: 0.5, ease: "power3.in" }, 11.0);
+      tl.to(cartBackdrop, { opacity: 0, duration: 0.4 }, 11.1);
+      tl.to(viewDetail, { opacity: 0, duration: 0.4 }, 11.1);
+
+      tl.set(viewDetail, { pointerEvents: "none" }, 11.6);
+      tl.set(viewCheckout, { pointerEvents: "auto" }, 11.6);
+
+      tl.to(viewCheckout, {
+        opacity: 1,
+        y: 0,
+        duration: 0.7,
+        ease: "power3.out"
+      }, 11.5);
+
+      // Cursor moves to Mercado Pago option
+      tl.to(cursor, {
+        top: 610,
+        left: 550,
+        duration: 1.3,
+        ease: "expo.out"
+      }, 12.3);
+
+      clickAt(tl, 13.5);
+
+      // Cursor moves to submit button
+      tl.to(cursor, {
+        top: 880,
+        left: 1350,
+        duration: 1.4,
+        ease: "expo.out"
+      }, 14.3);
+
+      tl.to(btnSubmitCheckout, {
+        scale: 1.03,
+        boxShadow: "6px 8px 0px #121314",
+        duration: 0.25
+      }, 15.4);
+
+      clickAt(tl, 15.9);
+
+      // BEAT 5: Order Success Payoff (17.0s - 24.0s)
+      tl.call(() => setCaption("PASO 05 / 05", "¡ORDEN CONFIRMADA & DESPACHO EN 24H!", "Comprobante emitido con garantía oficial y seguimiento digital.", "#0ffcbe"), null, 17.0);
+
+      tl.to(viewCheckout, { opacity: 0, duration: 0.5 }, 16.8);
+      tl.set(viewCheckout, { pointerEvents: "none" }, 17.3);
+      tl.set(viewSuccess, { pointerEvents: "auto" }, 17.3);
+
+      tl.to(viewSuccess, {
+        opacity: 1,
+        scale: 1,
+        duration: 0.8,
+        ease: "power4.out"
+      }, 17.1);
+
+      // Seal bounce
+      tl.fromTo(successSeal,
+        { scale: 0, rotation: -30 },
+        { scale: 1, rotation: 0, duration: 0.9, ease: "elastic.out(1, 0.4)" },
+        17.4
+      );
+
+      // Cursor retreats
+      tl.to(cursor, {
+        top: 960,
+        left: 1100,
+        opacity: 0.6,
+        duration: 1.6,
+        ease: "power2.out"
+      }, 18.0);
+
+      // Subtle isometric floating tilt
+      tl.to(browserWindow, {
+        rotateX: -2,
+        rotateY: 2.5,
+        duration: 3.5,
+        ease: "sine.inOut"
+      }, 19.5);
+
+      // Controls UI
+      const btnPlay = document.getElementById("btn-play");
+      const playText = document.getElementById("play-text");
+      const scrubber = document.getElementById("scrubber");
+      const timeDisplay = document.getElementById("time-display");
+      const btnReplay = document.getElementById("btn-replay");
+      const btnFullscreen = document.getElementById("btn-fullscreen");
+
+      function formatTime(sec) {
+        const m = Math.floor(sec / 60);
+        const s = Math.floor(sec % 60);
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+      }
+
+      function updateUI() {
+        const time = tl.time();
+        scrubber.value = time;
+        timeDisplay.textContent = `${formatTime(time)} / 00:24`;
+        if (tl.paused()) {
+          playText.textContent = "Reproducir";
+          btnPlay.querySelector(".material-symbols-outlined").textContent = "play_arrow";
+        } else {
+          playText.textContent = "Pausar";
+          btnPlay.querySelector(".material-symbols-outlined").textContent = "pause";
+        }
+      }
+
+      tl.eventCallback("onUpdate", updateUI);
+      tl.eventCallback("onComplete", () => {
+        playText.textContent = "Reproducir";
+        btnPlay.querySelector(".material-symbols-outlined").textContent = "replay";
+      });
+
+      btnPlay.addEventListener("click", () => {
+        if (tl.paused()) {
+          if (tl.progress() === 1) tl.restart();
+          else tl.play();
+        } else {
+          tl.pause();
+        }
+        updateUI();
+      });
+
+      scrubber.addEventListener("input", (e) => {
+        tl.pause();
+        tl.time(parseFloat(e.target.value));
+        updateUI();
+      });
+
+      btnReplay.addEventListener("click", () => {
+        tl.restart();
+        updateUI();
+      });
+
+      btnFullscreen.addEventListener("click", () => {
+        if (!document.fullscreenElement) {
+          document.documentElement.requestFullscreen();
+        } else {
+          document.exitFullscreen();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=JetBrains+Mono:wght@300..700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: #0E0C0B; }
+      #root { position: relative; width: 1920px; height: 1080px; background: #0E0C0B; overflow: hidden; }
+
+      .glow { position: absolute; border-radius: 50%; pointer-events: none; z-index: 1; }
+      #glowA { width: 1500px; height: 1500px; right: -480px; top: -760px; background: radial-gradient(circle, rgba(232,116,59,0.85) 0%, rgba(214,70,28,0.38) 38%, transparent 68%); }
+      #glowB { width: 1100px; height: 1100px; left: -520px; bottom: -700px; background: radial-gradient(circle, rgba(232,116,59,0.28) 0%, transparent 65%); }
+
+      /* ---- escena 1: marca ---- */
+      #brand { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; gap: 30px; }
+      #spark { width: 120px; height: 120px; }
+      .pill { width: 190px; height: 78px; border-radius: 22px; transform-origin: 0 50%;
+        background: linear-gradient(135deg, #FFE5BE 0%, #F7A63F 45%, #D86B20 100%);
+        box-shadow: inset 0 2px 0 rgba(255,255,255,0.55), 0 0 40px rgba(247,166,63,0.55); }
+      #wordmark { font: 400 150px/1 'Instrument Serif', serif; color: #F6EFE8; letter-spacing: -0.01em; }
+
+      /* ---- escena 2: chat ---- */
+      #chatWrap { position: absolute; left: 340px; top: 330px; width: 1240px; z-index: 12; opacity: 0; }
+      #chatGlow { position: absolute; inset: -34px; border-radius: 60px; z-index: 0; opacity: 0.9;
+        background: radial-gradient(ellipse at 50% 0%, rgba(255,120,50,0.55) 0%, transparent 60%), radial-gradient(ellipse at 50% 100%, rgba(255,90,30,0.45) 0%, transparent 60%); }
+      #chat { position: relative; z-index: 1; height: 330px; border-radius: 34px; padding: 44px 50px;
+        background: linear-gradient(180deg, #121010, #090807);
+        border: 2px solid rgba(255,122,56,0.85); }
+      #typed { font: 400 50px/1.25 'Geist', sans-serif; color: #EDE6DF; min-height: 70px; }
+      #typed .hl { color: #FF8A3D; }
+      #caret { display: inline-block; width: 4px; height: 50px; background: #FF8A3D; vertical-align: -8px; margin-left: 4px; }
+      #chatBar { position: absolute; left: 50px; right: 50px; bottom: 34px; display: flex; align-items: center; justify-content: space-between; color: #C9BEB4; font: 500 30px 'Geist', sans-serif; }
+      .tools { display: flex; align-items: center; gap: 30px; }
+      .ico { width: 36px; height: 36px; stroke: #D8CDC3; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+      #send { width: 76px; height: 76px; border-radius: 20px; background: linear-gradient(135deg, #FF9A4D, #E8581B); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 30px rgba(255,122,56,0.6); }
+      #send svg { width: 38px; height: 38px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+
+      /* ---- escena 3: código + ventana 3D ---- */
+      #code { position: absolute; left: 80px; top: 0; width: 760px; height: 1080px; z-index: 3; opacity: 0; filter: blur(1.5px);
+        font: 400 22px/1.7 'JetBrains Mono', monospace; color: #8B7F75; white-space: pre; overflow: hidden;
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%);
+        mask-image: linear-gradient(to bottom, transparent 0%, #000 22%, #000 78%, transparent 100%); }
+      #codeInner { position: absolute; left: 0; top: 0; }
+      .t1 { color: #FF8A3D; } .t2 { color: #7FB4FF; } .t3 { color: #E7D7A8; }
+
+      #scene3d { position: absolute; inset: 0; z-index: 14; perspective: 1800px; pointer-events: none; }
+      #win { position: absolute; left: 430px; top: 150px; width: 1100px; height: 700px; transform-style: preserve-3d; opacity: 0; }
+      #winGlow { position: absolute; inset: -80px; z-index: 0; background: radial-gradient(ellipse closest-side at 55% 70%, rgba(255,120,50,0.5) 0%, transparent 100%); }
+      #winFrame { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 24px; overflow: hidden; background: #1A1210; border: 1px solid rgba(255,255,255,0.14); }
+      #titleBar { height: 50px; background: #1C1613; display: flex; align-items: center; gap: 10px; padding: 0 20px; }
+      .dot { width: 14px; height: 14px; border-radius: 50%; }
+      #addr { margin-left: 24px; height: 28px; width: 360px; border-radius: 14px; background: #2A211C; color: #A89B90; font: 400 16px/28px 'Geist', sans-serif; text-align: center; }
+      #page { position: relative; height: 650px; overflow: hidden;
+        background: radial-gradient(ellipse at 85% 100%, #FF8A50 0%, transparent 60%), linear-gradient(160deg, #130C09 0%, #5E240F 55%, #E8743B 120%); }
+      #nav { position: absolute; left: 0; right: 0; top: 0; height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 50px; opacity: 0; }
+      #nav .logo { display: flex; align-items: center; gap: 12px; font: 500 22px 'Geist', sans-serif; color: #F6EFE8; }
+      #nav .links { display: flex; gap: 34px; font: 400 19px 'Geist', sans-serif; color: #D9CBBE; }
+      #hero { position: absolute; left: 70px; top: 150px; }
+      #hero .eyebrow { font: 500 19px 'Geist', sans-serif; letter-spacing: 0.3em; text-transform: uppercase; color: #FFB27A; margin-bottom: 20px; opacity: 0; }
+      #hero h1 { font: 400 112px/0.98 'Instrument Serif', serif; color: #FBF4EC; }
+      #hero h1 span { display: block; opacity: 0; }
+      #btns { position: absolute; left: 70px; top: 460px; display: flex; gap: 18px; }
+      .btn { padding: 16px 30px; border-radius: 12px; font: 500 21px 'Geist', sans-serif; opacity: 0; }
+      .btn.w { background: #fff; color: #1A1210; } .btn.d { background: rgba(26,18,16,0.7); color: #F6EFE8; border: 1px solid rgba(255,255,255,0.2); }
+      #sweep { position: absolute; top: -50px; bottom: -50px; width: 220px; left: -800px; background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent); transform: skewX(-18deg); }
+
+      /* ---- escena 4: cierre ---- */
+      #end { position: absolute; inset: 0; z-index: 20; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; }
+      #end svg { width: 130px; height: 130px; }
+      #end .line { font: italic 400 120px/1.05 'Instrument Serif', serif; color: #F6EFE8; margin-top: 36px; }
+      #streak { position: absolute; left: 260px; width: 1400px; height: 5px; top: 538px; z-index: 22; opacity: 0; filter: blur(2px); background: linear-gradient(90deg, transparent, rgba(255,205,150,0.95), transparent); }
+
+      #grain { position: absolute; inset: 0; z-index: 42; pointer-events: none; opacity: 0.1; filter: url(#grainF); background: #888; }
+      #vignette { position: absolute; inset: 0; z-index: 43; pointer-events: none; background: radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.55) 100%); }
+    </style>
+  </head>
+  <body>
+    <svg width="0" height="0" style="position:absolute">
+      <filter id="grainF"><feTurbulence type="fractalNoise" baseFrequency=".8" numOctaves="2" seed="3" stitchTiles="stitch"/><feColorMatrix type="saturate" values="0"/></filter>
+      <symbol id="sparkShape" viewBox="0 0 100 100"><path d="M50 0 C54 30 70 46 100 50 C70 54 54 70 50 100 C46 70 30 54 0 50 C30 46 46 30 50 0Z"/></symbol>
+    </svg>
+
+    <div id="root" data-composition-id="main" data-start="0" data-duration="16" data-width="1920" data-height="1080">
+      <div class="glow" id="glowA"></div>
+      <div class="glow" id="glowB"></div>
+
+      <div id="brand">
+        <svg id="spark" viewBox="0 0 100 100" fill="#FF7A38"><use href="#sparkShape"/></svg>
+        <div class="pill" id="pill1"></div>
+        <div class="pill" id="pill2"></div>
+        <div id="wordmark">Nova</div>
+      </div>
+
+      <div id="chatWrap">
+        <div id="chatGlow"></div>
+        <div id="chat">
+          <div id="typed"></div>
+          <div id="chatBar">
+            <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+            <div class="tools">
+              <span>Nova 2 &#8964;</span>
+              <svg class="ico" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>
+              <svg class="ico" viewBox="0 0 24 24"><path d="M4 10v4M8 6v12M12 3v18M16 8v8M20 11v2"/></svg>
+              <div id="send"><svg viewBox="0 0 24 24"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="code"><div id="codeInner"></div></div>
+
+      <div id="scene3d">
+        <div id="win">
+          <div id="winGlow"></div>
+          <div id="winFrame">
+            <div id="titleBar"><div class="dot" style="background:#FF5F57"></div><div class="dot" style="background:#FEBC2E"></div><div class="dot" style="background:#28C840"></div><div id="addr">aurora.studio</div></div>
+            <div id="page">
+              <div id="nav">
+                <div class="logo"><svg width="26" height="26" viewBox="0 0 100 100" fill="#FF9A4D"><use href="#sparkShape"/></svg>Aurora</div>
+                <div class="links"><span>Trabajos</span><span>Servicios</span><span>Contacto</span></div>
+              </div>
+              <div id="hero">
+                <div class="eyebrow">Estudio de diseño</div>
+                <h1><span>Diseño premium</span><span>para creativos</span></h1>
+              </div>
+              <div id="btns"><div class="btn w">Hablemos</div><div class="btn d">Ver trabajos</div></div>
+              <div id="sweep"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="end">
+        <svg viewBox="0 0 100 100" fill="#FF7A38" id="endSpark"><use href="#sparkShape"/></svg>
+        <div class="line">Creá lo que imaginás.</div>
+      </div>
+      <div id="streak"></div>
+
+      <div id="grain"></div>
+      <div id="vignette"></div>
+    </div>
+
+    <script>
+      // ---- código de fondo (texto decorativo, determinístico) ----
+      const codeLines = [
+        '<span class="t2">&lt;section</span> <span class="t3">class</span>=<span class="t1">"hero"</span><span class="t2">&gt;</span>',
+        '  <span class="t2">&lt;nav</span> <span class="t3">class</span>=<span class="t1">"top"</span><span class="t2">&gt;</span>',
+        '    <span class="t2">&lt;a</span> <span class="t3">href</span>=<span class="t1">"#trabajos"</span><span class="t2">&gt;</span>Trabajos<span class="t2">&lt;/a&gt;</span>',
+        '  <span class="t2">&lt;/nav&gt;</span>',
+        '  <span class="t2">&lt;h1&gt;</span>Diseño premium<span class="t2">&lt;/h1&gt;</span>',
+        '<span class="t2">&lt;/section&gt;</span>',
+        '',
+        '<span class="t3">.hero</span> {',
+        '  <span class="t2">display</span>: <span class="t1">grid</span>;',
+        '  <span class="t2">background</span>: <span class="t1">linear-gradient</span>(160deg,',
+        '    <span class="t1">#130C09</span>, <span class="t1">#E8743B</span>);',
+        '  <span class="t2">font-family</span>: <span class="t1">"Instrument Serif"</span>;',
+        '}',
+        '',
+        '<span class="t3">.btn</span> {',
+        '  <span class="t2">padding</span>: <span class="t1">16px 30px</span>;',
+        '  <span class="t2">border-radius</span>: <span class="t1">12px</span>;',
+        '}',
+      ];
+      let codeHtml = '';
+      for (let r = 0; r < 4; r++) codeHtml += codeLines.join('\n') + '\n\n';
+      document.getElementById('codeInner').innerHTML = codeHtml;
+
+      // ---- texto que se tipea ----
+      const TEXT = 'Quiero una página web para mi estudio de diseño';
+      const typed = document.getElementById('typed');
+      const caret = document.createElement('span'); caret.id = 'caret';
+      function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;'); }
+      function renderTyped(k) {
+        const a = esc(TEXT.slice(0, Math.max(0, k - 3))), b = esc(TEXT.slice(Math.max(0, k - 3), k));
+        typed.innerHTML = a + (b ? '<span class="hl">' + b + '</span>' : '');
+        typed.appendChild(caret);
+      }
+      renderTyped(0);
+
+      const DURATION = 16;
+      const tl = gsap.timeline({
+        paused: true,
+        onUpdate: () => { caret.style.opacity = Math.floor(tl.time() * 2.2) % 2 === 0 ? 1 : 0.1; },
+      });
+
+      // fondo: respiración del glow
+      tl.fromTo('#glowA', { scale: 0.85, opacity: 0.7 }, { scale: 1.1, opacity: 1, duration: 6, ease: 'sine.inOut' }, 0);
+      tl.to('#glowA', { scale: 0.95, opacity: 0.85, duration: 6, ease: 'sine.inOut' }, 6);
+      tl.to('#glowA', { scale: 1.15, opacity: 1, duration: 3, ease: 'sine.inOut' }, 12);
+
+      // ---- escena 1: marca ----
+      tl.fromTo('#spark', { scale: 0, rotation: -90, opacity: 0 }, { scale: 1, rotation: 0, opacity: 1, duration: 0.7, ease: 'back.out(2)' }, 0.2);
+      tl.fromTo('#pill1', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.55, ease: 'power3.out' }, 0.55);
+      tl.fromTo('#pill2', { scaleX: 0, opacity: 0 }, { scaleX: 1, opacity: 1, duration: 0.55, ease: 'power3.out' }, 0.75);
+      tl.fromTo('#wordmark', { opacity: 0, x: 40, filter: 'blur(12px)' }, { opacity: 1, x: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out' }, 1.0);
+      tl.to('#brand', { opacity: 0, scale: 0.9, y: -30, duration: 0.5, ease: 'power2.in' }, 2.5);
+
+      // ---- escena 2: chat ----
+      tl.fromTo('#chatWrap', { opacity: 0, y: 50, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.7, ease: 'power3.out' }, 2.9);
+      tl.fromTo('#chatGlow', { opacity: 0.2 }, { opacity: 0.95, duration: 0.8, ease: 'power2.out' }, 2.9);
+      const tp = { k: 0 };
+      tl.to(tp, { k: TEXT.length, duration: 2.7, ease: 'none', onUpdate: () => renderTyped(Math.floor(tp.k)) }, 3.6);
+      tl.to('#send', { scale: 0.88, duration: 0.12, ease: 'power2.in' }, 6.5);
+      tl.to('#send', { scale: 1, duration: 0.25, ease: 'back.out(3)' }, 6.62);
+      tl.to('#chatGlow', { opacity: 1.0, scale: 1.08, duration: 0.3, ease: 'power2.out' }, 6.5);
+      tl.to('#chatWrap', { opacity: 0, y: -70, scale: 0.9, filter: 'blur(10px)', duration: 0.6, ease: 'power2.in' }, 7.0);
+
+      // ---- escena 3: código + ventana 3D ----
+      tl.fromTo('#code', { opacity: 0 }, { opacity: 0.55, duration: 0.6 }, 6.9);
+      tl.fromTo('#codeInner', { y: 300 }, { y: -900, duration: 6.4, ease: 'none' }, 6.9);
+      tl.to('#code', { opacity: 0, duration: 0.6 }, 12.6);
+
+      tl.fromTo('#win', { opacity: 0, rotationY: -46, rotationX: 14, y: 140, z: -300, scale: 0.85 },
+        { opacity: 1, rotationY: -16, rotationX: 5, y: 0, z: 0, scale: 1, duration: 1.5, ease: 'power3.out' }, 7.5);
+      tl.to('#win', { rotationY: 9, rotationX: -2, z: 80, duration: 4.4, ease: 'sine.inOut' }, 9.0);
+      tl.fromTo('#nav', { opacity: 0, y: -14 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 8.9);
+      tl.fromTo('#hero .eyebrow', { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, 9.3);
+      tl.fromTo('#hero h1 span', { opacity: 0, y: 36, filter: 'blur(10px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.7, ease: 'power3.out', stagger: 0.28 }, 9.6);
+      tl.fromTo('.btn', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.5, ease: 'back.out(1.6)', stagger: 0.14 }, 10.6);
+      tl.fromTo('#sweep', { x: 0 }, { x: 2300, duration: 1.1, ease: 'power2.inOut', immediateRender: false }, 11.4);
+      tl.to('#win', { opacity: 0, y: -40, scale: 0.94, duration: 0.6, ease: 'power2.in' }, 12.6);
+
+      // ---- escena 4: cierre ----
+      tl.fromTo('#end', { opacity: 0 }, { opacity: 1, duration: 0.5 }, 13.1);
+      tl.fromTo('#endSpark', { scale: 0, rotation: -120 }, { scale: 1, rotation: 0, duration: 0.8, ease: 'back.out(2)' }, 13.1);
+      tl.fromTo('#end .line', { opacity: 0, y: 30, filter: 'blur(12px)' }, { opacity: 1, y: 0, filter: 'blur(0px)', duration: 0.8, ease: 'power3.out' }, 13.5);
+      tl.fromTo('#streak', { opacity: 0.9, scaleX: 0.15 }, { opacity: 0, scaleX: 1, duration: 0.9, ease: 'power2.out', immediateRender: false }, 13.5);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

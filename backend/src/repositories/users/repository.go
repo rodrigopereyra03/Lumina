@@ -31,9 +31,9 @@ func (r *UsersRepository) seedInMemory() {
 	now := time.Now()
 	r.memory["admin-1"] = UserDAO{
 		ID:           "admin-1",
-		Email:        "admin@lumina.com",
+		Email:        "admin@formula1370.com",
 		PasswordHash: "$2a$10$7EqJtq98hPqEX7fNZaFWoOZhB7zG7tL8v6y9wQz5b2fV3oA9mQcZa", // "admin123"
-		FullName:     "Administrador Lumina",
+		FullName:     "Administrador Fórmula 1370",
 		Phone:        "+54 9 11 0000-0000",
 		Role:         "admin",
 		CreatedAt:    now,

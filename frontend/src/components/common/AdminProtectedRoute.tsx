@@ -24,7 +24,7 @@ export const AdminProtectedRoute: React.FC<AdminProtectedRouteProps> = ({ childr
           <div className="space-y-2">
             <h2 className="text-xl font-black text-[#1b1c1c] tracking-tight">Acceso Restringido</h2>
             <p className="text-xs text-[#5b403e] leading-relaxed">
-              Esta sección es de uso exclusivo para <span className="font-bold text-[#FF4D4F]">Administradores de Lumina</span>. Tu cuenta actual (<span className="font-semibold text-[#1b1c1c]">{user?.email}</span>) tiene permisos de cliente.
+              Esta sección es de uso exclusivo para <span className="font-bold text-[#FF4D4F]">Administradores de Fórmula 1370</span>. Tu cuenta actual (<span className="font-semibold text-[#1b1c1c]">{user?.email}</span>) tiene permisos de cliente.
             </p>
           </div>
 

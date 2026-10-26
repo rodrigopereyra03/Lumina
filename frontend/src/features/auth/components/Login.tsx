@@ -26,7 +26,10 @@ export const Login: React.FC = () => {
     setLoading(true)
 
     const normalizedEmail = email.trim().toLowerCase()
-    const isAdminEmail = normalizedEmail === 'admin@lumina.com' || normalizedEmail.includes('admin')
+    const isAdminEmail =
+      normalizedEmail === 'admin@formula1370.com' ||
+      normalizedEmail === 'admin@lumina.com' ||
+      normalizedEmail.includes('admin')
 
     try {
       const data = await authApi.login(normalizedEmail, password)
@@ -52,7 +55,7 @@ export const Login: React.FC = () => {
       const foundUser = list.find((u) => u.email.toLowerCase() === normalizedEmail)
 
       const userRole = foundUser?.role || (isAdminEmail ? 'admin' : 'customer')
-      const userName = foundUser?.full_name || (isAdminEmail ? 'Administrador Lumina' : normalizedEmail.split('@')[0])
+      const userName = foundUser?.full_name || (isAdminEmail ? 'Administrador Fórmula 1370' : normalizedEmail.split('@')[0])
 
       const loggedUser: User = {
         id: foundUser?.id || (isAdminEmail ? 'admin-1' : 'usr_' + Date.now()),
@@ -98,7 +101,7 @@ export const Login: React.FC = () => {
         {/* Brand / Header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-block">
-            <h1 className="text-4xl font-extrabold text-[#FF4D4F] tracking-tight mb-1">LUMINA</h1>
+            <h1 className="text-4xl font-extrabold text-[#FF4D4F] tracking-tight mb-1">FÓRMULA 1370</h1>
           </Link>
           <p className="text-sm text-[#5b403e] dark:text-gray-400">Accede a tu cuenta exclusiva</p>
         </div>
@@ -240,7 +243,7 @@ export const Login: React.FC = () => {
         <div className="text-center mt-6">
           <Link to="/" className="text-xs text-[#5b403e] dark:text-gray-400 hover:text-[#FF4D4F] transition-colors inline-flex items-center gap-1 font-medium">
             <span className="material-symbols-outlined text-[16px]">arrow_back</span>
-            <span>Volver a la Tienda Lumina</span>
+            <span>Volver a la Tienda Fórmula 1370</span>
           </Link>
         </div>
       </motion.main>

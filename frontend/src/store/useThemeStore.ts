@@ -11,13 +11,13 @@ interface ThemeState {
 const THEME_STORAGE_KEY = 'lumina_theme_mode'
 
 const getInitialTheme = (): ThemeMode => {
-  if (typeof window === 'undefined') return 'dark'
+  if (typeof window === 'undefined') return 'light'
   const saved = localStorage.getItem(THEME_STORAGE_KEY)
   if (saved === 'light' || saved === 'dark') {
     return saved
   }
-  // Default to dark mode as requested by user
-  return 'dark'
+  // Default to light Neo-Editorial mode
+  return 'light'
 }
 
 const applyThemeToDOM = (theme: ThemeMode) => {

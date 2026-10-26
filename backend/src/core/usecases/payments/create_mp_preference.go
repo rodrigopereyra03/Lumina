@@ -155,7 +155,7 @@ func (uc CreateMPPreferenceImpl) Execute(ctx context.Context, input CreateMPPref
 		},
 		AutoReturn:          "approved",
 		ExternalReference:   cleanOrderID,
-		StatementDescriptor: "LUMINA STORE",
+		StatementDescriptor: "FORMULA 1370",
 	}
 
 	// If valid Mercado Pago Access Token is present, call real Mercado Pago REST API

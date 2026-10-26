@@ -173,7 +173,7 @@ ON CONFLICT (id) DO NOTHING;
 -- Seed Users (Password: password123)
 INSERT INTO users (id, email, password_hash, full_name, phone, role, created_at, updated_at)
 VALUES 
-    ('b0000001-0000-0000-0000-000000000001', 'admin@lumina.com', '$2a$10$7EqJtq98hPqEX7fNZaFWoOZhB7zG7tL8v6y9wQz5b2fV3oA9mQcZa', 'Administrador Lumina', '+54 9 11 0000-0000', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
+    ('b0000001-0000-0000-0000-000000000001', 'admin@formula1370.com', '$2a$10$7EqJtq98hPqEX7fNZaFWoOZhB7zG7tL8v6y9wQz5b2fV3oA9mQcZa', 'Administrador Fórmula 1370', '+54 9 11 0000-0000', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP),
     ('b0000001-0000-0000-0000-000000000002', 'alex.morgan@example.com', '$2a$10$7EqJtq98hPqEX7fNZaFWoOZhB7zG7tL8v6y9wQz5b2fV3oA9mQcZa', 'Alex Morgan', '+54 9 11 4455-6677', 'customer', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
 ON CONFLICT (id) DO NOTHING;
 

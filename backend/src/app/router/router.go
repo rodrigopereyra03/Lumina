@@ -28,7 +28,7 @@ func NewRouter(env string) *gin.Engine {
 	r.GET("/health", func(c *gin.Context) {
 		response.Okf(c, http.StatusOK, gin.H{
 			"status":  "healthy",
-			"message": "Lumina E-commerce API is running",
+			"message": "Fórmula 1370 E-commerce API is running",
 			"version": "1.0.4-gtin-fix",
 		})
 	})

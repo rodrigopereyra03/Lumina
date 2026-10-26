@@ -35,7 +35,7 @@ export const OrderManagement: React.FC = () => {
       if (res.orders) {
         const mapped: AdminOrderItem[] = res.orders.map((o: BackendOrderDTO) => ({
           id: o.order_number || o.id,
-          customer: o.customer_name || 'Cliente Lumina',
+          customer: o.customer_name || 'Cliente Fórmula 1370',
           email: o.customer_email || 'cliente@ejemplo.com',
           phone: o.customer_phone || '+54 9 11 4455-6677',
           address: o.shipping_address || 'Dirección de Entrega',
@@ -48,7 +48,7 @@ export const OrderManagement: React.FC = () => {
             : 'Reciente',
           status: o.status || 'Pagado',
           items: (o.items || []).map((it) => ({
-            title: it.title || 'Producto Lumina',
+            title: it.title || 'Producto Fórmula 1370',
             variant: it.variant || 'Estándar',
             price: it.unit_price || 0,
             quantity: it.quantity || 1,
@@ -134,41 +134,41 @@ export const OrderManagement: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const s = (status || '').toLowerCase()
     if (s === 'pagado' || s === 'aprobado' || s === 'entregado') {
-      return 'bg-[#E8F8F0] text-[#1E824C]'
+      return 'bg-[#0ffcbe] text-[#121314] border border-[#121314]'
     }
     if (s === 'enviado') {
-      return 'bg-[#ffdad7]/80 text-[#FF4D4F]'
+      return 'bg-[#a8d5e3] text-[#121314] border border-[#121314]'
     }
     if (s === 'en proceso') {
-      return 'bg-[#FFF0EB] text-[#D97757]'
+      return 'bg-[#ffe600] text-[#121314] border border-[#121314]'
     }
     if (s === 'cancelado') {
-      return 'bg-[#ffdad6] text-[#ba1a1a]'
+      return 'bg-[#ff78ac] text-[#121314] border border-[#121314]'
     }
-    return 'bg-white/80 text-[#5b403e]'
+    return 'bg-[#f6f4ee] text-[#121314] border border-[#121314]'
   }
 
   return (
-    <div className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
+    <div className="space-y-6 font-dm text-[#121314]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Órdenes</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5">
+          <h1 className="text-3xl sm:text-4xl font-black text-[#121314] tracking-tight uppercase">Órdenes</h1>
+          <p className="text-xs sm:text-sm font-medium text-[#121314]/70 mt-1">
             Supervisa pedidos de clientes, pagos recibidos y despachos en tiempo real.
           </p>
         </div>
 
         {/* Filter Pills */}
-        <div className="flex bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl p-1 shadow-2xs text-xs font-semibold text-[#5b403e] dark:text-[#9ca3af] overflow-x-auto">
+        <div className="flex bg-white border-2 border-[#121314] rounded-full p-1 shadow-[2px_2px_0px_#121314] text-xs font-black overflow-x-auto">
           {['Todas', 'Pagado', 'En Proceso', 'Enviado', 'Entregado', 'Cancelado'].map((status) => (
             <button
               key={status}
               onClick={() => setFilterStatus(status)}
-              className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
+              className={`px-3.5 py-1.5 rounded-full transition-all cursor-pointer uppercase tracking-wider text-[11px] ${
                 filterStatus === status
-                  ? 'bg-[#FF4D4F] text-white font-bold shadow-xs'
-                  : 'hover:text-[#1b1c1c] dark:hover:text-[#f9fafb]'
+                  ? 'bg-[#121314] text-white shadow-[1px_1px_0px_#ff78ac]'
+                  : 'text-[#121314] hover:bg-[#f6f4ee]'
               }`}
             >
               {status}
@@ -178,26 +178,26 @@ export const OrderManagement: React.FC = () => {
       </div>
 
       {statusFeedback && (
-        <div className="p-3.5 rounded-xl bg-[#E8F8F0] dark:bg-[#4ade80]/15 border border-[#B7E5CD] dark:border-[#4ade80]/30 text-[#1E824C] dark:text-[#4ade80] text-xs font-bold flex items-center gap-2 animate-in fade-in">
-          <span className="material-symbols-outlined text-[18px]">check_circle</span>
+        <div className="p-3.5 rounded-2xl bg-[#0ffcbe] border-2 border-[#121314] shadow-[4px_4px_0px_#121314] text-[#121314] text-xs font-black uppercase tracking-wider flex items-center gap-2">
+          <span className="material-symbols-outlined text-[20px]">check_circle</span>
           <span>{statusFeedback}</span>
         </div>
       )}
 
       {/* Main Content */}
       {loading ? (
-        <div className="glass-panel rounded-2xl p-12 text-center text-xs text-[#5b403e] dark:text-[#9ca3af]">
+        <div className="bg-white rounded-2xl p-12 text-center text-xs font-bold uppercase tracking-wider text-[#121314]/70 border-2 border-[#121314] shadow-[4px_4px_0px_#121314]">
           Cargando órdenes desde la base de datos...
         </div>
       ) : orders.length === 0 ? (
-        <div className="glass-panel rounded-2xl p-12 text-center space-y-3 border border-white/70 dark:border-white/10 shadow-sm">
-          <div className="w-16 h-16 rounded-full bg-[#ffdad7]/40 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
+        <div className="bg-white rounded-2xl p-12 text-center space-y-3 border-2 border-[#121314] shadow-[4px_4px_0px_#121314]">
+          <div className="w-16 h-16 rounded-2xl bg-[#ff78ac] border-2 border-[#121314] text-[#121314] flex items-center justify-center mx-auto shadow-[2px_2px_0px_#121314]">
             <span className="material-symbols-outlined text-[32px]">receipt_long</span>
           </div>
           <div>
-            <h4 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">No hay órdenes con estado "{filterStatus}"</h4>
-            <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] max-w-md mx-auto mt-1">
-              Las compras realizadas por tus clientes aparecerán aquí según su estado.
+            <h4 className="text-base font-black uppercase tracking-wide text-[#121314]">No hay órdenes con estado "{filterStatus}"</h4>
+            <p className="text-xs font-medium text-[#121314]/70 max-w-md mx-auto mt-1">
+              Las compras realizadas por tus clientes aparecerán aquí automáticamente.
             </p>
           </div>
         </div>
@@ -205,19 +205,19 @@ export const OrderManagement: React.FC = () => {
         /* Main Split View: Orders List & Order Detail Inspector */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Left Column: Orders Table */}
-          <div className="lg:col-span-7 glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-4">
+          <div className="lg:col-span-7 bg-white rounded-2xl p-6 border-2 border-[#121314] shadow-[4px_4px_0px_#121314] space-y-4">
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
                 <thead>
-                  <tr className="border-b border-white/60 dark:border-white/10 text-[#5b403e] dark:text-[#9ca3af]">
-                    <th className="pb-3 font-semibold">N° Orden</th>
-                    <th className="pb-3 font-semibold">Cliente</th>
-                    <th className="pb-3 font-semibold">Fecha</th>
-                    <th className="pb-3 font-semibold">Total</th>
-                    <th className="pb-3 font-semibold">Estado</th>
+                  <tr className="border-b-2 border-[#121314] text-[#121314] bg-[#f6f4ee]/70">
+                    <th className="py-3 px-3 font-black uppercase tracking-wider">N° Orden</th>
+                    <th className="py-3 px-3 font-black uppercase tracking-wider">Cliente</th>
+                    <th className="py-3 px-3 font-black uppercase tracking-wider">Fecha</th>
+                    <th className="py-3 px-3 font-black uppercase tracking-wider">Total</th>
+                    <th className="py-3 px-3 font-black uppercase tracking-wider">Estado</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/50 dark:divide-white/10">
+                <tbody className="divide-y-2 divide-[#121314]/10">
                   {orders.map((ord) => {
                     const isSelected = selectedOrder?.id === ord.id
 
@@ -226,16 +226,18 @@ export const OrderManagement: React.FC = () => {
                         key={ord.id}
                         onClick={() => setSelectedOrder(ord)}
                         className={`cursor-pointer transition-all ${
-                          isSelected ? 'bg-white/80 dark:bg-white/10 font-semibold shadow-2xs' : 'hover:bg-white/40 dark:hover:bg-white/5'
+                          isSelected
+                            ? 'bg-[#a8d5e3]/30 font-bold'
+                            : 'hover:bg-[#f6f4ee]/60'
                         }`}
                       >
-                        <td className="py-3.5 font-mono font-bold text-[#FF4D4F]">{ord.id}</td>
-                        <td className="py-3.5 text-[#1b1c1c] dark:text-[#f9fafb] font-medium">{ord.customer}</td>
-                        <td className="py-3.5 text-[#5b403e] dark:text-[#9ca3af]">{ord.date}</td>
-                        <td className="py-3.5 font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${ord.total.toFixed(2)} ARS</td>
-                        <td className="py-3.5">
+                        <td className="py-3.5 px-3 font-mono font-black text-[#106ebe]">{ord.id}</td>
+                        <td className="py-3.5 px-3 text-[#121314] font-bold">{ord.customer}</td>
+                        <td className="py-3.5 px-3 text-[#121314]/70 font-medium">{ord.date}</td>
+                        <td className="py-3.5 px-3 font-black text-[#121314]">${ord.total.toFixed(2)} ARS</td>
+                        <td className="py-3.5 px-3">
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${getStatusBadge(
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${getStatusBadge(
                               ord.status
                             )}`}
                           >
@@ -249,137 +251,137 @@ export const OrderManagement: React.FC = () => {
               </table>
             </div>
 
-            <div className="flex justify-between items-center text-xs text-[#5b403e] dark:text-[#9ca3af] pt-3 border-t border-white/60 dark:border-white/10">
+            <div className="flex justify-between items-center text-xs font-bold text-[#121314]/70 pt-3 border-t-2 border-[#121314]/15">
               <span>
                 Mostrando {orders.length} órdenes ({filterStatus})
               </span>
-              <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">Base de Datos Lumina</span>
+              <span className="font-black text-[#121314] uppercase">Fórmula 1370 Orders</span>
             </div>
           </div>
 
           {/* Right Column: Order Detail Inspector */}
           {selectedOrder && (
-            <div className="lg:col-span-5 glass-panel rounded-2xl p-6 sm:p-7 border border-white/70 dark:border-white/10 shadow-sm space-y-5 sticky top-24">
-              <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
+            <div className="lg:col-span-5 bg-white rounded-2xl p-6 sm:p-7 border-2 border-[#121314] shadow-[4px_4px_0px_#121314] space-y-5 sticky top-24">
+              <div className="flex justify-between items-center border-b-2 border-[#121314] pb-4">
                 <div>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-[#5b403e] dark:text-[#9ca3af]">
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#121314]/60">
                     Detalle de Orden
                   </span>
-                  <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">{selectedOrder.id}</h3>
+                  <h3 className="text-xl font-black text-[#121314] font-mono">{selectedOrder.id}</h3>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusBadge(selectedOrder.status)}`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${getStatusBadge(selectedOrder.status)}`}>
                   {selectedOrder.status}
                 </span>
               </div>
 
               {/* Customer & Shipping Details */}
               <div className="space-y-3 text-xs">
-                <div className="p-3.5 rounded-xl bg-white/60 dark:bg-white/5 border border-white/60 dark:border-white/10 space-y-1">
-                  <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">Información del Cliente</span>
-                  <p className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">{selectedOrder.customer}</p>
-                  <p className="text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.email}</p>
-                  <p className="text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.phone}</p>
+                <div className="p-3.5 rounded-xl bg-[#f6f4ee] border-2 border-[#121314] shadow-[2px_2px_0px_#121314] space-y-1">
+                  <span className="font-black uppercase tracking-wider text-[11px] text-[#121314] block">Información del Cliente</span>
+                  <p className="font-black text-[#121314]">{selectedOrder.customer}</p>
+                  <p className="text-[#121314]/80 font-medium">{selectedOrder.email}</p>
+                  <p className="text-[#121314]/80 font-medium">{selectedOrder.phone}</p>
                 </div>
 
-                <div className="p-3.5 rounded-xl bg-white/60 dark:bg-white/5 border border-white/60 dark:border-white/10 space-y-1">
-                  <span className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">Dirección de Entrega</span>
-                  <p className="text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.address}</p>
+                <div className="p-3.5 rounded-xl bg-[#f6f4ee] border-2 border-[#121314] shadow-[2px_2px_0px_#121314] space-y-1">
+                  <span className="font-black uppercase tracking-wider text-[11px] text-[#121314] block">Dirección de Entrega</span>
+                  <p className="text-[#121314]/80 font-medium">{selectedOrder.address}</p>
                 </div>
               </div>
 
               {/* Items Purchased */}
-              <div className="space-y-3 pt-2 border-t border-white/60 dark:border-white/10">
-                <span className="font-bold text-xs text-[#1b1c1c] dark:text-[#f9fafb] block">
-                  Productos del Pedido ({selectedOrder.items.length})
+              <div className="space-y-3 pt-2 border-t-2 border-[#121314]/15">
+                <span className="font-black uppercase tracking-wider text-xs text-[#121314] block">
+                  Productos ({selectedOrder.items.length})
                 </span>
                 <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
                   {selectedOrder.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-3 p-2 rounded-xl bg-white/50 dark:bg-white/5 border border-white/60 dark:border-white/10">
+                    <div key={idx} className="flex items-center gap-3 p-2.5 rounded-xl bg-[#f6f4ee] border-2 border-[#121314] shadow-[2px_2px_0px_#121314]">
                       <img
                         src={item.image}
                         alt={item.title}
-                        className="w-10 h-10 object-contain rounded-lg bg-white dark:bg-white/10 p-1 shrink-0 mix-blend-multiply dark:mix-blend-normal border border-white dark:border-white/10"
+                        className="w-11 h-11 object-contain rounded-lg bg-white p-1 shrink-0 border border-[#121314]"
                       />
                       <div className="flex-1 min-w-0 text-xs">
-                        <p className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] truncate">{item.title}</p>
-                        <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">{item.variant} • Cant: {item.quantity}</p>
+                        <p className="font-black text-[#121314] truncate uppercase">{item.title}</p>
+                        <p className="text-[11px] text-[#121314]/70 font-bold">{item.variant} • Cant: {item.quantity}</p>
                       </div>
-                      <span className="font-bold text-xs text-[#1b1c1c] dark:text-[#f9fafb]">${(item.price * item.quantity).toFixed(2)}</span>
+                      <span className="font-black text-xs text-[#121314]">${(item.price * item.quantity).toFixed(2)}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Totals Breakdown */}
-              <div className="space-y-1.5 pt-3 border-t border-white/60 dark:border-white/10 text-xs text-[#5b403e] dark:text-[#9ca3af]">
+              <div className="space-y-1.5 pt-3 border-t-2 border-[#121314]/15 text-xs text-[#121314]/80">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">${selectedOrder.subtotal.toFixed(2)}</span>
+                  <span className="font-black text-[#121314]">${selectedOrder.subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Envío</span>
-                  <span className="font-semibold text-[#1E824C] dark:text-[#4ade80]">Gratis</span>
+                  <span className="font-black text-[#106ebe]">Gratis</span>
                 </div>
-                <div className="flex justify-between items-baseline pt-2 border-t border-white/80 dark:border-white/10 text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
-                  <span>Total</span>
-                  <span className="text-lg font-bold text-[#FF4D4F]">${selectedOrder.total.toFixed(2)} ARS</span>
+                <div className="flex justify-between items-baseline pt-2 border-t-2 border-[#121314] text-sm font-black text-[#121314]">
+                  <span className="uppercase">Total Final</span>
+                  <span className="text-xl font-black text-[#121314]">${selectedOrder.total.toFixed(2)} ARS</span>
                 </div>
               </div>
 
               {/* Status Changer Actions */}
               <div className="pt-2 flex flex-col gap-2">
-                <span className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af]">Cambiar Estado del Pedido:</span>
+                <span className="text-[11px] font-black uppercase tracking-wider text-[#121314]">Cambiar Estado del Pedido:</span>
                 <div className="grid grid-cols-2 gap-2.5 text-xs pt-1">
                   {/* 1. Enviado */}
                   <button
                     onClick={() => handleUpdateStatus('Enviado')}
-                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
+                    className={`py-2 px-2 rounded-xl font-black uppercase text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border-2 border-[#121314] shadow-[2px_2px_0px_#121314] hover:translate-x-[1px] hover:translate-y-[1px] ${
                       selectedOrder.status === 'Enviado'
-                        ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-sm'
-                        : 'bg-white/90 dark:bg-white/5 text-[#FF4D4F] border-[#FF4D4F]/30 hover:bg-[#FF4D4F] hover:text-white shadow-2xs hover:border-[#FF4D4F]'
+                        ? 'bg-[#121314] text-white'
+                        : 'bg-[#a8d5e3] hover:bg-[#96c8d7] text-[#121314]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">local_shipping</span>
-                    <span>Marcar Enviado</span>
+                    <span>Enviado</span>
                   </button>
 
                   {/* 2. Entregado */}
                   <button
                     onClick={() => handleUpdateStatus('Entregado')}
-                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
+                    className={`py-2 px-2 rounded-xl font-black uppercase text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border-2 border-[#121314] shadow-[2px_2px_0px_#121314] hover:translate-x-[1px] hover:translate-y-[1px] ${
                       selectedOrder.status === 'Entregado'
-                        ? 'bg-[#1E824C] text-white border-[#1E824C] shadow-sm'
-                        : 'bg-white/90 dark:bg-white/5 text-[#1E824C] dark:text-[#4ade80] border-[#1E824C]/30 hover:bg-[#1E824C] hover:text-white shadow-2xs hover:border-[#1E824C]'
+                        ? 'bg-[#121314] text-white'
+                        : 'bg-[#0ffcbe] hover:bg-[#00eaad] text-[#121314]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">check_circle</span>
-                    <span>Marcar Entregado</span>
+                    <span>Entregado</span>
                   </button>
 
                   {/* 3. En Proceso */}
                   <button
                     onClick={() => handleUpdateStatus('En Proceso')}
-                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
+                    className={`py-2 px-2 rounded-xl font-black uppercase text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border-2 border-[#121314] shadow-[2px_2px_0px_#121314] hover:translate-x-[1px] hover:translate-y-[1px] ${
                       selectedOrder.status === 'En Proceso'
-                        ? 'bg-[#D97757] text-white border-[#D97757] shadow-sm'
-                        : 'bg-white/90 dark:bg-white/5 text-[#D97757] border-[#D97757]/40 hover:bg-[#D97757] hover:text-white shadow-2xs hover:border-[#D97757]'
+                        ? 'bg-[#121314] text-white'
+                        : 'bg-[#ffe600] hover:bg-[#eed500] text-[#121314]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">hourglass_top</span>
                     <span>En Proceso</span>
                   </button>
 
-                  {/* 4. Cancelar Orden (Triggers Modal for Refund Question) */}
+                  {/* 4. Cancelar Orden */}
                   <button
                     onClick={() => setIsRefundModalOpen(true)}
-                    className={`py-2.5 px-2 rounded-xl font-bold text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border ${
+                    className={`py-2 px-2 rounded-xl font-black uppercase text-center cursor-pointer transition-all flex items-center justify-center gap-1.5 border-2 border-[#121314] shadow-[2px_2px_0px_#121314] hover:translate-x-[1px] hover:translate-y-[1px] ${
                       selectedOrder.status === 'Cancelado'
-                        ? 'bg-[#ba1a1a] text-white border-[#ba1a1a] shadow-sm'
-                        : 'bg-white/90 dark:bg-white/5 text-[#ba1a1a] dark:text-[#ff8a80] border-red-200 dark:border-red-900/40 hover:bg-[#ba1a1a] hover:text-white shadow-2xs hover:border-[#ba1a1a]'
+                        ? 'bg-[#121314] text-white'
+                        : 'bg-[#ff78ac] hover:bg-[#ff629e] text-[#121314]'
                     }`}
                   >
                     <span className="material-symbols-outlined text-[16px]">cancel</span>
-                    <span>Cancelar Orden</span>
+                    <span>Cancelar</span>
                   </button>
                 </div>
               </div>
@@ -390,38 +392,38 @@ export const OrderManagement: React.FC = () => {
 
       {/* MODAL: CANCELACIÓN Y REEMBOLSO MERCADO PAGO */}
       {isRefundModalOpen && selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-          <div className="glass-panel rounded-2xl p-5 sm:p-7 max-w-md w-full border border-white dark:border-white/10 shadow-2xl space-y-5 bg-white/95 dark:bg-[#12151c] text-xs max-h-[90vh] overflow-y-auto">
-            <div className="flex justify-between items-start border-b border-white/80 dark:border-white/10 pb-3">
-              <div className="flex items-center gap-2 text-[#ba1a1a]">
-                <div className="w-9 h-9 rounded-xl bg-red-100 dark:bg-red-950/40 flex items-center justify-center text-[#ba1a1a] dark:text-[#ff8a80]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#121314]/70 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-md w-full border-3 border-[#121314] shadow-[8px_8px_0px_#121314] space-y-5 text-xs max-h-[90vh] overflow-y-auto">
+            <div className="flex justify-between items-start border-b-2 border-[#121314] pb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-xl bg-[#ff78ac] border-2 border-[#121314] flex items-center justify-center text-[#121314] shadow-[2px_2px_0px_#121314]">
                   <span className="material-symbols-outlined text-[22px]">assignment_return</span>
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#1b1c1c] dark:text-[#f9fafb]">Cancelar y Reembolsar Orden</h3>
-                  <span className="font-mono text-[11px] text-[#5b403e] dark:text-[#9ca3af]">{selectedOrder.id}</span>
+                  <h3 className="text-base font-black uppercase text-[#121314]">Cancelar y Reembolsar</h3>
+                  <span className="font-mono text-[11px] font-bold text-[#106ebe]">{selectedOrder.id}</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsRefundModalOpen(false)}
-                className="text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] cursor-pointer"
+                className="text-[#121314] hover:bg-[#f6f4ee] p-1 rounded-lg border-2 border-transparent hover:border-[#121314] cursor-pointer"
               >
                 <span className="material-symbols-outlined text-[20px]">close</span>
               </button>
             </div>
 
-            <div className="p-4 rounded-xl bg-[#009EE3]/10 border border-[#009EE3]/20 space-y-2 text-[#1b1c1c] dark:text-[#f9fafb]">
-              <div className="flex items-center gap-2 font-bold text-[#009EE3]">
+            <div className="p-4 rounded-2xl bg-[#a8d5e3]/30 border-2 border-[#121314] space-y-2 text-[#121314] shadow-[2px_2px_0px_#121314]">
+              <div className="flex items-center gap-2 font-black uppercase text-[#106ebe]">
                 <span className="material-symbols-outlined text-[18px]">payments</span>
-                <span>¿Deseas reembolsar el dinero en Mercado Pago?</span>
+                <span>¿Reembolsar fondos en Mercado Pago?</span>
               </div>
-              <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] leading-relaxed">
-                El comprador <b>{selectedOrder.customer}</b> abonó <b>${selectedOrder.total.toFixed(2)} ARS</b>. Si confirmas, se enviará la orden de reembolso a la API de Mercado Pago y el saldo se reintegrará automáticamente.
+              <p className="text-[11px] font-medium leading-relaxed text-[#121314]/80">
+                El comprador <b>{selectedOrder.customer}</b> abonó <b>${selectedOrder.total.toFixed(2)} ARS</b>. Si confirmas, se enviará la orden de reintegro automático a la pasarela.
               </p>
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] font-bold text-[#5b403e] dark:text-[#9ca3af] block">
+              <label className="text-[11px] font-black uppercase tracking-wider text-[#121314] block">
                 ID de Pago en Mercado Pago (Transaction ID)
               </label>
               <input
@@ -429,36 +431,36 @@ export const OrderManagement: React.FC = () => {
                 value={paymentIdInput}
                 onChange={(e) => setPaymentIdInput(e.target.value)}
                 placeholder="ej. 175009292359"
-                className="glass-input w-full px-3.5 py-2.5 rounded-xl font-mono text-xs outline-none"
+                className="w-full bg-[#f6f4ee] border-2 border-[#121314] px-3.5 py-2.5 rounded-xl font-mono text-xs font-bold text-[#121314] outline-none focus:bg-white"
               />
             </div>
 
-            <div className="flex flex-col gap-2 pt-2 border-t border-white/80 dark:border-white/10">
+            <div className="flex flex-col gap-2.5 pt-3 border-t-2 border-[#121314]/15">
               {/* Option 1: Refund via MP and Cancel */}
               <button
                 disabled={refundLoading}
                 onClick={() => handleCancelWithRefund(true)}
-                className="w-full py-3 px-4 rounded-xl bg-[#009EE3] hover:bg-[#0082ba] text-white font-bold text-xs flex items-center justify-center gap-2 shadow-md cursor-pointer disabled:opacity-50 transition-all"
+                className="w-full py-3 px-4 rounded-full bg-[#009EE3] hover:bg-[#0089c7] text-white font-black uppercase tracking-wider text-xs border-2 border-[#121314] shadow-[3px_3px_0px_#121314] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 transition-all"
               >
                 <span className="material-symbols-outlined text-[18px]">undo</span>
-                <span>{refundLoading ? 'Procesando Reembolso en MP...' : 'Cancelar y Reembolsar en Mercado Pago'}</span>
+                <span>{refundLoading ? 'Procesando Reembolso...' : 'Cancelar y Reembolsar en MP'}</span>
               </button>
 
               {/* Option 2: Just Cancel */}
               <button
                 disabled={refundLoading}
                 onClick={() => handleCancelWithRefund(false)}
-                className="w-full py-2.5 px-4 rounded-xl bg-red-50 dark:bg-red-950/30 hover:bg-red-100 dark:hover:bg-red-950/50 text-[#ba1a1a] dark:text-[#ff8a80] font-bold text-xs border border-red-200 dark:border-red-900/40 flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all"
+                className="w-full py-2.5 px-4 rounded-full bg-[#ff78ac] hover:bg-[#ff629e] text-[#121314] font-black uppercase tracking-wider text-xs border-2 border-[#121314] shadow-[2px_2px_0px_#121314] flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 transition-all"
               >
                 <span className="material-symbols-outlined text-[16px]">block</span>
-                <span>Solo Cancelar Orden (Sin Reembolso Automático)</span>
+                <span>Solo Cancelar (Sin Reembolso Automático)</span>
               </button>
 
               {/* Cancel / Close */}
               <button
                 type="button"
                 onClick={() => setIsRefundModalOpen(false)}
-                className="w-full py-2 text-center text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] text-xs font-semibold cursor-pointer"
+                className="w-full py-2 text-center text-[#121314]/70 hover:text-[#121314] text-xs font-black uppercase tracking-wider cursor-pointer"
               >
                 Volver atrás
               </button>

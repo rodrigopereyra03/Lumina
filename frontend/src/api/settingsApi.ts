@@ -23,19 +23,19 @@ export const DEFAULT_PAYMENT_SETTINGS: PaymentSettingsDTO = {
   mp_installments: 6,
   transfer_active: true,
   transfer_cbu: '0000003100010000849201',
-  transfer_alias: 'LUMINA.PAGOS.OFICIAL',
+  transfer_alias: 'FORMULA1370.PAGOS.OFICIAL',
   transfer_bank: 'Banco Santander',
-  transfer_holder: 'Lumina Retail S.A. (CUIT 30-71234567-9)',
+  transfer_holder: 'Fórmula 1370 Retail S.A. (CUIT 30-71234567-9)',
   transfer_discount: 10,
   card_active: true,
 }
 
-const SETTINGS_STORAGE_KEY = 'lumina_payment_settings'
+const SETTINGS_STORAGE_KEY = 'formula1370_payment_settings'
 
 export const settingsApi = {
   getPaymentSettings: async (): Promise<PaymentSettingsDTO> => {
     // 1. Check local storage cache first
-    const cached = localStorage.getItem(SETTINGS_STORAGE_KEY)
+    const cached = localStorage.getItem(SETTINGS_STORAGE_KEY) || localStorage.getItem('lumina_payment_settings')
     let localData: PaymentSettingsDTO = cached ? JSON.parse(cached) : DEFAULT_PAYMENT_SETTINGS
 
     try {

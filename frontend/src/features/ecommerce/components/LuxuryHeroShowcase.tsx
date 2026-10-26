@@ -21,38 +21,83 @@ interface PerfumeShowcaseItem {
   description: string
 }
 
-const createShowcaseGradient = (accent: string): string => {
-  let hex = (accent || '#e11d48').replace('#', '').trim()
+/**
+ * Converts a HEX color string into HSL values.
+ */
+function hexToHsl(hexStr: string): { h: number; s: number; l: number } {
+  let hex = (hexStr || '#106ebe').replace('#', '').trim()
   if (hex.length === 3) {
     hex = hex.split('').map((c) => c + c).join('')
   }
   const num = parseInt(hex, 16) || 0
-  const r = (num >> 16) & 255
-  const g = (num >> 8) & 255
-  const b = num & 255
+  const r = ((num >> 16) & 255) / 255
+  const g = ((num >> 8) & 255) / 255
+  const b = (num & 255) / 255
 
-  // Special handling for Pure Black / Onyx Noir (#000000 or near-black)
-  const isOnyxNoir = r < 20 && g < 20 && b < 20
-  if (isOnyxNoir) {
-    return `radial-gradient(circle at 52% 46%, rgba(65, 70, 82, 0.72) 0%, rgba(35, 38, 45, 0.5) 34%, #12141a 68%, #08090c 100%)`
+  const max = Math.max(r, g, b)
+  const min = Math.min(r, g, b)
+  let h = 0
+  let s = 0
+  const l = (max + min) / 2
+
+  if (max !== min) {
+    const d = max - min
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min)
+    switch (max) {
+      case r:
+        h = (g - b) / d + (g < b ? 6 : 0)
+        break
+      case g:
+        h = (b - r) / d + 2
+        break
+      case b:
+        h = (r - g) / d + 4
+        break
+    }
+    h = Math.round(h * 60)
   }
+  return { h, s: Math.round(s * 100), l: Math.round(l * 100) }
+}
 
-  // Adaptive luminosity for deeper colors (e.g. dark navy/midnight blue)
-  const brightness = (r * 299 + g * 587 + b * 114) / 1000
-  const centerAlpha = brightness < 70 ? 0.8 : 0.65
-  const midAlpha = brightness < 70 ? 0.48 : 0.38
+export interface ShowcaseTheme {
+  accentColor: string
+  effectiveHue: number
+  bgGradient: string
+  spotlightGlow: string
+  mandalaStroke: string
+  mandalaOuterStart: string
+  mandalaOuterMid: string
+  mandalaInnerMid: string
+}
 
-  // Luxury chromatic night tones: keeps atmospheric ambiance at the borders
-  // avoiding the dead pitch-black void (#06070a)
-  const edgeR = Math.round(r * 0.12 + 14)
-  const edgeG = Math.round(g * 0.12 + 16)
-  const edgeB = Math.round(b * 0.12 + 20)
+export const getShowcaseTheme = (accent: string): ShowcaseTheme => {
+  const { h, s } = hexToHsl(accent)
+  // If low saturation (e.g. silver/black), use an elegant mineral slate hue
+  const effectiveHue = s < 10 ? 215 : h
+  const effectiveSat = s < 10 ? 28 : Math.min(Math.max(s, 52), 76)
 
-  const midR = Math.round(r * 0.28 + 16)
-  const midG = Math.round(g * 0.28 + 18)
-  const midB = Math.round(b * 0.28 + 24)
+  // Distinctive chromatic background per perfume (calibrated for high contrast with #121314 DM Sans)
+  const bgGradient = `radial-gradient(circle at 50% 46%, hsl(${effectiveHue}, ${effectiveSat}%, 91%) 0%, hsl(${effectiveHue}, ${effectiveSat}%, 80%) 44%, hsl(${effectiveHue}, ${Math.round(effectiveSat * 0.9)}%, 70%) 100%)`
+  const spotlightGlow = `radial-gradient(circle, hsla(${effectiveHue}, 85%, 58%, 0.45) 0%, hsla(${effectiveHue}, 75%, 68%, 0.22) 40%, transparent 70%)`
+  const mandalaStroke = `hsla(${effectiveHue}, 50%, 20%, 0.18)`
+  const mandalaOuterStart = `hsl(${effectiveHue}, ${effectiveSat}%, 96%)`
+  const mandalaOuterMid = `hsla(${effectiveHue}, ${effectiveSat}%, 65%, 0.35)`
+  const mandalaInnerMid = `hsla(${effectiveHue}, ${effectiveSat}%, 55%, 0.3)`
 
-  return `radial-gradient(circle at 52% 46%, rgba(${r}, ${g}, ${b}, ${centerAlpha}) 0%, rgba(${r}, ${g}, ${b}, ${midAlpha}) 32%, rgb(${midR}, ${midG}, ${midB}) 65%, rgb(${edgeR}, ${edgeG}, ${edgeB}) 100%)`
+  return {
+    accentColor: accent || '#106ebe',
+    effectiveHue,
+    bgGradient,
+    spotlightGlow,
+    mandalaStroke,
+    mandalaOuterStart,
+    mandalaOuterMid,
+    mandalaInnerMid,
+  }
+}
+
+const createShowcaseGradient = (accent: string): string => {
+  return getShowcaseTheme(accent).bgGradient
 }
 
 const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
@@ -77,8 +122,8 @@ const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
     subtitle: 'Armaf • Haute Parfumerie',
     price: 89000,
     imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    bgGradient: createShowcaseGradient('#94a3b8'),
-    accentColor: '#94a3b8',
+    bgGradient: createShowcaseGradient('#106ebe'),
+    accentColor: '#106ebe',
     tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
     volumeLabel: '50 ml • 100 ml',
     availableVolumes: [50, 100],
@@ -91,8 +136,8 @@ const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
     subtitle: 'Lattafa • Haute Parfumerie',
     price: 78000,
     imageUrl: '/hero-perfumes/odyssey-aqua.png',
-    bgGradient: createShowcaseGradient('#f59e0b'),
-    accentColor: '#f59e0b',
+    bgGradient: createShowcaseGradient('#d97706'),
+    accentColor: '#d97706',
     tags: ['Garantía Oficial', 'Batch Code', '100% Original'],
     volumeLabel: '50 ml • 100 ml',
     availableVolumes: [50, 100],
@@ -102,14 +147,14 @@ const INITIAL_SHOWCASE_ITEMS: PerfumeShowcaseItem[] = [
 
 const getInitialShowcaseItems = (): PerfumeShowcaseItem[] => {
   try {
-    const stored = localStorage.getItem('lumina_custom_products')
+    const stored = localStorage.getItem('formula1370_custom_products') || localStorage.getItem('lumina_custom_products')
     if (stored) {
       const list = JSON.parse(stored)
       if (Array.isArray(list) && list.length > 0) {
         return list.map((p: any) => {
           const vols = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
           const accent = p.accent_color || '#38bdf8'
-          const brand = (p.brand || p.category_name || 'LUMINA').toUpperCase()
+          const brand = (p.brand || p.category_name || 'FÓRMULA 1370').toUpperCase()
           return {
             id: p.id,
             brand,
@@ -188,7 +233,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
           const customItems: PerfumeShowcaseItem[] = res.products.map((p) => {
             const vols = p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100]
             const accent = p.accent_color || '#38bdf8'
-            const brand = (p.brand || p.category_name || 'LUMINA').toUpperCase()
+            const brand = (p.brand || p.category_name || 'FÓRMULA 1370').toUpperCase()
             return {
               id: p.id,
               brand,
@@ -223,9 +268,10 @@ export const LuxuryHeroShowcase: React.FC = () => {
     return () => {
       isMounted = false
     }
-  }, [])
+  }, [targetProductId])
 
   const current = showcaseList[selectedIndex] || showcaseList[0] || INITIAL_SHOWCASE_ITEMS[0]
+  const theme = getShowcaseTheme(current.accentColor)
   const totalCartCount = items.reduce((acc, item) => acc + item.quantity, 0)
 
   // Ensure selectedSize matches one of current perfume's available volumes
@@ -237,7 +283,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
         setSelectedSize(String(defaultVol))
       }
     }
-  }, [selectedIndex, current])
+  }, [selectedIndex, current, selectedSize])
 
   // Keyboard navigation
   useEffect(() => {
@@ -270,7 +316,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
       : 0
   const isOutOfStock = typeof current?.stock === 'number' && current.stock <= 0
 
-  // Handle 3D Tilt calculation (Skill: 3d-web-experience)
+  // Handle 3D Tilt calculation
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!heroRef.current) return
     const rect = heroRef.current.getBoundingClientRect()
@@ -306,45 +352,44 @@ export const LuxuryHeroShowcase: React.FC = () => {
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
       style={{
-        background: createShowcaseGradient(current.accentColor),
+        background: theme.bgGradient,
         transition: 'background 0.75s cubic-bezier(0.16, 1, 0.3, 1)',
-        fontFamily: "'Montserrat', sans-serif",
       }}
-      className="w-full min-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden text-white font-['Montserrat',sans-serif] select-none relative flex flex-col justify-between py-5 px-4 sm:py-6 sm:px-12 xl:px-16"
+      className="w-full min-h-screen overflow-x-hidden overflow-y-auto lg:overflow-hidden text-[#121314] font-dm select-none relative flex flex-col justify-between py-5 px-4 sm:py-6 sm:px-12 xl:px-16"
     >
-      {/* Subtle Ambient Radial Lighting Overlay - Lightened to eliminate dark edges */}
-      <div className="absolute inset-0 bg-radial from-white/5 via-transparent to-black/15 pointer-events-none z-0" />
+      {/* Subtle Ambient Radial Lighting Overlay */}
+      <div className="absolute inset-0 pointer-events-none z-0 bg-[radial-gradient(circle_at_50%_45%,rgba(255,255,255,0.7)_0%,transparent_70%)]" />
 
       {/* ========================================================================= */}
-      {/* 1. TOP NAVBAR (Minimalist, matching Nike Reference)                       */}
+      {/* 1. TOP NAVBAR (Neo-Editorial High Contrast)                               */}
       {/* ========================================================================= */}
       <header className="relative z-30 w-full flex items-center justify-between">
         
-        {/* Left: Lumina Logo */}
+        {/* Left: Fórmula 1370 Logo */}
         <Link to="/" className="flex items-center gap-3 group">
-          <div className="w-10 h-10 rounded-full bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-white font-bold text-base shadow-lg group-hover:scale-105 transition-transform">
-            L
+          <div className="w-10 h-10 rounded-xl bg-[#121314] text-white font-dm font-black text-sm flex items-center justify-center border-2 border-[#121314] neo-box-shadow-sm group-hover:scale-105 transition-transform">
+            F
           </div>
           <div className="flex flex-col">
-            <span className="font-bold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
-              LUMINA
+            <span className="font-dm font-black text-base sm:text-lg tracking-wider text-[#121314] flex items-center gap-2">
+              FÓRMULA 1370
             </span>
-            <span className="text-[9px] uppercase tracking-[0.3em] text-white/70 -mt-0.5 font-medium">
+            <span className="text-[9px] uppercase tracking-[0.3em] text-[#55575a] -mt-0.5 font-bold">
               Haute Parfumerie
             </span>
           </div>
         </Link>
 
-        {/* Center: Minimalist Capsule Tabs (Products / Contact style) */}
-        <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-full bg-black/25 backdrop-blur-xl border border-white/15 shadow-xl">
+        {/* Center: Minimalist Capsule Tabs */}
+        <div className="hidden sm:flex items-center gap-1.5 p-1 rounded-full bg-white border-2 border-[#121314] neo-box-shadow-sm">
           <Link
             to="/"
-            className="px-5 py-1.5 rounded-full text-xs font-medium text-white/80 hover:text-white hover:bg-white/10 transition-all"
+            className="px-5 py-1.5 rounded-full text-xs font-dm font-bold text-[#55575a] hover:text-[#121314] hover:bg-[#f6f4ee] transition-all"
           >
             Colección
           </Link>
           <button
-            className="px-5 py-1.5 rounded-full text-xs font-bold bg-white text-black shadow-md cursor-pointer transition-all"
+            className="px-5 py-1.5 rounded-full text-xs font-dm font-black bg-[#a8d5e3] text-[#121314] border border-[#121314] cursor-default transition-all"
           >
             Showcase 3D
           </button>
@@ -355,15 +400,15 @@ export const LuxuryHeroShowcase: React.FC = () => {
           {/* Mobile Back to Colección */}
           <Link
             to="/"
-            className="sm:hidden flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-semibold text-white bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md shadow-sm active:scale-95 transition-all"
+            className="sm:hidden flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-dm font-bold text-[#121314] bg-white border-2 border-[#121314] neo-box-shadow-sm active:scale-95 transition-all"
           >
             <span className="material-symbols-outlined text-[15px]">arrow_back</span>
             <span>Colección</span>
           </Link>
 
           <Link
-            to="/profile"
-            className="w-10 h-10 rounded-full bg-black/25 hover:bg-white/20 border border-white/20 backdrop-blur-md flex items-center justify-center text-white transition-all shadow-md"
+            to="/?profile=true"
+            className="w-10 h-10 rounded-full bg-white hover:bg-[#f6f4ee] border-2 border-[#121314] neo-box-shadow-sm flex items-center justify-center text-[#121314] transition-all"
             title="Mi Perfil"
           >
             <span className="material-symbols-outlined text-[19px]">person</span>
@@ -372,7 +417,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
           <button
             onClick={() => openDrawer()}
             aria-label="Carrito de compras"
-            className="relative w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md flex items-center justify-center text-white transition-all shadow-md cursor-pointer group"
+            className="relative w-10 h-10 rounded-full bg-white hover:bg-[#f6f4ee] border-2 border-[#121314] neo-box-shadow-sm flex items-center justify-center text-[#121314] transition-all cursor-pointer group"
             title="Carrito de Compras"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -380,11 +425,11 @@ export const LuxuryHeroShowcase: React.FC = () => {
                 d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth="1.8"
+                strokeWidth="2"
               />
             </svg>
             {totalCartCount > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 text-white font-bold text-[9px] rounded-full flex items-center justify-center border border-black shadow">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-[#ff78ac] text-[#121314] font-dm font-black text-[10px] rounded-full flex items-center justify-center border-2 border-[#121314] shadow-sm">
                 {totalCartCount}
               </span>
             )}
@@ -392,9 +437,9 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
           <Link
             to="/"
-            className="hidden lg:inline-flex items-center gap-1.5 text-xs font-bold text-white bg-black/20 hover:bg-white hover:text-black border border-white/20 px-4 py-2 rounded-full transition-all shadow-md ml-1"
+            className="hidden lg:inline-flex items-center gap-1.5 text-xs font-dm font-black text-[#121314] bg-white hover:bg-[#0ffcbe] border-2 border-[#121314] neo-box-shadow-sm px-4 py-2 rounded-full transition-all ml-1"
           >
-            <span>Tienda</span>
+            <span>Volver a Tienda</span>
             <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
           </Link>
         </div>
@@ -402,7 +447,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
       </header>
 
       {/* ========================================================================= */}
-      {/* 2. MAIN SHOWCASE STAGE (Expansive, Zero Dead-Space Composition)           */}
+      {/* 2. MAIN SHOWCASE STAGE                                                    */}
       {/* ========================================================================= */}
       <main className="relative z-20 w-full flex-1 flex flex-col lg:flex-row items-center justify-between my-auto">
         
@@ -416,35 +461,43 @@ export const LuxuryHeroShowcase: React.FC = () => {
               animate={{ opacity: 1, x: 0, y: 0 }}
               exit={{ opacity: 0, x: 25, y: -15 }}
               transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="space-y-3.5 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+              className="space-y-3.5"
             >
               {/* Category Breadcrumb */}
-              <span className="text-xs font-bold tracking-[0.25em] uppercase text-white/70 block">
-                {current.brand} • HAUTE PARFUMERIE
-              </span>
+              <div className="inline-flex items-center gap-2">
+                <span
+                  className="px-2.5 py-0.5 rounded-full text-white text-[10px] font-dm font-black tracking-wider uppercase border border-[#121314] shadow-xs transition-colors duration-500"
+                  style={{ backgroundColor: current.accentColor }}
+                >
+                  {current.brand}
+                </span>
+                <span className="text-xs font-dm font-bold tracking-[0.2em] uppercase text-[#55575a]">
+                  HAUTE PARFUMERIE
+                </span>
+              </div>
 
-              {/* Perfume Main Title (Montserrat Bold 700) */}
-              <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] ${isOutOfStock ? 'text-white/60 line-through decoration-red-500/70' : 'text-white'}`}>
+              {/* Perfume Main Title */}
+              <h1 className={`text-4xl sm:text-5xl lg:text-6xl font-dm font-black uppercase tracking-tight leading-[1.05] ${isOutOfStock ? 'text-[#55575a] line-through decoration-red-500' : 'text-[#121314]'}`}>
                 {current.title}
               </h1>
 
               {/* Subtitle Bullets */}
-              <p className="text-xs sm:text-sm text-white/85 font-medium tracking-wide">
+              <p className="text-xs sm:text-sm text-[#55575a] font-dm font-bold tracking-wide">
                 {current.subtitle}
               </p>
 
               {/* Characteristic Tags */}
               <div className="flex flex-wrap gap-2 pt-1">
                 {isOutOfStock && (
-                  <span className="text-[11px] font-black tracking-widest text-red-300 bg-red-950/80 border border-red-500/60 px-3 py-1 rounded-full shadow-lg flex items-center gap-1.5 uppercase">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                  <span className="text-[11px] font-dm font-black tracking-wider text-red-700 bg-red-100 border-2 border-red-500 px-3 py-1 rounded-full flex items-center gap-1.5 uppercase shadow-xs">
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
                     SIN STOCK
                   </span>
                 )}
                 {current.tags.map((tag, idx) => (
                   <span
                     key={idx}
-                    className="text-[11px] font-semibold text-white/90 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1 rounded-full shadow-xs"
+                    className="text-[11px] font-dm font-bold text-[#121314] bg-white border-2 border-[#121314] neo-box-shadow-sm px-3 py-1 rounded-full"
                   >
                     {tag}
                   </span>
@@ -452,41 +505,42 @@ export const LuxuryHeroShowcase: React.FC = () => {
               </div>
 
               {/* Volume / Weight Label */}
-              <span className="text-xs font-semibold text-white/70 tracking-widest block pt-1">
-                {selectedSize} ml / {(Number(selectedSize) * 0.0338).toFixed(1)} FL. OZ.
-              </span>
+              <div className="pt-1">
+                <span className="inline-block px-3 py-1 rounded-lg bg-[#a8d5e3]/40 border border-[#121314] text-[11px] font-dm font-black uppercase text-[#121314]">
+                  {selectedSize} ML • {(Number(selectedSize) * 0.0338).toFixed(1)} FL. OZ.
+                </span>
+              </div>
 
-              {/* Brief Description */}
-              <p className="text-xs text-white/70 leading-relaxed font-normal max-w-sm pt-2 line-clamp-3">
-                {current.description}
-              </p>
+              {/* Brief Description Card */}
+              <div className="bg-white/90 backdrop-blur-sm border-2 border-[#121314] neo-box-shadow-sm rounded-2xl p-4 max-w-sm mt-2">
+                <p className="text-xs text-[#121314] leading-relaxed font-dm font-medium line-clamp-3">
+                  {current.description}
+                </p>
+              </div>
             </motion.div>
           </AnimatePresence>
 
         </div>
 
-        {/* --- CENTER STAGE: Huge Mandala + Massive 3D Bottle (Fills the Center) --- */}
+        {/* --- CENTER STAGE: Huge Mandala + Massive 3D Bottle --- */}
         <div className="flex-1 w-full flex flex-col items-center justify-center relative min-h-[460px] sm:min-h-[580px] lg:min-h-[640px] overflow-visible">
           
-          {/* Dynamic Ambient Spotlight with Vibrant Luminous Glow */}
+          {/* Dynamic Ambient Spotlight with Vibrant Luminous Color */}
           <div
             style={{
-              background:
-                current.accentColor === '#000000' || current.accentColor === '#0a0a0a'
-                  ? `radial-gradient(circle, rgba(95, 102, 118, 0.65) 0%, rgba(45, 48, 56, 0.45) 35%, transparent 70%)`
-                  : `radial-gradient(circle, ${current.accentColor} 0%, ${current.accentColor}80 35%, transparent 70%)`,
+              background: theme.spotlightGlow,
             }}
-            className="absolute w-[480px] sm:w-[650px] lg:w-[780px] h-[480px] sm:h-[650px] lg:h-[780px] rounded-full blur-[90px] opacity-60 pointer-events-none transition-all duration-700"
+            className="absolute w-[480px] sm:w-[650px] lg:w-[780px] h-[480px] sm:h-[650px] lg:h-[780px] rounded-full blur-[90px] opacity-75 pointer-events-none transition-all duration-700"
           />
 
-          {/* 🌀 EXPANSIVE MANDALA DE FONDO 3D EMBOSSED (Grandiosa, ocupa todo el centro) */}
+          {/* 🌀 MANDALA DE FONDO 3D EMBOSSED (Watermark Architectural Blueprint) */}
           <AnimatePresence mode="popLayout">
             <motion.div
               key={`mandala-${current.id}`}
               initial={{ scale: 0.45, opacity: 0, rotate: -45 }}
               animate={{
                 scale: [0.45, 1.15, 1],
-                opacity: [0, 0.65, 0.42],
+                opacity: [0, 0.65, 0.5],
                 rotate: 0,
               }}
               exit={{
@@ -501,35 +555,31 @@ export const LuxuryHeroShowcase: React.FC = () => {
               }}
               className="absolute w-[520px] h-[520px] sm:w-[680px] sm:h-[680px] lg:w-[820px] lg:h-[820px] xl:w-[940px] xl:h-[940px] pointer-events-none select-none z-0 flex items-center justify-center"
             >
-              {(() => {
-                const isBlack = current.accentColor === '#000000' || current.accentColor === '#0a0a0a'
-                const effectiveAccent = isBlack ? '#94a3b8' : current.accentColor
-                return (
-                  <svg
-                    viewBox="-250 -250 500 500"
-                    className="w-full h-full filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.55)]"
-                  >
-                    <defs>
-                      <radialGradient id={`mandala-glow-${current.id}`} cx="50%" cy="50%" r="50%">
-                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
-                        <stop offset="50%" stopColor={effectiveAccent} stopOpacity="0.38" />
-                        <stop offset="100%" stopColor={effectiveAccent} stopOpacity="0" />
-                      </radialGradient>
-                      
-                      {/* Outer Petal Gradient with 3D Embossed Lighting & Vibrant Aura */}
-                      <linearGradient id={`lotus-outer-${current.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.5" />
-                        <stop offset="35%" stopColor={effectiveAccent} stopOpacity="0.4" />
-                        <stop offset="100%" stopColor={effectiveAccent} stopOpacity="0.12" />
-                      </linearGradient>
+              <svg
+                viewBox="-250 -250 500 500"
+                className="w-full h-full filter drop-shadow-[0_10px_25px_rgba(0,0,0,0.06)]"
+              >
+                <defs>
+                  <radialGradient id={`mandala-glow-${current.id}`} cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                    <stop offset="50%" stopColor={theme.mandalaOuterMid} />
+                    <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+                  </radialGradient>
+                  
+                  {/* Outer Petal Gradient with Dynamic Architectural Tint */}
+                  <linearGradient id={`lotus-outer-${current.id}`} x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor={theme.mandalaOuterStart} stopOpacity="0.85" />
+                    <stop offset="50%" stopColor={theme.mandalaOuterMid} />
+                    <stop offset="100%" stopColor="transparent" stopOpacity="0.05" />
+                  </linearGradient>
 
-                      {/* Inner Petal Gradient */}
-                      <linearGradient id={`lotus-inner-${current.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
-                        <stop offset="0%" stopColor="#ffffff" stopOpacity="0.6" />
-                        <stop offset="40%" stopColor={effectiveAccent} stopOpacity="0.45" />
-                        <stop offset="100%" stopColor={effectiveAccent} stopOpacity="0.15" />
-                      </linearGradient>
-                    </defs>
+                  {/* Inner Petal Gradient */}
+                  <linearGradient id={`lotus-inner-${current.id}`} x1="0%" y1="100%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#ffffff" stopOpacity="0.85" />
+                    <stop offset="50%" stopColor={theme.mandalaInnerMid} />
+                    <stop offset="100%" stopColor="transparent" stopOpacity="0.05" />
+                  </linearGradient>
+                </defs>
 
                 {/* 🌸 CAPA EXTERIOR: 8 Grandes Pétalos de Flor de Loto */}
                 {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
@@ -537,13 +587,12 @@ export const LuxuryHeroShowcase: React.FC = () => {
                     <path
                       d="M 0 -85 C 58 -115 68 -180 0 -235 C -68 -180 -58 -115 0 -85 Z"
                       fill={`url(#lotus-outer-${current.id})`}
-                      stroke="rgba(255,255,255,0.28)"
+                      stroke={theme.mandalaStroke}
                       strokeWidth="1.2"
                     />
-                    {/* Nervadura central del pétalo para relieve 3D */}
                     <path
                       d="M 0 -85 L 0 -235"
-                      stroke="rgba(255,255,255,0.22)"
+                      stroke={theme.mandalaStroke}
                       strokeWidth="1"
                     />
                   </g>
@@ -555,7 +604,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
                     <path
                       d="M 0 -60 C 44 -85 52 -135 0 -180 C -52 -135 -44 -85 0 -60 Z"
                       fill={`url(#lotus-inner-${current.id})`}
-                      stroke="rgba(255,255,255,0.3)"
+                      stroke={theme.mandalaStroke}
                       strokeWidth="0.9"
                     />
                   </g>
@@ -565,23 +614,21 @@ export const LuxuryHeroShowcase: React.FC = () => {
                 <circle
                   r="75"
                   fill={`url(#mandala-glow-${current.id})`}
-                  stroke="rgba(255,255,255,0.3)"
+                  stroke={theme.mandalaStroke}
                   strokeWidth="1.5"
                 />
                 <circle
                   r="52"
                   fill="none"
-                  stroke="rgba(255,255,255,0.2)"
+                  stroke={theme.mandalaStroke}
                   strokeWidth="1"
                   strokeDasharray="3 3"
                 />
                 <circle
                   r="24"
-                  fill="rgba(255,255,255,0.18)"
+                  fill="rgba(255,255,255,0.45)"
                 />
               </svg>
-                )
-              })()}
             </motion.div>
           </AnimatePresence>
 
@@ -622,7 +669,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
               >
                 {isOutOfStock && (
                   <div className="absolute z-50 flex items-center justify-center pointer-events-none">
-                    <span className="px-5 py-2 rounded-2xl bg-black/85 border border-red-500/60 text-red-400 font-extrabold tracking-[0.25em] text-xs sm:text-sm uppercase shadow-2xl backdrop-blur-md">
+                    <span className="px-5 py-2 rounded-2xl bg-[#121314] border-2 border-red-500 text-red-400 font-dm font-black tracking-[0.25em] text-xs sm:text-sm uppercase shadow-2xl">
                       AGOTADO • SIN STOCK
                     </span>
                   </div>
@@ -633,7 +680,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/hero-perfumes/odyssey-aqua.png'
                   }}
-                  className={`max-h-[280px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[580px] xl:max-h-[630px] h-[34vh] sm:h-[46vh] lg:h-[55vh] w-auto object-contain filter drop-shadow-[0_25px_40px_rgba(0,0,0,0.75)] select-none pointer-events-none ${
+                  className={`max-h-[280px] sm:max-h-[400px] md:max-h-[500px] lg:max-h-[580px] xl:max-h-[630px] h-[34vh] sm:h-[46vh] lg:h-[55vh] w-auto object-contain filter drop-shadow-[0_25px_35px_rgba(18,19,20,0.35)] select-none pointer-events-none ${
                     isOutOfStock ? 'opacity-70 grayscale-[30%]' : ''
                   }`}
                 />
@@ -643,7 +690,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
           {/* Dynamic Contact Shadow Under Bottle */}
           <div
-            className="w-44 sm:w-72 lg:w-80 h-5 sm:h-8 bg-black/65 rounded-full blur-xl sm:blur-2xl pointer-events-none transition-transform duration-200 z-10"
+            className="w-44 sm:w-72 lg:w-80 h-5 sm:h-8 bg-[#121314]/20 rounded-full blur-xl sm:blur-2xl pointer-events-none transition-transform duration-200 z-10"
             style={{
               transform: `translateX(${mousePos.x * 45}px) scaleX(${1 - Math.abs(mousePos.x) * 0.15}) scaleY(${1 - Math.abs(mousePos.y) * 0.1})`,
             }}
@@ -651,34 +698,40 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
         </div>
 
-        {/* --- RIGHT COLUMN: Circular Size Buttons (Dynamic from current.availableVolumes) --- */}
-        <div className="w-full lg:w-[380px] xl:w-[440px] shrink-0 z-20 flex flex-col items-center lg:items-end justify-center space-y-2.5 my-3 lg:my-0">
+        {/* --- RIGHT COLUMN: Circular Size Buttons --- */}
+        <div className="w-full lg:w-[380px] xl:w-[440px] shrink-0 z-20 flex flex-col items-center lg:items-end justify-center space-y-3 my-3 lg:my-0">
           
+          <span className="text-xs text-[#55575a] font-dm font-bold uppercase tracking-wider text-center lg:text-right">
+            Selecciona tu volumen
+          </span>
+
           {/* Dynamic round size buttons */}
           <div className="flex items-center gap-3">
             {(current.availableVolumes || [50, 100]).map((vol) => {
               const sizeStr = String(vol)
+              const isSelected = selectedSize === sizeStr
               return (
                 <button
                   key={vol}
                   onClick={() => setSelectedSize(sizeStr)}
-                  className={`w-11 h-11 sm:w-12 sm:h-12 rounded-full font-bold text-xs transition-all duration-200 cursor-pointer flex items-center justify-center shadow-lg ${
-                    selectedSize === sizeStr
-                      ? 'bg-white text-black scale-110 shadow-white/20'
-                      : 'bg-black/35 text-white/75 hover:text-white hover:bg-white/15 border border-white/20'
+                  className={`w-12 h-12 sm:w-14 sm:h-14 rounded-2xl font-dm font-black text-xs transition-all duration-200 cursor-pointer flex flex-col items-center justify-center border-2 border-[#121314] ${
+                    isSelected
+                      ? 'bg-[#121314] text-white scale-105 neo-box-shadow'
+                      : 'bg-white text-[#121314] hover:bg-[#a8d5e3] neo-box-shadow-sm'
                   }`}
                   title={`Tamaño ${vol} ml`}
                 >
-                  {vol}
+                  <span className="leading-none">{vol}</span>
+                  <span className="text-[9px] font-bold opacity-80 leading-none mt-0.5">ML</span>
                 </button>
               )
             })}
           </div>
 
-          {/* Subtitle below buttons */}
-          <span className="text-xs text-white/60 font-medium tracking-wide text-center lg:text-right">
-            Selecciona tu volumen con confort
-          </span>
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-dm font-bold text-[#121314] bg-white/85 border-2 border-[#121314] neo-box-shadow-sm px-3 py-1.5 rounded-full">
+            <span className="material-symbols-outlined text-[15px]" style={{ color: current.accentColor }}>verified</span>
+            <span>Concentración Eau de Parfum / Extract</span>
+          </div>
 
         </div>
 
@@ -687,22 +740,28 @@ export const LuxuryHeroShowcase: React.FC = () => {
       {/* ========================================================================= */}
       {/* 3. BOTTOM AREA (Price & Action Controls)                                  */}
       {/* ========================================================================= */}
-      <footer className="relative z-30 w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 sm:pt-2 pb-8 sm:pb-2 border-t sm:border-t-0 border-white/10 mt-4 sm:mt-0">
+      <footer className="relative z-30 w-full flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 sm:pt-2 pb-8 sm:pb-2 border-t border-[#121314]/10 mt-4 sm:mt-0">
         
-        {/* Left Spacer (Subtle luxury guarantees) */}
-        <div className="hidden sm:flex items-center gap-2 text-white/45 text-xs font-medium">
-          <span>Envío gratis a todo el país</span>
+        {/* Left Guarantees */}
+        <div className="hidden sm:flex items-center gap-2 text-[#55575a] text-xs font-dm font-bold">
+          <span className="flex items-center gap-1 text-[#121314]">
+            <span className="material-symbols-outlined text-[15px] text-[#106ebe]">local_shipping</span>
+            Envío gratis a todo el país
+          </span>
           <span>•</span>
-          <span>Cuotas sin interés</span>
+          <span className="flex items-center gap-1 text-[#121314]">
+            <span className="material-symbols-outlined text-[15px] text-[#ff78ac]">credit_card</span>
+            Cuotas sin interés
+          </span>
         </div>
 
-        {/* CENTER: Price (Centered on mobile, laser aligned at 50% on desktop) */}
+        {/* CENTER: Price */}
         <div className="w-full sm:w-auto text-center sm:absolute sm:left-1/2 sm:-translate-x-1/2 flex items-center justify-center gap-3">
-          <span className={`text-3xl sm:text-5xl font-bold tracking-tight ${isOutOfStock ? 'text-white/40 line-through decoration-red-500/80' : 'text-white'}`}>
+          <span className={`text-3xl sm:text-5xl font-dm font-black tracking-tight ${isOutOfStock ? 'text-gray-400 line-through decoration-red-500' : 'text-[#121314]'}`}>
             ${currentPrice.toLocaleString('es-AR')}
           </span>
           {isOutOfStock && (
-            <span className="text-xs sm:text-sm font-black text-red-400 tracking-widest uppercase px-3 py-1 rounded-full bg-red-500/20 border border-red-500/40 shadow-lg">
+            <span className="text-xs sm:text-sm font-dm font-black text-red-700 tracking-wider uppercase px-3 py-1 rounded-full bg-red-100 border-2 border-red-500">
               Sin Stock
             </span>
           )}
@@ -714,7 +773,7 @@ export const LuxuryHeroShowcase: React.FC = () => {
           {/* Circular Left Arrow Button */}
           <button
             onClick={handlePrev}
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/35 hover:bg-white hover:text-black text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-95"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white hover:bg-[#a8d5e3] text-[#121314] border-2 border-[#121314] neo-box-shadow-sm transition-all flex items-center justify-center cursor-pointer active:scale-95"
             title="Perfume Anterior (←)"
           >
             <span className="material-symbols-outlined text-[20px]">chevron_left</span>
@@ -723,29 +782,29 @@ export const LuxuryHeroShowcase: React.FC = () => {
           {/* Circular Right Arrow Button */}
           <button
             onClick={handleNext}
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-black/35 hover:bg-white hover:text-black text-white border border-white/20 transition-all flex items-center justify-center cursor-pointer shadow-lg active:scale-95"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-white hover:bg-[#a8d5e3] text-[#121314] border-2 border-[#121314] neo-box-shadow-sm transition-all flex items-center justify-center cursor-pointer active:scale-95"
             title="Perfume Siguiente (→)"
           >
             <span className="material-symbols-outlined text-[20px]">chevron_right</span>
           </button>
 
-          {/* Pill "Añadir a la Cesta" Button (Buy Now style - Bold 700) */}
+          {/* Pill "Añadir a la Cesta" Button */}
           <button
             disabled={isOutOfStock}
             onClick={() => {
               if (isOutOfStock) return
               handleAddToCart()
             }}
-            className={`flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 rounded-full font-bold text-xs uppercase tracking-wider shadow-2xl transition-all flex items-center justify-center gap-2 ml-1 ${
+            className={`flex-1 sm:flex-initial px-6 sm:px-8 py-3.5 rounded-full font-dm font-black text-xs uppercase tracking-wider border-2 border-[#121314] transition-all flex items-center justify-center gap-2 ml-1 ${
               isOutOfStock
-                ? 'bg-neutral-800 text-neutral-400 border border-neutral-700/80 cursor-not-allowed shadow-none'
-                : 'bg-white text-black hover:bg-neutral-100 hover:scale-[1.04] active:scale-[0.97] cursor-pointer'
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed shadow-none'
+                : 'bg-[#0ffcbe] hover:bg-[#00eaad] text-[#121314] neo-box-shadow neo-box-shadow-hover neo-box-shadow-active cursor-pointer'
             }`}
           >
             <span className="material-symbols-outlined text-[18px]">
-              {isOutOfStock ? 'do_not_disturb_on' : 'shopping_cart'}
+              {isOutOfStock ? 'do_not_disturb_on' : 'shopping_bag'}
             </span>
-            <span className={isOutOfStock ? 'line-through decoration-red-400' : ''}>
+            <span className={isOutOfStock ? 'line-through decoration-red-500' : ''}>
               {isOutOfStock ? 'Sin Stock' : isAddedToast ? '¡Añadido!' : 'Añadir a la Cesta'}
             </span>
           </button>
@@ -754,9 +813,9 @@ export const LuxuryHeroShowcase: React.FC = () => {
 
       </footer>
 
-      {/* Slide-over Side Cart Drawer (Transparent Frosted Glass with dynamic perfume accent) */}
+      {/* Slide-over Side Cart Drawer */}
       <CartDrawer
-        onProceedToCheckout={() => navigate('/')}
+        onProceedToCheckout={() => navigate('/?checkout=true')}
         accentColor={current.accentColor}
       />
 

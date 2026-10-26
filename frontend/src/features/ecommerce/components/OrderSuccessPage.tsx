@@ -108,7 +108,7 @@ export const OrderSuccessPage: React.FC = () => {
               onClick={() => navigate('/')}
               className="flex-1 py-3.5 btn-primary rounded-full text-xs font-bold shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
             >
-              <span>Volver a la Tienda Lumina</span>
+              <span>Volver a la Tienda Fórmula 1370</span>
               <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
             </button>
           </div>

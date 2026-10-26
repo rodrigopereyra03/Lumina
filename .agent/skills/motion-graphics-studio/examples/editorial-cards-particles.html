@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #FBF7EE;
+        font-family: Arial, sans-serif;
+      }
+      #root {
+        position: relative; width: 100%; height: 100%;
+        background: #FBF7EE;
+      }
+
+      /* --- capa de fondo: formas en deriva continua, parallax --- */
+      #bgshapes { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+      #bgshapes > div { position: absolute; }
+      .bg-circle { border-radius: 50%; }
+      .bg-ring { border-radius: 50%; border-style: solid; background: transparent; }
+
+      .scene { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+
+      /* --- tarjeta de papel rasgado --- */
+      .paper-card {
+        position: relative;
+        background: #F1E6D0;
+        padding: 48px 64px;
+        clip-path: polygon(
+          0% 2%, 4% 0%, 12% 1.5%, 22% 0.3%, 33% 1.8%, 45% 0%, 58% 1.2%, 70% 0.2%,
+          82% 1.6%, 92% 0%, 100% 1.4%, 100% 97%, 94% 100%, 85% 98.4%, 74% 100%,
+          63% 98.6%, 52% 100%, 40% 98.8%, 28% 100%, 16% 98.5%, 6% 100%, 0% 98.2%
+        );
+        box-shadow: 10px 14px 0 rgba(20,33,61,0.12);
+      }
+
+      .kicker {
+        font-size: 30px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+        color: #B8312A; margin-bottom: 12px;
+      }
+      .headline {
+        font-size: 80px; font-weight: 800; color: #14213D; line-height: 1.05;
+        letter-spacing: -0.01em; max-width: 1200px;
+      }
+      .accent-bar { height: 14px; background: #F2C230; margin-top: 24px; width: 0; }
+
+      .icon-circle {
+        width: 128px; height: 128px; border-radius: 50%;
+        background: #B8312A; display: flex; align-items: center; justify-content: center;
+        font-size: 64px; margin-bottom: 30px; box-shadow: 6px 8px 0 rgba(20,33,61,0.18);
+      }
+
+      .tip-card { display: flex; flex-direction: column; align-items: flex-start; }
+      .question { color: #14213D; }
+
+      .counter-num { font-size: 220px; font-weight: 800; color: #B8312A; line-height: 1; }
+
+      .grid-wrap { display: grid; grid-template-columns: repeat(4, 110px); grid-template-rows: repeat(3, 110px); gap: 18px; }
+      .grid-tile {
+        width: 110px; height: 110px; border-radius: 16px; background: #F1E6D0;
+        display: flex; align-items: center; justify-content: center; font-size: 48px;
+        box-shadow: 4px 6px 0 rgba(20,33,61,0.1);
+      }
+
+      /* --- textura, sobre todo el frame --- */
+      #halftone {
+        position: absolute; inset: 0; z-index: 50; pointer-events: none;
+        opacity: 0.08;
+        background-image: radial-gradient(#14213D 1.2px, transparent 1.2px);
+        background-size: 7px 7px;
+      }
+      #grain {
+        position: absolute; inset: 0; z-index: 51; pointer-events: none;
+        opacity: 0.05;
+      }
+      #vignette {
+        position: absolute; inset: 0; z-index: 52; pointer-events: none;
+        box-shadow: inset 0 0 220px 60px rgba(20,33,61,0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root" data-composition-id="main"
+      data-start="0" data-duration="30" data-width="1920" data-height="1080"
+    >
+      <div id="bgshapes">
+        <div class="bg-circle" id="bg1" style="width:420px;height:420px;background:#B8312A;opacity:0.08;left:-120px;top:-100px;"></div>
+        <div class="bg-ring" id="bg2" style="width:320px;height:320px;border-width:18px;border-color:#2E7D5B;opacity:0.14;right:-80px;top:120px;"></div>
+        <div class="bg-circle" id="bg3" style="width:220px;height:220px;background:#F2C230;opacity:0.18;right:220px;bottom:-60px;"></div>
+        <div class="bg-ring" id="bg4" style="width:500px;height:500px;border-width:14px;border-color:#5B3FA6;opacity:0.1;left:260px;bottom:-220px;"></div>
+        <div class="bg-circle" id="bg5" style="width:160px;height:160px;background:#14213D;opacity:0.07;left:720px;top:-80px;"></div>
+      </div>
+      <canvas id="particles" width="1920" height="1080" style="position:absolute;inset:0;z-index:2;"></canvas>
+
+      <!-- Escena 0: pregunta kinetica (0-3s) -->
+      <div class="scene" id="s0">
+        <div style="text-align:left; max-width:1300px;">
+          <div class="kicker">Hoy aprendemos</div>
+          <div class="headline question">¿Cómo cuidamos<br/>a nuestro perrito?</div>
+          <div class="accent-bar" id="bar0"></div>
+        </div>
+      </div>
+
+      <!-- Escena contador: 4 cosas simples (2.6-6.4s) -->
+      <div class="scene" id="sc" style="opacity:0;">
+        <div style="text-align:center;">
+          <div class="counter-num" id="counterNum">0</div>
+          <div class="kicker" style="margin-top:8px;">cosas simples que podés hacer hoy</div>
+        </div>
+      </div>
+
+      <!-- Escena grid: pequeños gestos, todos los días (6.4-10.4s) -->
+      <div class="scene" id="sg" style="opacity:0;">
+        <div style="text-align:center;">
+          <div class="grid-wrap" id="gridWrap">
+            <div class="grid-tile">🐾</div><div class="grid-tile">🐾</div><div class="grid-tile">🐾</div><div class="grid-tile">🐾</div>
+            <div class="grid-tile">🐾</div><div class="grid-tile">🐾</div><div class="grid-tile">🐾</div><div class="grid-tile" id="specialTile">🐾</div>
+            <div class="grid-tile">🐾</div><div class="grid-tile">🐾</div><div class="grid-tile">🐾</div><div class="grid-tile">🐾</div>
+          </div>
+          <div class="kicker" id="gridCaption" style="opacity:0; margin-top:28px;">Pequeños gestos, todos los días</div>
+        </div>
+      </div>
+
+      <!-- Escena 1: agua (10.4-14.4s) -->
+      <div class="scene" id="s1" style="opacity:0;">
+        <div class="paper-card tip-card">
+          <div class="icon-circle">💧</div>
+          <div class="kicker">Consejo 1</div>
+          <div class="headline" style="font-size:60px;">Dale agua fresca<br/>todos los días</div>
+        </div>
+      </div>
+
+      <!-- Escena 2: paseo (14.4-18.4s) -->
+      <div class="scene" id="s2" style="opacity:0;">
+        <div class="paper-card tip-card">
+          <div class="icon-circle" style="background:#2E7D5B;">🐾</div>
+          <div class="kicker" style="color:#2E7D5B;">Consejo 2</div>
+          <div class="headline" style="font-size:60px;">Llevalo a pasear<br/>todos los días</div>
+        </div>
+      </div>
+
+      <!-- Escena 3: veterinario (18.4-22.4s) -->
+      <div class="scene" id="s3" style="opacity:0;">
+        <div class="paper-card tip-card">
+          <div class="icon-circle" style="background:#5B3FA6;">🩺</div>
+          <div class="kicker" style="color:#5B3FA6;">Consejo 3</div>
+          <div class="headline" style="font-size:60px;">Visitá al<br/>veterinario</div>
+        </div>
+      </div>
+
+      <!-- Escena 4: amor (22.4-26.4s) -->
+      <div class="scene" id="s4" style="opacity:0;">
+        <div class="paper-card tip-card">
+          <div class="icon-circle" style="background:#B8312A;">💗</div>
+          <div class="kicker">Consejo 4</div>
+          <div class="headline" style="font-size:60px;">Dale amor y<br/>compañía</div>
+        </div>
+      </div>
+
+      <!-- Escena 5: cierre kinetico (26.4-30s) -->
+      <div class="scene" id="s5" style="opacity:0;">
+        <div style="text-align:center;">
+          <div class="headline" style="font-size:96px;">¡Cuidalo<br/>siempre!</div>
+          <div class="accent-bar" id="bar5" style="margin:24px auto 0;"></div>
+        </div>
+      </div>
+
+      <div id="halftone"></div>
+      <div id="grain"></div>
+      <div id="vignette"></div>
+    </div>
+
+    <script>
+      document.getElementById('grain').style.backgroundImage =
+        "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")";
+
+      function stepped(n) { return `steps(${n})`; }
+      const DURATION = 30;
+
+      // --- partículas de fondo: deriva continua, semilla fija para que cada seek sea reproducible ---
+      function mulberry32(seed) {
+        return function () {
+          seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+          let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+          t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+          return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+        };
+      }
+      const rand = mulberry32(42);
+      const PALETTE = ['#B8312A', '#2E7D5B', '#5B3FA6', '#F2C230', '#14213D'];
+      const particles = Array.from({ length: 65 }, () => ({
+        x: rand() * 1920, y: rand() * 1080,
+        vx: (rand() - 0.5) * 55, vy: (rand() - 0.5) * 30 - 16,
+        r: 5 + rand() * 7,
+        o: 0.35 + rand() * 0.4,
+        color: PALETTE[Math.floor(rand() * PALETTE.length)],
+      }));
+      const canvas = document.getElementById('particles');
+      const pctx = canvas.getContext('2d', { willReadFrequently: true });
+      function drawParticles(t) {
+        pctx.clearRect(0, 0, 1920, 1080);
+        particles.forEach((p) => {
+          let x = (p.x + p.vx * t) % 1920; if (x < 0) x += 1920;
+          let y = (p.y + p.vy * t) % 1080; if (y < 0) y += 1080;
+          pctx.beginPath();
+          pctx.fillStyle = p.color;
+          pctx.globalAlpha = p.o;
+          pctx.shadowColor = p.color;
+          pctx.shadowBlur = p.r * 2.5;
+          pctx.arc(x, y, p.r, 0, Math.PI * 2);
+          pctx.fill();
+        });
+        pctx.globalAlpha = 1;
+        pctx.shadowBlur = 0;
+      }
+      drawParticles(0);
+
+      const tl = gsap.timeline({ paused: true, defaults: { ease: stepped(8) } });
+
+      tl.to({}, { duration: DURATION, ease: 'none', onUpdate: () => drawParticles(tl.time()) }, 0);
+
+      // --- fondo: deriva continua durante todo el video, por capas (parallax) ---
+      tl.to('#bg1', { x: 90, y: 60, rotation: 25, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#bg2', { x: -70, y: -90, rotation: -40, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#bg3', { x: -50, y: -40, rotation: 60, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#bg4', { x: 60, y: -50, rotation: -20, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#bg5', { x: 40, y: 110, rotation: 45, duration: DURATION, ease: 'none' }, 0);
+
+      // --- Escena 0: pregunta (0-2.6s) ---
+      tl.fromTo('#s0 .kicker', { opacity: 0, y: -20 }, { opacity: 1, y: 0, duration: 0.3 }, 0.05);
+      tl.fromTo('#s0 .headline', { opacity: 0, y: 30, scale: 0.92 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: 'back.out(1.8)' }, 0.2);
+      tl.to('#bar0', { width: 420, duration: 0.5 }, 0.6);
+      tl.to('#s0', { opacity: 0, scale: 1.05, duration: 0.25 }, 2.35);
+
+      // --- Escena contador: 0 -> 4, tipo odómetro (2.6-6.4s) ---
+      tl.set('#sc', { opacity: 1 }, 2.6);
+      const counterObj = { val: 0 };
+      const counterNum = document.getElementById('counterNum');
+      tl.fromTo('#sc > div', { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.3 }, 2.65);
+      tl.to(counterObj, {
+        val: 4, duration: 1.0, ease: stepped(4),
+        onUpdate: () => { counterNum.textContent = Math.round(counterObj.val); },
+      }, 2.9);
+      tl.to('#sc', { opacity: 0, scale: 1.05, duration: 0.25 }, 6.15);
+
+      // --- Escena grid: muchas tiles iguales, una se destaca (6.4-10.4s) ---
+      tl.set('#sg', { opacity: 1 }, 6.4);
+      tl.fromTo('.grid-tile', { opacity: 0, scale: 0.4, rotation: -15 },
+        { opacity: 1, scale: 1, rotation: 0, duration: 0.3, stagger: 0.035, ease: 'back.out(2.5)' }, 6.45);
+      tl.to('#specialTile', { backgroundColor: '#F2C230', scale: 1.15, duration: 0.3, ease: 'back.out(3)' }, 7.4);
+      tl.to('#gridCaption', { opacity: 1, y: -6, duration: 0.3 }, 7.6);
+      tl.to('#sg', { opacity: 0, scale: 0.95, duration: 0.25 }, 10.15);
+
+      // --- Escenas 1-4: tarjetas de consejo, entradas alternadas y rápidas ---
+      const tips = [
+        { sel: '#s1', from: -3, start: 10.4 },
+        { sel: '#s2', from: 3, start: 14.4 },
+        { sel: '#s3', from: -3, start: 18.4 },
+        { sel: '#s4', from: 3, start: 22.4 },
+      ];
+      tips.forEach(({ sel, from, start }) => {
+        tl.set(sel, { opacity: 1 }, start);
+        tl.fromTo(`${sel} .paper-card`,
+          { opacity: 0, x: from * 60, rotation: from > 0 ? 8 : -8, scale: 0.8 },
+          { opacity: 1, x: 0, rotation: 0, scale: 1, duration: 0.4, ease: 'back.out(2.2)' },
+          start + 0.05
+        );
+        tl.fromTo(`${sel} .icon-circle`, { scale: 0, rotation: -30 }, { scale: 1, rotation: 0, duration: 0.35, ease: 'back.out(3)' }, start + 0.15);
+        tl.to(sel, { opacity: 0, scale: 0.9, duration: 0.25 }, start + 3.65);
+      });
+
+      // --- Escena 5: cierre (26.4-30s) ---
+      tl.set('#s5', { opacity: 1 }, 26.4);
+      tl.fromTo('#s5 .headline', { opacity: 0, scale: 0.5, rotation: -6 }, { opacity: 1, scale: 1, rotation: 0, duration: 0.5, ease: 'back.out(2.4)' }, 26.5);
+      tl.to('#bar5', { width: 360, duration: 0.4 }, 27.0);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

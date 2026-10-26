@@ -211,7 +211,7 @@ func (uc HandleWebhookImpl) Execute(ctx context.Context, input HandleWebhookInpu
 	if err != nil {
 		slog.Error("Failed to register Mercado Libre order in local database", "error", err)
 	} else {
-		slog.Info("Mercado Libre order imported successfully into Lumina", "order_number", createdOrder.OrderNumber)
+		slog.Info("Mercado Libre order imported successfully into Fórmula 1370", "order_number", createdOrder.OrderNumber)
 	}
 
 	return HandleWebhookOutput{

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/three@0.146.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1920px; height: 1080px; overflow: hidden;
+        background: #0B1220;
+        font-family: Arial, sans-serif;
+      }
+      #root { position: relative; width: 100%; height: 100%; background: #0B1220; perspective: 1800px; }
+
+      #three { position: absolute; inset: 0; z-index: 5; }
+      #glows { position: absolute; inset: 0; z-index: 1; overflow: hidden; }
+      .glow { position: absolute; border-radius: 50%; filter: blur(40px); }
+
+      .scene { position: absolute; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; }
+      .scene-3d { transform-style: preserve-3d; }
+
+      .kicker { font-size: 28px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #F2994A; margin-bottom: 14px; }
+      .headline { font-size: 78px; font-weight: 800; color: #F5F3EE; line-height: 1.08; letter-spacing: -0.01em; max-width: 1200px; }
+      .headline .accent { color: #F2994A; }
+      .accent-bar { height: 5px; background: #F2994A; margin-top: 22px; width: 0; border-radius: 3px; }
+
+      .flip-card {
+        width: 760px; height: 420px; position: relative; transform-style: preserve-3d;
+      }
+      .flip-face {
+        position: absolute; inset: 0; backface-visibility: hidden; border-radius: 28px;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        box-shadow: 0 30px 70px rgba(0,0,0,0.45);
+      }
+      .flip-front { background: linear-gradient(145deg, #182238, #0F1829); }
+      .flip-back { background: linear-gradient(145deg, #1E2A44, #121B30); transform: rotateY(180deg); }
+
+      .icon-orb {
+        width: 150px; height: 150px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 76px; margin-bottom: 26px;
+        box-shadow: 0 0 60px 6px var(--glow-color, rgba(242,153,74,0.5)), inset 0 0 0 2px rgba(255,255,255,0.08);
+      }
+      .tip-label { font-size: 46px; font-weight: 700; color: #F5F3EE; text-align: center; max-width: 560px; line-height: 1.2; }
+      .tip-kicker { font-size: 24px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 10px; }
+
+      .label-callout { position: relative; }
+      .callout-ring {
+        position: absolute; border-radius: 50%; border: 3px solid #F2994A;
+        width: 220px; height: 220px; left: 50%; top: 50%; margin: -110px 0 0 -110px;
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="26" data-width="1920" data-height="1080">
+      <div id="glows">
+        <div class="glow" id="gl1" style="width:520px;height:520px;background:#5B3FA6;opacity:0.25;left:-140px;top:-120px;"></div>
+        <div class="glow" id="gl2" style="width:420px;height:420px;background:#2E7D5B;opacity:0.22;right:-100px;top:200px;"></div>
+        <div class="glow" id="gl3" style="width:380px;height:380px;background:#B8312A;opacity:0.2;right:280px;bottom:-140px;"></div>
+        <div class="glow" id="gl4" style="width:460px;height:460px;background:#F2994A;opacity:0.14;left:420px;bottom:-200px;"></div>
+      </div>
+
+      <canvas id="three" width="1920" height="1080"></canvas>
+
+      <!-- Escena 0: apertura 3D (0-4.5s) -->
+      <div class="scene" id="s0">
+        <div style="text-align:center; opacity:0;" id="titleWrap">
+          <div class="kicker">Hoy aprendemos</div>
+          <div class="headline">¿Cómo cuidamos <span class="accent">a nuestro perrito?</span></div>
+        </div>
+      </div>
+
+      <!-- Escena 1: agua, flip card (4.5-9s) -->
+      <div class="scene" id="s1" style="opacity:0;">
+        <div class="flip-card" id="flip1" style="transform: rotateY(0deg);">
+          <div class="flip-face flip-front">
+            <div class="icon-orb" style="background:#1E3A5F; --glow-color: rgba(79,163,255,0.55);">💧</div>
+            <div class="tip-kicker" style="color:#4FA3FF;">Consejo 1</div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="tip-label">Dale agua fresca<br/>todos los días</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escena 2: paseo, entrada con tilt (9-13.5s) -->
+      <div class="scene" id="s2" style="opacity:0;">
+        <div class="flip-card" id="card2" style="transform-style:preserve-3d;">
+          <div class="flip-face flip-front" style="position:relative; background: linear-gradient(145deg, #16331F, #0F1F15);">
+            <div class="icon-orb" style="background:#1E4A2E; --glow-color: rgba(78,201,120,0.55);">🐾</div>
+            <div class="tip-kicker" style="color:#4EC978;">Consejo 2</div>
+            <div class="tip-label">Llevalo a pasear<br/>todos los días</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escena 3: veterinario, label callout (13.5-18s) -->
+      <div class="scene" id="s3" style="opacity:0;">
+        <div class="label-callout">
+          <div class="icon-orb" style="background:#2E1E4A; --glow-color: rgba(167,120,255,0.55); margin: 0 auto;">🩺</div>
+          <div class="callout-ring" id="ring3"></div>
+          <div style="text-align:center; margin-top:28px;">
+            <div class="tip-kicker" style="color:#A778FF;">Consejo 3</div>
+            <div class="tip-label">Visitá al veterinario</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escena 4: amor, flip card (18-22.5s) -->
+      <div class="scene" id="s4" style="opacity:0;">
+        <div class="flip-card" id="flip4" style="transform: rotateY(0deg);">
+          <div class="flip-face flip-front">
+            <div class="icon-orb" style="background:#4A1E2A; --glow-color: rgba(255,92,120,0.55);">💗</div>
+            <div class="tip-kicker" style="color:#FF5C78;">Consejo 4</div>
+          </div>
+          <div class="flip-face flip-back">
+            <div class="tip-label">Dale amor y<br/>compañía</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escena 5: cierre (22.5-26s) -->
+      <div class="scene" id="s5" style="opacity:0;">
+        <div style="text-align:center;">
+          <div class="headline">¡Cuidalo <span class="accent">siempre!</span></div>
+          <div class="accent-bar" id="bar5" style="margin:22px auto 0;"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- fondo 3D: objetos orbitando + dolly de cámara (solo durante la apertura) ---
+      const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three'), antialias: true, alpha: true });
+      renderer.setSize(1920, 1080, false);
+      renderer.setClearColor(0x0B1220, 1);
+      const scene3d = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1920 / 1080, 0.1, 100);
+
+      scene3d.add(new THREE.AmbientLight(0x404868, 1.1));
+      const dir1 = new THREE.DirectionalLight(0xffffff, 1.2);
+      dir1.position.set(4, 6, 6);
+      scene3d.add(dir1);
+      const dir2 = new THREE.DirectionalLight(0xF2994A, 0.6);
+      dir2.position.set(-5, -2, 3);
+      scene3d.add(dir2);
+
+      const shapeDefs = [
+        { geo: new THREE.IcosahedronGeometry(1.1, 0), color: 0xB8312A, pos: [-3.2, 0.6, -1] },
+        { geo: new THREE.TorusGeometry(0.9, 0.32, 16, 48), color: 0x2E7D5B, pos: [3, -0.4, -2] },
+        { geo: new THREE.ConeGeometry(0.9, 1.6, 32), color: 0x5B3FA6, pos: [-1.6, -1.3, -3.5] },
+        { geo: new THREE.SphereGeometry(0.8, 32, 32), color: 0xF2994A, pos: [1.8, 1.4, -2.8] },
+      ];
+      const shapes = shapeDefs.map(({ geo, color, pos }) => {
+        const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color, roughness: 0.35, metalness: 0.25 }));
+        mesh.position.set(...pos);
+        scene3d.add(mesh);
+        return mesh;
+      });
+
+      const OPENER_DURATION = 4.5;
+      function renderAt(t) {
+        shapes.forEach((mesh, i) => {
+          mesh.rotation.y = t * (0.5 + i * 0.15);
+          mesh.rotation.x = t * (0.25 + i * 0.1);
+        });
+        const p = Math.min(t / OPENER_DURATION, 1);
+        camera.position.set(0.6 * Math.sin(t * 0.3), 0.3 * Math.sin(t * 0.4), 9 - p * 4.5);
+        camera.lookAt(0, 0, -1.5);
+        renderer.render(scene3d, camera);
+      }
+      renderAt(0);
+
+      // --- texto (grano de film omitido para look más limpio/cinemático) ---
+      function stepped(n) { return `steps(${n})`; }
+      const DURATION = 26;
+
+      const tl = gsap.timeline({ paused: true, defaults: { ease: 'power2.out' } });
+
+      tl.to({}, { duration: OPENER_DURATION, ease: 'none', onUpdate: () => renderAt(tl.time()) }, 0);
+
+      // --- fondo: glows a la deriva ---
+      tl.to('#gl1', { x: 110, y: 70, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#gl2', { x: -90, y: -60, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#gl3', { x: -70, y: -90, duration: DURATION, ease: 'none' }, 0);
+      tl.to('#gl4', { x: 80, y: 60, duration: DURATION, ease: 'none' }, 0);
+
+      // --- Escena 0: apertura 3D + título (0-4.5s) ---
+      tl.fromTo('#titleWrap', { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(1.6)' }, 3.0);
+      tl.to('#s0', { opacity: 0, duration: 0.3 }, 4.2);
+      tl.to('#three', { opacity: 0, duration: 0.3 }, 4.2);
+
+      // --- Escena 1: agua, card flip 3D (4.5-9s) ---
+      tl.set('#s1', { opacity: 1 }, 4.5);
+      tl.fromTo('#flip1', { opacity: 0, rotationY: -120, scale: 0.8 }, { opacity: 1, rotationY: 0, scale: 1, duration: 0.6, ease: 'power3.out' }, 4.6);
+      tl.to('#flip1', { rotationY: 180, duration: 0.6, ease: 'power2.inOut' }, 6.3);
+      tl.to('#s1', { opacity: 0, duration: 0.3 }, 8.65);
+
+      // --- Escena 2: paseo, tilt de perspectiva (9-13.5s) ---
+      tl.set('#s2', { opacity: 1 }, 9);
+      tl.fromTo('#card2', { opacity: 0, rotationX: 35, y: 60, scale: 0.85 }, { opacity: 1, rotationX: 0, y: 0, scale: 1, duration: 0.6, ease: 'power3.out' }, 9.1);
+      tl.to('#s2', { opacity: 0, duration: 0.3 }, 13.15);
+
+      // --- Escena 3: veterinario, label callout (13.5-18s) ---
+      tl.set('#s3', { opacity: 1 }, 13.5);
+      tl.fromTo('#s3 .icon-orb', { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.4, ease: 'back.out(2)' }, 13.6);
+      tl.fromTo('#ring3', { opacity: 0, scale: 0.5 }, { opacity: 1, scale: 1.25, duration: 0.5, ease: 'power2.out' }, 13.9);
+      tl.to('#ring3', { opacity: 0, duration: 0.3 }, 14.5);
+      tl.fromTo('#s3 .tip-kicker, #s3 .tip-label', { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.1 }, 14.3);
+      tl.to('#s3', { opacity: 0, duration: 0.3 }, 17.65);
+
+      // --- Escena 4: amor, card flip 3D (18-22.5s) ---
+      tl.set('#s4', { opacity: 1 }, 18);
+      tl.fromTo('#flip4', { opacity: 0, rotationY: 120, scale: 0.8 }, { opacity: 1, rotationY: 0, scale: 1, duration: 0.6, ease: 'power3.out' }, 18.1);
+      tl.to('#flip4', { rotationY: 180, duration: 0.6, ease: 'power2.inOut' }, 19.8);
+      tl.to('#s4', { opacity: 0, duration: 0.3 }, 22.15);
+
+      // --- Escena 5: cierre (22.5-26s) ---
+      tl.set('#s5', { opacity: 1 }, 22.5);
+      tl.fromTo('#s5 .headline', { opacity: 0, scale: 0.6 }, { opacity: 1, scale: 1, duration: 0.6, ease: 'back.out(2)' }, 22.6);
+      tl.to('#bar5', { width: 320, duration: 0.5 }, 23.2);
+
+      window.__timelines["main"] = tl;
+      tl.seek(0);
+    </script>
+  </body>
+</html>

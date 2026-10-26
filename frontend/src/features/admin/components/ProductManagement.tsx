@@ -349,7 +349,7 @@ export const ProductManagement: React.FC = () => {
             ? {
                 ...p,
                 title: formTitle.trim(),
-                brand: formBrand.trim() || 'Lumina',
+                brand: formBrand.trim() || 'Fórmula 1370',
                 category_name: formCategory,
                 price: priceNum,
                 stock: stockNum,
@@ -365,7 +365,7 @@ export const ProductManagement: React.FC = () => {
 
       await productsApi.updateProduct(editingProduct.id, {
         title: formTitle.trim(),
-        brand: formBrand.trim() || 'Lumina',
+        brand: formBrand.trim() || 'Fórmula 1370',
         category_name: formCategory,
         price: priceNum,
         stock: stockNum,
@@ -378,7 +378,7 @@ export const ProductManagement: React.FC = () => {
     } else {
       const created = await productsApi.createProduct({
         title: formTitle.trim(),
-        brand: formBrand.trim() || 'Lumina',
+        brand: formBrand.trim() || 'Fórmula 1370',
         subtitle: `${formBrand.trim()} • Haute Parfumerie`,
         category_name: formCategory || 'Perfumes',
         price: priceNum,
@@ -398,19 +398,19 @@ export const ProductManagement: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 font-body text-[#1b1c1c] dark:text-[#f9fafb]">
+    <div className="space-y-6 font-dm text-[#121314]">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#1b1c1c] dark:text-[#f9fafb] tracking-tight">Gestión de Productos</h1>
-          <p className="text-xs sm:text-sm text-[#5b403e] dark:text-[#9ca3af] mt-0.5">
-            Administra el catálogo de la tienda, existencias y precios en tiempo real.
+          <h1 className="text-3xl sm:text-4xl font-black text-[#121314] tracking-tight uppercase">Gestión de Productos</h1>
+          <p className="text-xs sm:text-sm font-medium text-[#121314]/70 mt-1">
+            Administra el catálogo de perfumes, existencias en vivo y precios.
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="btn-primary px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md cursor-pointer"
+          className="px-5 py-2.5 rounded-full text-xs font-black uppercase tracking-wider bg-[#0ffcbe] hover:bg-[#00eaad] text-[#121314] border-2 border-[#121314] shadow-[3px_3px_0px_#121314] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[2px_2px_0px_#121314] flex items-center gap-1.5 cursor-pointer transition-all"
         >
           <span className="material-symbols-outlined text-[18px]">add</span>
           <span>Añadir Producto</span>
@@ -418,30 +418,30 @@ export const ProductManagement: React.FC = () => {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between glass-panel p-3.5 rounded-2xl border border-white/70 dark:border-white/10 shadow-xs">
+      <div className="flex flex-col sm:flex-row gap-3 items-center justify-between bg-white p-4 rounded-2xl border-2 border-[#121314] shadow-[4px_4px_0px_#121314]">
         <div className="relative w-full sm:w-80">
-          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#5b403e] dark:text-[#9ca3af] text-[18px]">
+          <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#121314]/60 text-[18px]">
             search
           </span>
           <input
             type="text"
-            placeholder="Buscar productos por nombre o categoría..."
+            placeholder="Buscar por fragancia, marca o categoría..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-white/70 dark:bg-white/5 border border-white/80 dark:border-white/10 rounded-xl py-2 pl-9 pr-4 text-xs text-[#1b1c1c] dark:text-[#f9fafb] placeholder:text-[#5b403e]/70 dark:placeholder:text-[#9ca3af]/60 outline-none focus:border-[#FF4D4F]"
+            className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-full py-2 pl-9 pr-4 text-xs font-bold text-[#121314] placeholder:text-[#121314]/50 outline-none focus:bg-white focus:shadow-[2px_2px_0px_#121314] transition-all"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto">
-          <span className="text-xs text-[#5b403e] dark:text-[#9ca3af] font-semibold whitespace-nowrap">Filtrar por Categoría:</span>
+          <span className="text-xs font-black uppercase tracking-wider text-[#121314] whitespace-nowrap">Categoría:</span>
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="bg-white/70 dark:bg-[#181c26] border border-white/80 dark:border-white/10 rounded-xl px-3 py-2 text-xs text-[#1b1c1c] dark:text-[#f9fafb] outline-none cursor-pointer focus:border-[#FF4D4F]"
+            className="bg-[#f6f4ee] border-2 border-[#121314] rounded-full px-4 py-2 text-xs font-bold text-[#121314] outline-none cursor-pointer focus:bg-white transition-all shadow-[2px_2px_0px_#121314]"
           >
-            <option value="all" className="dark:bg-[#181c26]">Todas las Categorías</option>
+            <option value="all">Todas las Categorías</option>
             {categories.map((c) => (
-              <option key={c.id || c.slug} value={c.slug || c.name.toLowerCase()} className="dark:bg-[#181c26]">
+              <option key={c.id || c.slug} value={c.slug || c.name.toLowerCase()}>
                 {c.name}
               </option>
             ))}
@@ -451,17 +451,17 @@ export const ProductManagement: React.FC = () => {
 
       {/* Localhost to Cloud Sync Banner */}
       {localOnlyCount > 0 && (
-        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 via-rose-500/15 to-amber-500/10 border border-amber-500/40 text-[#1b1c1c] dark:text-[#f9fafb] shadow-lg flex flex-col sm:flex-row items-center justify-between gap-3 animate-fadeIn">
+        <div className="p-5 rounded-2xl bg-[#ffe600] border-2 border-[#121314] text-[#121314] shadow-[4px_4px_0px_#121314] flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-white border-2 border-[#121314] text-[#121314] flex items-center justify-center shrink-0 shadow-[2px_2px_0px_#121314]">
               <span className="material-symbols-outlined text-[22px]">cloud_upload</span>
             </div>
             <div>
-              <h4 className="text-xs font-bold">
+              <h4 className="text-xs font-black uppercase tracking-wider">
                 {localOnlyCount} {localOnlyCount === 1 ? 'producto tiene fotos cargadas' : 'productos tienen fotos cargadas'} en tu navegador local
               </h4>
-              <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
-                Sincronizalas ahora a la nube de Supabase para que se vean automáticamente en la URL de producción.
+              <p className="text-[11px] font-medium text-[#121314]/80">
+                Sincronízalas ahora a la nube de Supabase para que se vean en producción.
               </p>
             </div>
           </div>
@@ -469,11 +469,11 @@ export const ProductManagement: React.FC = () => {
           <button
             onClick={handleSyncLocalImagesToCloud}
             disabled={syncing}
-            className="px-5 py-2.5 rounded-xl font-bold text-xs bg-amber-500 hover:bg-amber-600 text-black flex items-center gap-2 transition-all shadow-md active:scale-95 cursor-pointer shrink-0 disabled:opacity-50"
+            className="px-5 py-2.5 rounded-full font-black text-xs uppercase tracking-wider bg-[#121314] text-white hover:bg-neutral-800 flex items-center gap-2 border-2 border-[#121314] shadow-[3px_3px_0px_#ffffff] transition-all cursor-pointer shrink-0 disabled:opacity-50"
           >
             {syncing ? (
               <>
-                <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 <span>Sincronizando {syncProgress ? `(${syncProgress.current}/${syncProgress.total})` : '...'}</span>
               </>
             ) : (
@@ -488,14 +488,14 @@ export const ProductManagement: React.FC = () => {
 
       {/* Feedback Toast */}
       {statusActionMessage && (
-        <div className="p-3.5 rounded-2xl bg-[#1b1c1c] text-white border border-[#FF4D4F]/40 shadow-xl flex items-center justify-between animate-fadeIn">
-          <div className="flex items-center gap-2 text-xs font-semibold">
-            <span className="material-symbols-outlined text-[#FF4D4F] text-[20px]">info</span>
+        <div className="p-3.5 rounded-2xl bg-[#0ffcbe] text-[#121314] border-2 border-[#121314] shadow-[4px_4px_0px_#121314] flex items-center justify-between">
+          <div className="flex items-center gap-2 text-xs font-black uppercase tracking-wider">
+            <span className="material-symbols-outlined text-[20px]">info</span>
             <span>{statusActionMessage}</span>
           </div>
           <button
             onClick={() => setStatusActionMessage(null)}
-            className="text-gray-400 hover:text-white p-1 rounded-lg"
+            className="text-[#121314] hover:bg-black/10 p-1 rounded-lg"
           >
             <span className="material-symbols-outlined text-[16px]">close</span>
           </button>
@@ -503,19 +503,19 @@ export const ProductManagement: React.FC = () => {
       )}
 
       {/* Product Table Card */}
-      <div className="glass-panel rounded-2xl p-6 border border-white/70 dark:border-white/10 shadow-sm space-y-4">
+      <div className="bg-white rounded-2xl p-6 border-2 border-[#121314] shadow-[4px_4px_0px_#121314] space-y-4">
         {loading ? (
-          <div className="py-12 text-center text-xs text-[#5b403e] dark:text-[#9ca3af]">
+          <div className="py-12 text-center text-xs font-bold uppercase tracking-wider text-[#121314]/70">
             Cargando catálogo desde la base de datos...
           </div>
         ) : filtered.length === 0 ? (
           <div className="py-12 text-center space-y-3">
-            <div className="w-14 h-14 rounded-full bg-[#ffdad7]/40 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] flex items-center justify-center mx-auto shadow-xs">
+            <div className="w-14 h-14 rounded-2xl bg-[#ff78ac] border-2 border-[#121314] text-[#121314] flex items-center justify-center mx-auto shadow-[2px_2px_0px_#121314]">
               <span className="material-symbols-outlined text-[28px]">inventory_2</span>
             </div>
             <div>
-              <h4 className="text-sm font-bold text-[#1b1c1c] dark:text-[#f9fafb]">No se encontraron productos</h4>
-              <p className="text-xs text-[#5b403e] dark:text-[#9ca3af] mt-1">
+              <h4 className="text-sm font-black uppercase tracking-wider text-[#121314]">No se encontraron productos</h4>
+              <p className="text-xs font-medium text-[#121314]/70 mt-1">
                 {searchTerm || selectedCategory !== 'all'
                   ? 'No hay productos que coincidan con los filtros aplicados.'
                   : 'No hay productos en el catálogo todavía.'}
@@ -526,51 +526,51 @@ export const ProductManagement: React.FC = () => {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="border-b border-white/60 dark:border-white/10 text-[#5b403e] dark:text-[#9ca3af]">
-                  <th className="pb-3 font-semibold">Producto</th>
-                  <th className="pb-3 font-semibold">Categoría</th>
-                  <th className="pb-3 font-semibold">Precio</th>
-                  <th className="pb-3 font-semibold">Stock</th>
-                  <th className="pb-3 font-semibold">Estado</th>
-                  <th className="pb-3 font-semibold text-right">Acciones</th>
+                <tr className="border-b-2 border-[#121314] text-[#121314] bg-[#f6f4ee]/70">
+                  <th className="py-3 px-3 font-black uppercase tracking-wider">Producto</th>
+                  <th className="py-3 px-3 font-black uppercase tracking-wider">Categoría</th>
+                  <th className="py-3 px-3 font-black uppercase tracking-wider">Precio</th>
+                  <th className="py-3 px-3 font-black uppercase tracking-wider">Stock</th>
+                  <th className="py-3 px-3 font-black uppercase tracking-wider">Estado</th>
+                  <th className="py-3 px-3 font-black uppercase tracking-wider text-right">Acciones</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/50 dark:divide-white/10">
+              <tbody className="divide-y-2 divide-[#121314]/10">
                 {filtered.map((p) => {
                   const stockStatus = p.stock > 10 ? 'En Stock' : p.stock > 0 ? 'Poco Stock' : 'Sin Stock'
                   const badgeColor =
                     p.stock > 10
-                      ? 'bg-[#E8F8F0] dark:bg-[#4ade80]/15 text-[#1E824C] dark:text-[#4ade80]'
+                      ? 'bg-[#0ffcbe] text-[#121314] border border-[#121314]'
                       : p.stock > 0
-                      ? 'bg-[#FFF0EB] dark:bg-[#D97757]/15 text-[#D97757]'
-                      : 'bg-[#ffdad6] dark:bg-[#ff4d4f]/20 text-[#ba1a1a] dark:text-[#ff8a80]'
+                      ? 'bg-[#ffe600] text-[#121314] border border-[#121314]'
+                      : 'bg-[#ff78ac] text-[#121314] border border-[#121314]'
 
                   return (
-                    <tr key={p.id} className="hover:bg-white/40 dark:hover:bg-white/5 transition-colors">
+                    <tr key={p.id} className="hover:bg-[#f6f4ee]/60 transition-colors">
                       {/* Product Name & Image */}
-                      <td className="py-3 pr-4">
+                      <td className="py-3.5 px-3">
                         <div className="flex items-center gap-3">
                           <img
                             src={p.image}
                             alt={p.title}
-                            className="w-12 h-12 rounded-xl object-contain bg-white/70 dark:bg-white/10 p-1 border border-white dark:border-white/10 shrink-0 shadow-xs"
+                            className="w-12 h-12 rounded-xl object-contain bg-white p-1 border-2 border-[#121314] shrink-0 shadow-[2px_2px_0px_#121314]"
                           />
                           <div className="min-w-0">
-                            <p className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] text-xs truncate max-w-[220px]">{p.title}</p>
-                            <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af] truncate max-w-[220px]">
-                              {p.subtitle || p.description?.slice(0, 30) || 'Perfume Lumina'}
+                            <p className="font-black text-[#121314] text-xs truncate max-w-[220px] uppercase tracking-wide">{p.title}</p>
+                            <p className="text-[11px] font-medium text-[#121314]/70 truncate max-w-[220px]">
+                              {p.subtitle || p.description?.slice(0, 30) || 'Perfume Fórmula 1370'}
                             </p>
                             <div className="flex items-center gap-1.5 mt-1">
                               {(p.volumes || [50, 100]).map((v) => (
                                 <span
                                   key={v}
-                                  className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#FF4D4F]/10 dark:bg-[#FF4D4F]/20 text-[#FF4D4F] border border-[#FF4D4F]/30"
+                                  className="px-1.5 py-0.5 rounded text-[9px] font-black bg-[#a8d5e3] text-[#121314] border border-[#121314]"
                                 >
                                   {v} ml
                                 </span>
                               ))}
                               {p.brand && (
-                                <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-neutral-200/60 dark:bg-white/10 text-neutral-600 dark:text-neutral-300">
+                                <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-[#f6f4ee] text-[#121314] border border-[#121314]">
                                   {p.brand}
                                 </span>
                               )}
@@ -580,28 +580,28 @@ export const ProductManagement: React.FC = () => {
                       </td>
 
                       {/* Category */}
-                      <td className="py-3 text-[#5b403e] dark:text-[#9ca3af] font-semibold">{p.category_name || 'Perfumes'}</td>
+                      <td className="py-3.5 px-3 text-[#121314] font-bold uppercase text-[11px]">{p.category_name || 'Perfumes'}</td>
 
                       {/* Price */}
-                      <td className="py-3 font-bold text-[#1b1c1c] dark:text-[#f9fafb]">${p.price.toFixed(2)}</td>
+                      <td className="py-3.5 px-3 font-black text-[#121314] text-xs">${p.price.toFixed(2)}</td>
 
                       {/* Stock Count */}
-                      <td className="py-3 font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">{p.stock} u.</td>
+                      <td className="py-3.5 px-3 font-black text-[#121314] text-xs">{p.stock} u.</td>
 
                       {/* Stock Status Badge & Quick Stock Action Button */}
-                      <td className="py-3">
+                      <td className="py-3.5 px-3">
                         <div className="flex items-center gap-2">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${badgeColor}`}>
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${badgeColor}`}>
                             {stockStatus}
                           </span>
                           <button
                             type="button"
                             onClick={() => handleQuickToggleStock(p)}
                             title={p.stock > 0 ? 'Marcar inmediatamente como Sin Stock' : 'Restablecer En Stock (10 u.)'}
-                            className={`px-2 py-0.5 rounded-lg text-[10px] font-bold border transition-all cursor-pointer flex items-center gap-1 shadow-2xs hover:scale-105 active:scale-95 ${
+                            className={`px-2 py-0.5 rounded-lg text-[10px] font-black border-2 border-[#121314] transition-all cursor-pointer flex items-center gap-1 shadow-[2px_2px_0px_#121314] hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-[1px_1px_0px_#121314] ${
                               p.stock > 0
-                                ? 'border-red-500/30 text-red-600 dark:text-red-400 bg-red-500/10 hover:bg-red-500/20'
-                                : 'border-emerald-500/30 text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20'
+                                ? 'bg-[#ff78ac] text-[#121314]'
+                                : 'bg-[#0ffcbe] text-[#121314]'
                             }`}
                           >
                             <span className="material-symbols-outlined text-[13px]">
@@ -613,18 +613,18 @@ export const ProductManagement: React.FC = () => {
                       </td>
 
                       {/* Action Buttons */}
-                      <td className="py-3 text-right">
+                      <td className="py-3.5 px-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             onClick={() => handleOpenEdit(p)}
-                            className="p-1.5 rounded-lg text-[#5b403e] dark:text-[#9ca3af] hover:text-[#FF4D4F] dark:hover:text-[#FF4D4F] hover:bg-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-xl bg-white text-[#121314] border-2 border-[#121314] shadow-[2px_2px_0px_#121314] hover:bg-[#a8d5e3] transition-colors cursor-pointer"
                             title="Editar producto"
                           >
                             <span className="material-symbols-outlined text-[18px]">edit</span>
                           </button>
                           <button
                             onClick={() => handleDelete(p.id, p.title)}
-                            className="p-1.5 rounded-lg text-[#5b403e] dark:text-[#9ca3af] hover:text-[#ba1a1a] dark:hover:text-[#ff8a80] hover:bg-white dark:hover:bg-white/10 transition-colors cursor-pointer"
+                            className="p-1.5 rounded-xl bg-white text-[#d92d20] border-2 border-[#121314] shadow-[2px_2px_0px_#121314] hover:bg-red-50 transition-colors cursor-pointer"
                             title="Eliminar producto"
                           >
                             <span className="material-symbols-outlined text-[18px]">delete</span>
@@ -640,11 +640,11 @@ export const ProductManagement: React.FC = () => {
         )}
 
         {/* Footer Summary */}
-        <div className="flex justify-between items-center text-xs text-[#5b403e] dark:text-[#9ca3af] pt-3 border-t border-white/60 dark:border-white/10">
+        <div className="flex justify-between items-center text-xs font-bold text-[#121314]/70 pt-3 border-t-2 border-[#121314]/15">
           <span>
             Mostrando {filtered.length} de {productList.length} productos
           </span>
-          <span className="font-semibold text-[#1b1c1c] dark:text-[#f9fafb]">Catálogo Lumina</span>
+          <span className="font-black text-[#121314] uppercase">Catálogo Fórmula 1370</span>
         </div>
       </div>
 
@@ -657,22 +657,22 @@ export const ProductManagement: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsModalOpen(false)}
-              className="absolute inset-0 bg-[#0e1015]/70 backdrop-blur-xs cursor-pointer"
+              className="absolute inset-0 bg-[#121314]/70 backdrop-blur-xs cursor-pointer"
             />
 
             <motion.div
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="relative w-full max-w-lg bg-[#fbf9f8] dark:bg-[#12151c] glass-panel rounded-3xl p-5 sm:p-7 shadow-2xl border border-white/80 dark:border-white/10 space-y-5 z-10 max-h-[90vh] overflow-y-auto"
+              className="relative w-full max-w-xl bg-white rounded-3xl p-6 sm:p-8 shadow-[8px_8px_0px_#121314] border-3 border-[#121314] space-y-5 z-10 max-h-[90vh] overflow-y-auto"
             >
-              <div className="flex justify-between items-center border-b border-white/60 dark:border-white/10 pb-3">
-                <h3 className="text-lg font-bold text-[#1b1c1c] dark:text-[#f9fafb]">
+              <div className="flex justify-between items-center border-b-2 border-[#121314] pb-4">
+                <h3 className="text-xl font-black uppercase tracking-tight text-[#121314]">
                   {editingProduct ? 'Editar Producto' : 'Añadir Nuevo Producto'}
                 </h3>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="p-1 text-[#5b403e] dark:text-[#9ca3af] hover:text-[#1b1c1c] dark:hover:text-[#f9fafb] rounded-lg cursor-pointer"
+                  className="p-1.5 text-[#121314] hover:bg-[#f6f4ee] rounded-xl border-2 border-transparent hover:border-[#121314] cursor-pointer"
                 >
                   <span className="material-symbols-outlined text-[20px]">close</span>
                 </button>
@@ -681,30 +681,30 @@ export const ProductManagement: React.FC = () => {
               <form onSubmit={handleSave} className="space-y-4 text-xs">
                 {/* Fragrance Title */}
                 <div>
-                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Nombre / Título de la Fragancia</label>
+                  <label className="font-black uppercase tracking-wider text-[#121314] block mb-1">Nombre / Título de la Fragancia</label>
                   <input
                     type="text"
                     required
                     value={formTitle}
                     onChange={(e) => setFormTitle(e.target.value)}
-                    className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                    className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#121314] outline-none focus:bg-white focus:shadow-[2px_2px_0px_#121314] transition-all"
                     placeholder="ej. Club de Nuit Intense Man Pure Parfum"
                   />
                 </div>
 
                 {/* Brand House Selector */}
                 <div>
-                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Casa / Marca</label>
-                  <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                    {['Armaf', 'Afnan', 'Lattafa', 'Al Haramain', 'Lumina'].map((b) => (
+                  <label className="font-black uppercase tracking-wider text-[#121314] block mb-1">Casa / Marca</label>
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    {['Armaf', 'Afnan', 'Lattafa', 'Al Haramain', 'Fórmula 1370'].map((b) => (
                       <button
                         type="button"
                         key={b}
                         onClick={() => setFormBrand(b)}
-                        className={`px-3 py-1 rounded-lg text-[11px] font-bold transition cursor-pointer border ${
+                        className={`px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider transition cursor-pointer border-2 border-[#121314] ${
                           formBrand === b
-                            ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-xs'
-                            : 'bg-white dark:bg-[#181c26] text-[#5b403e] dark:text-[#9ca3af] border-black/10 dark:border-white/10 hover:border-[#FF4D4F]/40'
+                            ? 'bg-[#121314] text-white shadow-[2px_2px_0px_#ff78ac]'
+                            : 'bg-[#f6f4ee] text-[#121314] hover:bg-white'
                         }`}
                       >
                         {b}
@@ -715,23 +715,23 @@ export const ProductManagement: React.FC = () => {
                     type="text"
                     value={formBrand}
                     onChange={(e) => setFormBrand(e.target.value)}
-                    className="glass-input w-full px-3 py-2 rounded-xl text-xs outline-none"
+                    className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3 py-2 text-xs font-bold text-[#121314] outline-none focus:bg-white focus:shadow-[2px_2px_0px_#121314]"
                     placeholder="O escribe otra casa..."
                   />
                 </div>
 
-                {/* Volume Selector (50 ml / 60 ml / 80 ml / 90 ml / 100 ml / 120 ml / 150 ml) */}
-                <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2">
+                {/* Volume Selector */}
+                <div className="p-4 rounded-2xl bg-[#f6f4ee] border-2 border-[#121314] space-y-2 shadow-[2px_2px_0px_#121314]">
                   <div className="flex items-center justify-between">
-                    <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
+                    <label className="font-black uppercase tracking-wider text-[#121314] block">
                       Presentaciones Disponibles (Volumen)
                     </label>
-                    <span className="text-[10px] text-[#FF4D4F] font-bold uppercase tracking-wider">
+                    <span className="text-[10px] bg-[#ff78ac] text-[#121314] font-black uppercase tracking-wider px-2 py-0.5 rounded-full border border-[#121314]">
                       {formVolumes.length === 1 ? `${formVolumes[0]} ml único` : `${formVolumes.join(' & ')} ml`}
                     </span>
                   </div>
-                  <p className="text-[11px] text-[#5b403e] dark:text-[#9ca3af]">
-                    Selecciona las presentaciones activas del perfume (<strong>50 ml</strong>, <strong>60 ml</strong>, <strong>80 ml</strong>, <strong>90 ml</strong>, <strong>100 ml</strong>, <strong>120 ml</strong>, <strong>150 ml</strong>).
+                  <p className="text-[11px] font-medium text-[#121314]/70">
+                    Selecciona las presentaciones activas del perfume.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 pt-1">
                     {[50, 60, 80, 90, 100, 120, 150].map((vol) => {
@@ -742,7 +742,6 @@ export const ProductManagement: React.FC = () => {
                           key={vol}
                           onClick={() => {
                             if (isSelected) {
-                              // Ensure at least one volume remains selected
                               if (formVolumes.length > 1) {
                                 setFormVolumes(formVolumes.filter((v) => v !== vol))
                               }
@@ -750,15 +749,12 @@ export const ProductManagement: React.FC = () => {
                               setFormVolumes([...formVolumes, vol].sort((a, b) => a - b))
                             }
                           }}
-                          className={`py-2.5 px-3 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer border ${
+                          className={`py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer border-2 border-[#121314] ${
                             isSelected
-                              ? 'bg-[#FF4D4F] text-white border-[#FF4D4F] shadow-md shadow-[#FF4D4F]/20'
-                              : 'bg-white dark:bg-[#181c26] text-[#5b403e] dark:text-[#9ca3af] border-black/10 dark:border-white/10 hover:border-[#FF4D4F]/50'
+                              ? 'bg-[#121314] text-white shadow-[2px_2px_0px_#0ffcbe]'
+                              : 'bg-white text-[#121314] hover:bg-[#a8d5e3]'
                           }`}
                         >
-                          <span className="material-symbols-outlined text-[15px]">
-                            {isSelected ? 'check_circle' : 'radio_button_unchecked'}
-                          </span>
                           <span>{vol} ml</span>
                         </button>
                       )
@@ -767,18 +763,18 @@ export const ProductManagement: React.FC = () => {
                 </div>
 
                 {/* Aura / Accent Color (For Showcase 3D and Catalog Glow) */}
-                <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-2.5">
+                <div className="p-4 rounded-2xl bg-[#f6f4ee] border-2 border-[#121314] space-y-3 shadow-[2px_2px_0px_#121314]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
+                      <label className="font-black uppercase tracking-wider text-[#121314] block">
                         Tono Distintivo (Aura en Showcase 3D y Tarjeta)
                       </label>
-                      <span className="text-[10px] text-[#5b403e] dark:text-[#9ca3af]">
-                        Define el color de iluminación ambiental 3D y halo de la fragancia.
+                      <span className="text-[11px] font-medium text-[#121314]/70">
+                        Define la iluminación ambiental 3D dinámica y halo de la fragancia.
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5 bg-black/5 dark:bg-white/10 px-2 py-1 rounded-lg">
-                      <span className="text-[10px] text-gray-400 font-mono font-bold">{formAccentColor}</span>
+                    <div className="flex items-center gap-1.5 bg-white border-2 border-[#121314] px-2 py-1 rounded-lg shadow-[2px_2px_0px_#121314]">
+                      <span className="text-[10px] text-[#121314] font-mono font-black">{formAccentColor}</span>
                       <input
                         type="color"
                         value={formAccentColor}
@@ -815,16 +811,10 @@ export const ProductManagement: React.FC = () => {
                         key={swatch.color}
                         onClick={() => setFormAccentColor(swatch.color)}
                         title={swatch.label}
-                        className={`group relative w-8 h-8 rounded-full transition-all cursor-pointer border-2 flex items-center justify-center ${
+                        className={`group relative w-8 h-8 rounded-full transition-all cursor-pointer border-2 border-[#121314] flex items-center justify-center shadow-[1px_1px_0px_#121314] ${
                           formAccentColor.toLowerCase() === swatch.color.toLowerCase()
-                            ? swatch.color === '#ffffff'
-                              ? 'scale-115 border-black dark:border-white ring-2 ring-black/30 dark:ring-white/40 shadow-lg'
-                              : 'scale-115 border-white dark:border-white ring-2 ring-black/40 shadow-lg'
-                            : swatch.color === '#ffffff'
-                            ? 'border-gray-400 dark:border-white/40 opacity-90 hover:opacity-100 hover:scale-105 shadow-xs'
-                            : swatch.color === '#000000'
-                            ? 'border-neutral-500/80 dark:border-neutral-600 opacity-90 hover:opacity-100 hover:scale-105 shadow-xs'
-                            : 'border-transparent opacity-80 hover:opacity-100 hover:scale-105'
+                            ? 'scale-125 ring-2 ring-[#121314] shadow-[3px_3px_0px_#121314] z-10'
+                            : 'hover:scale-110'
                         }`}
                         style={{ backgroundColor: swatch.color }}
                       >
@@ -842,14 +832,14 @@ export const ProductManagement: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Categoría</label>
+                    <label className="font-black uppercase tracking-wider text-[#121314] block mb-1">Categoría</label>
                     <select
                       value={formCategory}
                       onChange={(e) => setFormCategory(e.target.value)}
-                      className="bg-white dark:bg-[#181c26] text-[#1b1c1c] dark:text-[#f9fafb] border border-white/80 dark:border-white/10 rounded-xl px-3 py-2.5 text-xs w-full outline-none focus:border-[#FF4D4F]"
+                      className="bg-[#f6f4ee] text-[#121314] border-2 border-[#121314] rounded-xl px-3 py-2.5 text-xs font-bold w-full outline-none focus:bg-white"
                     >
                       {categories.map((c) => (
-                        <option key={c.id || c.slug} value={c.name} className="dark:bg-[#181c26]">
+                        <option key={c.id || c.slug} value={c.name}>
                           {c.name}
                         </option>
                       ))}
@@ -857,31 +847,31 @@ export const ProductManagement: React.FC = () => {
                   </div>
 
                   <div>
-                    <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Precio Base ($ ARS)</label>
+                    <label className="font-black uppercase tracking-wider text-[#121314] block mb-1">Precio ($ ARS)</label>
                     <input
                       type="number"
                       step="0.01"
                       required
                       value={formPrice}
                       onChange={(e) => setFormPrice(e.target.value)}
-                      className="glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none"
+                      className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#121314] outline-none focus:bg-white"
                       placeholder="145000.00"
                     />
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block">Cantidad en Stock</label>
+                      <label className="font-black uppercase tracking-wider text-[#121314] block">Stock</label>
                       <button
                         type="button"
                         onClick={() => setFormStock((prev) => (parseInt(prev, 10) > 0 ? '0' : '10'))}
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-md transition-colors cursor-pointer border ${
+                        className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-md transition-colors cursor-pointer border border-[#121314] ${
                           parseInt(formStock, 10) === 0
-                            ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20'
-                            : 'bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20'
+                            ? 'bg-[#0ffcbe] text-[#121314]'
+                            : 'bg-[#ff78ac] text-[#121314]'
                         }`}
                       >
-                        {parseInt(formStock, 10) === 0 ? '📦 Activar (10 u.)' : '🚫 Marcar Sin Stock'}
+                        {parseInt(formStock, 10) === 0 ? 'Activar' : 'Agotar'}
                       </button>
                     </div>
                     <input
@@ -890,44 +880,36 @@ export const ProductManagement: React.FC = () => {
                       required
                       value={formStock}
                       onChange={(e) => setFormStock(e.target.value)}
-                      className={`glass-input w-full px-3.5 py-2.5 rounded-xl text-xs outline-none ${
-                        parseInt(formStock, 10) === 0 ? 'border-red-500/50 bg-red-500/5' : ''
-                      }`}
+                      className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3.5 py-2.5 text-xs font-bold text-[#121314] outline-none focus:bg-white"
                       placeholder="20"
                     />
-                    {parseInt(formStock, 10) === 0 && (
-                      <p className="text-[10px] font-semibold text-red-500 dark:text-red-400 mt-1.5 flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[14px]">visibility</span>
-                        El producto se mostrará en la tienda tachado y marcado como "Sin Stock".
-                      </p>
-                    )}
                   </div>
                 </div>
 
                 {/* Product Images & Multi-Photo Gallery */}
-                <div className="p-3.5 rounded-2xl bg-white/60 dark:bg-white/5 border border-black/5 dark:border-white/10 space-y-3">
+                <div className="p-4 rounded-2xl bg-[#f6f4ee] border-2 border-[#121314] space-y-3 shadow-[2px_2px_0px_#121314]">
                   <div className="flex items-center justify-between">
                     <div>
-                      <label className="font-bold text-[#1b1c1c] dark:text-[#f9fafb] block">
+                      <label className="font-black uppercase tracking-wider text-[#121314] block">
                         Fotos del Producto (Galería Multi-Foto)
                       </label>
-                      <span className="text-[10px] text-[#5b403e] dark:text-[#9ca3af]">
-                        Puedes subir varias fotos. La primera foto será la principal en la tienda.
+                      <span className="text-[11px] font-medium text-[#121314]/70">
+                        La primera foto será la portada en la tienda.
                       </span>
                     </div>
-                    <span className="text-[10px] text-[#FF4D4F] font-bold uppercase tracking-wider">
+                    <span className="text-[10px] text-[#121314] bg-[#a8d5e3] border border-[#121314] px-2 py-0.5 rounded-full font-black uppercase">
                       {formImages.length} {formImages.length === 1 ? 'Foto' : 'Fotos'}
                     </span>
                   </div>
 
-                  {/* Upload button (supports multiple files) */}
+                  {/* Upload button */}
                   <div className="space-y-2">
-                    <label className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border border-dashed border-[#FF4D4F]/40 bg-[#ffdad7]/20 dark:bg-[#FF4D4F]/10 hover:bg-[#ffdad7]/40 dark:hover:bg-[#FF4D4F]/20 text-[#FF4D4F] text-xs font-bold cursor-pointer transition-all">
-                      <span className="material-symbols-outlined text-[20px] animate-pulse">
+                    <label className="flex items-center justify-center gap-2 px-3.5 py-3 rounded-xl border-2 border-dashed border-[#121314] bg-white hover:bg-[#0ffcbe]/20 text-[#121314] text-xs font-black uppercase tracking-wider cursor-pointer transition-all shadow-[2px_2px_0px_#121314]">
+                      <span className="material-symbols-outlined text-[20px]">
                         {uploading ? 'sync' : 'cloud_upload'}
                       </span>
                       <span>
-                        {uploading ? 'Subiendo fotos al Bucket...' : 'Seleccionar Fotos (puedes elegir varias)'}
+                        {uploading ? 'Subiendo fotos...' : 'Seleccionar Fotos (Multi-Selección)'}
                       </span>
                       <input
                         type="file"
@@ -940,7 +922,7 @@ export const ProductManagement: React.FC = () => {
                     </label>
 
                     {/* Add via URL directly */}
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-2">
                       <input
                         type="text"
                         value={urlInput}
@@ -951,26 +933,26 @@ export const ProductManagement: React.FC = () => {
                             handleAddUrlImage()
                           }
                         }}
-                        className="glass-input flex-1 px-3 py-2 rounded-xl text-[11px] outline-none font-mono"
-                        placeholder="O pega una URL de foto y presiona Añadir..."
+                        className="flex-1 bg-white border-2 border-[#121314] px-3 py-2 rounded-xl text-xs font-bold text-[#121314] outline-none font-mono"
+                        placeholder="O pega una URL de foto..."
                       />
                       <button
                         type="button"
                         onClick={handleAddUrlImage}
                         disabled={!urlInput.trim()}
-                        className="px-3.5 py-2 rounded-xl bg-black/10 dark:bg-white/10 hover:bg-[#FF4D4F] hover:text-white text-xs font-semibold cursor-pointer disabled:opacity-40 transition-all shrink-0"
+                        className="px-4 py-2 rounded-xl bg-[#121314] text-white hover:bg-neutral-800 text-xs font-black uppercase border-2 border-[#121314] cursor-pointer disabled:opacity-40 transition-all shrink-0"
                       >
-                        Añadir Foto
+                        Añadir
                       </button>
                     </div>
 
                     {uploadSuccess && (
-                      <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 text-[11px] font-semibold flex items-center gap-1.5">
+                      <div className="p-2.5 rounded-xl bg-[#0ffcbe] border-2 border-[#121314] text-[#121314] text-xs font-black uppercase flex items-center gap-1.5 shadow-[2px_2px_0px_#121314]">
                         <span className="material-symbols-outlined text-[16px]">verified</span>
                         <span>Fotos añadidas con éxito a la galería</span>
                       </div>
                     )}
-                    {uploadError && <p className="text-[10px] text-amber-500">{uploadError}</p>}
+                    {uploadError && <p className="text-[11px] font-bold text-[#d92d20]">{uploadError}</p>}
                   </div>
 
                   {/* Gallery Thumbnails Grid */}
@@ -979,14 +961,11 @@ export const ProductManagement: React.FC = () => {
                       {formImages.map((imgUrl, idx) => (
                         <div
                           key={idx}
-                          className={`relative rounded-xl border p-1.5 bg-white dark:bg-[#181c26] flex flex-col items-center justify-between gap-1 shadow-sm transition-all group ${
-                            idx === 0
-                              ? 'border-[#FF4D4F] ring-2 ring-[#FF4D4F]/30'
-                              : 'border-white/80 dark:border-white/10 hover:border-gray-400'
+                          className={`relative rounded-xl border-2 p-1.5 bg-white flex flex-col items-center justify-between gap-1 shadow-[2px_2px_0px_#121314] transition-all group ${
+                            idx === 0 ? 'border-[#121314] ring-2 ring-[#0ffcbe]' : 'border-[#121314]'
                           }`}
                         >
-                          {/* Image preview */}
-                          <div className="w-full aspect-square rounded-lg overflow-hidden flex items-center justify-center bg-gray-50 dark:bg-black/20">
+                          <div className="w-full aspect-square rounded-lg overflow-hidden flex items-center justify-center bg-[#f6f4ee] border border-[#121314]/20">
                             <img
                               src={imgUrl}
                               alt={`Foto ${idx + 1}`}
@@ -997,32 +976,29 @@ export const ProductManagement: React.FC = () => {
                             />
                           </div>
 
-                          {/* Badge Principal on first photo */}
                           {idx === 0 && (
-                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded-md bg-[#FF4D4F] text-white text-[9px] font-extrabold uppercase shadow-sm">
-                              Principal
+                            <span className="absolute top-2 left-2 px-1.5 py-0.5 rounded bg-[#0ffcbe] text-[#121314] border border-[#121314] text-[9px] font-black uppercase">
+                              Portada
                             </span>
                           )}
 
-                          {/* Actions */}
-                          <div className="w-full flex items-center justify-between gap-1 pt-0.5">
+                          <div className="w-full flex items-center justify-between gap-1 pt-1">
                             {idx !== 0 ? (
                               <button
                                 type="button"
                                 onClick={() => handleSetPrimaryImage(idx)}
-                                className="text-[10px] text-[#FF4D4F] hover:underline font-bold cursor-pointer"
-                                title="Hacer foto principal"
+                                className="text-[10px] text-[#106ebe] hover:underline font-black uppercase cursor-pointer"
                               >
-                                Hacer Principal
+                                Portada
                               </button>
                             ) : (
-                              <span className="text-[10px] text-gray-400 font-medium">Portada</span>
+                              <span className="text-[10px] text-[#121314]/50 font-black uppercase">Principal</span>
                             )}
 
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(idx)}
-                              className="w-5 h-5 rounded flex items-center justify-center text-red-500 hover:bg-red-500/10 cursor-pointer"
+                              className="w-5 h-5 rounded flex items-center justify-center text-[#d92d20] hover:bg-red-100 cursor-pointer"
                               title="Eliminar de la galería"
                             >
                               <span className="material-symbols-outlined text-[14px]">delete</span>
@@ -1035,27 +1011,27 @@ export const ProductManagement: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="font-bold text-[#5b403e] dark:text-[#9ca3af] block mb-1">Descripción Detallada</label>
+                  <label className="font-black uppercase tracking-wider text-[#121314] block mb-1">Descripción Detallada</label>
                   <textarea
                     rows={3}
                     value={formDesc}
                     onChange={(e) => setFormDesc(e.target.value)}
-                    className="glass-input w-full px-3.5 py-2 rounded-xl text-xs outline-none"
+                    className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3.5 py-2 text-xs font-bold text-[#121314] outline-none focus:bg-white"
                     placeholder="Describe las notas olfativas, fijación y procedencia del perfume..."
                   />
                 </div>
 
-                <div className="flex justify-end gap-2.5 pt-3 border-t border-white/60 dark:border-white/10">
+                <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#121314]/15">
                   <button
                     type="button"
                     onClick={() => setIsModalOpen(false)}
-                    className="px-4 py-2.5 rounded-xl glass-button-secondary font-semibold cursor-pointer"
+                    className="px-5 py-2.5 rounded-full bg-white hover:bg-[#f6f4ee] text-[#121314] border-2 border-[#121314] shadow-[2px_2px_0px_#121314] font-black uppercase tracking-wider text-xs cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
-                    className="btn-primary px-5 py-2.5 rounded-xl font-bold cursor-pointer shadow-md"
+                    className="px-6 py-2.5 rounded-full bg-[#0ffcbe] hover:bg-[#00eaad] text-[#121314] border-2 border-[#121314] shadow-[3px_3px_0px_#121314] font-black uppercase tracking-wider text-xs cursor-pointer transition-all"
                   >
                     {editingProduct ? 'Guardar Cambios' : 'Añadir Producto'}
                   </button>
