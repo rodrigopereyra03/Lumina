@@ -24,6 +24,7 @@ export interface Product {
   isTrending?: boolean
   isSale?: boolean
   stock: number
+  hasInstallments?: boolean
   variants: ProductVariant[]
   specs: { label: string; value: string }[]
   detailsCards?: { title: string; text: string; icon: string }[]

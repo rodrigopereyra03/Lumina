@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '../../../store/useCartStore'
+import { settingsApi, type PaymentSettingsDTO } from '../../../api/settingsApi'
 
 interface CartDrawerProps {
   onProceedToCheckout: () => void
@@ -18,6 +19,12 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
     removeItem,
     updateQuantity,
   } = useCartStore()
+
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettingsDTO | null>(null)
+
+  useEffect(() => {
+    settingsApi.getPaymentSettings().then(setPaymentSettings).catch(() => {})
+  }, [])
 
   const totalQuantity = items.reduce((acc, item) => acc + item.quantity, 0)
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0)
@@ -209,12 +216,6 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                       <span className="text-[#121314] font-black">{formatARS(subtotal)}</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span>Envío Asegurado Nacional</span>
-                      <span className="text-[#106ebe] font-black flex items-center gap-1">
-                        Gratis
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
                       <span>Packaging Haute Parfumerie</span>
                       <span className="text-[#121314] font-bold">Incluido</span>
                     </div>
@@ -235,10 +236,14 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                   </button>
 
-                  {/* Security Reassurance */}
+                  {/* Security Reassurance - Coordinated with Backoffice */}
                   <div className="flex items-center justify-center gap-2 text-[11px] font-dm font-bold text-[#55575a] mt-3">
                     <span className="material-symbols-outlined text-[14px] text-[#106ebe]">lock</span>
-                    <span>Pago Seguro • Hasta 6 cuotas sin interés</span>
+                    <span>
+                      {paymentSettings?.mp_active && (paymentSettings?.mp_installments ?? 0) > 1
+                        ? `Pago Seguro • Hasta ${paymentSettings.mp_installments} cuotas sin interés`
+                        : 'Pago Seguro y Encriptado'}
+                    </span>
                   </div>
                 </div>
               )}

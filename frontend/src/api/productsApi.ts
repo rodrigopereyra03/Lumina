@@ -18,6 +18,7 @@ export interface BackendProductDTO {
   volumes?: number[]
   accent_color?: string
   brand?: string
+  has_installments?: boolean
   meli_id?: string
   meli_permalink?: string
   meli_status?: string
@@ -57,6 +58,7 @@ const cleanProductList = (list: BackendProductDTO[]): BackendProductDTO[] => {
       volumes: p.volumes && p.volumes.length > 0 ? p.volumes : [50, 100],
       accent_color: p.accent_color || '#fb7185',
       brand: p.brand || p.category_name || 'Fórmula 1370',
+      has_installments: p.has_installments !== false,
     }
   })
 }
@@ -125,6 +127,7 @@ const fetchProductsFromSupabase = async (categorySlug?: string): Promise<Backend
           volumes: p.volumes || meta.volumes || [50, 100],
           accent_color: p.accent_color || meta.accent_color || '#fb7185',
           brand: brand,
+          has_installments: meta.has_installments !== undefined ? Boolean(meta.has_installments) : (p.has_installments !== false),
           meli_id: p.meli_id,
           meli_permalink: p.meli_permalink,
           meli_status: p.meli_status,
@@ -290,6 +293,7 @@ export const productsApi = {
     volumes?: number[]
     accent_color?: string
     brand?: string
+    has_installments?: boolean
   }): Promise<BackendProductDTO> => {
     const slug =
       productData.category_slug ||
@@ -309,6 +313,7 @@ export const productsApi = {
       accent_color: productData.accent_color || '#fb7185',
       brand: productData.brand || productData.category_name || 'Fórmula 1370',
       images: imgs,
+      has_installments: productData.has_installments !== false,
     }
 
     let rawDesc = (productData.description || 'Fragancia exclusiva de autor.').trim()
@@ -340,6 +345,7 @@ export const productsApi = {
       volumes: meta.volumes,
       accent_color: meta.accent_color,
       brand: meta.brand,
+      has_installments: productData.has_installments !== false,
     }
 
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
@@ -413,6 +419,7 @@ export const productsApi = {
       volumes?: number[]
       accent_color?: string
       brand?: string
+      has_installments?: boolean
     }>
   ): Promise<BackendProductDTO> => {
     const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY)
@@ -427,6 +434,7 @@ export const productsApi = {
       accent_color: productData.accent_color || existing?.accent_color || '#fb7185',
       brand: productData.brand || existing?.brand || productData.category_name || existing?.category_name || 'Fórmula 1370',
       images: imgs,
+      has_installments: productData.has_installments !== undefined ? productData.has_installments : (existing?.has_installments !== false),
     }
 
     let rawDesc = (productData.description ?? existing?.description ?? 'Fragancia exclusiva de autor.').trim()
@@ -454,6 +462,7 @@ export const productsApi = {
           volumes: meta.volumes,
           accent_color: meta.accent_color,
           brand: meta.brand,
+          has_installments: meta.has_installments,
           category_slug:
             productData.category_slug ||
             (productData.category_name

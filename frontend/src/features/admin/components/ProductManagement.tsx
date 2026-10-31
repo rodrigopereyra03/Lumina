@@ -26,6 +26,7 @@ export const ProductManagement: React.FC = () => {
   const [urlInput, setUrlInput] = useState('')
   const [formVolumes, setFormVolumes] = useState<number[]>([50, 100])
   const [formAccentColor, setFormAccentColor] = useState('#10b981')
+  const [formHasInstallments, setFormHasInstallments] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [uploadSuccess, setUploadSuccess] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -152,6 +153,7 @@ export const ProductManagement: React.FC = () => {
     setUrlInput('')
     setFormVolumes([50, 100])
     setFormAccentColor('#10b981')
+    setFormHasInstallments(true)
     setUploadSuccess(false)
     setUploadError(null)
     setIsModalOpen(true)
@@ -173,6 +175,7 @@ export const ProductManagement: React.FC = () => {
     setUrlInput('')
     setFormVolumes(product.volumes && product.volumes.length > 0 ? product.volumes : [50, 100])
     setFormAccentColor(product.accent_color || '#10b981')
+    setFormHasInstallments(product.has_installments !== false)
     setUploadSuccess(false)
     setUploadError(null)
     setIsModalOpen(true)
@@ -358,6 +361,7 @@ export const ProductManagement: React.FC = () => {
                 images: finalImgs,
                 volumes: volumesToSave,
                 accent_color: formAccentColor,
+                has_installments: formHasInstallments,
               }
             : p
         )
@@ -374,6 +378,7 @@ export const ProductManagement: React.FC = () => {
         images: finalImgs,
         volumes: volumesToSave,
         accent_color: formAccentColor,
+        has_installments: formHasInstallments,
       })
     } else {
       const created = await productsApi.createProduct({
@@ -388,6 +393,7 @@ export const ProductManagement: React.FC = () => {
         images: finalImgs,
         volumes: volumesToSave,
         accent_color: formAccentColor,
+        has_installments: formHasInstallments,
       })
 
       setProductList((prev) => [created, ...prev])
@@ -1019,6 +1025,28 @@ export const ProductManagement: React.FC = () => {
                     className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3.5 py-2 text-xs font-bold text-[#121314] outline-none focus:bg-white"
                     placeholder="Describe las notas olfativas, fijación y procedencia del perfume..."
                   />
+                </div>
+
+                {/* Cuotas sin Interés (Mercado Pago) Toggle */}
+                <div className="flex items-center justify-between p-3.5 bg-[#f6f4ee] border-2 border-[#121314] rounded-xl shadow-[2px_2px_0px_#121314]">
+                  <div>
+                    <label htmlFor="formHasInstallments" className="text-xs font-black uppercase text-[#121314] cursor-pointer block">
+                      Cuotas sin Interés (Mercado Pago)
+                    </label>
+                    <span className="text-[11px] font-medium text-[#121314]/70">
+                      Habilitar distintivo y plan de cuotas fijas configurado en el backoffice para esta fragancia.
+                    </span>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer shrink-0 ml-3">
+                    <input
+                      type="checkbox"
+                      id="formHasInstallments"
+                      checked={formHasInstallments}
+                      onChange={(e) => setFormHasInstallments(e.target.checked)}
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-white border-2 border-[#121314] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-[#121314] after:content-[''] after:absolute after:top-[3px] after:left-[3px] after:bg-[#121314] after:border-2 after:border-[#121314] after:rounded-full after:h-4.5 after:w-4.5 after:transition-all peer-checked:bg-[#0ffcbe]"></div>
+                  </label>
                 </div>
 
                 <div className="flex justify-end gap-3 pt-4 border-t-2 border-[#121314]/15">

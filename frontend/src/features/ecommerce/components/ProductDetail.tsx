@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { productsApi, type BackendProductDTO } from '../../../api/productsApi'
+import { settingsApi, type PaymentSettingsDTO } from '../../../api/settingsApi'
 import { useCartStore } from '../../../store/useCartStore'
 import type { Product } from '../data/productsData'
 
@@ -20,9 +21,9 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
   const [product, setProduct] = useState<Product | null>(null)
   const [recommended, setRecommended] = useState<BackendProductDTO[]>([])
   const [loading, setLoading] = useState<boolean>(true)
+  const [paymentSettings, setPaymentSettings] = useState<PaymentSettingsDTO | null>(null)
 
   const [selectedImage, setSelectedImage] = useState<string>('')
-  const [selectedVariant, setSelectedVariant] = useState<string>('Estándar')
   const [quantity, setQuantity] = useState<number>(1)
   const [isAdded, setIsAdded] = useState<boolean>(false)
 
@@ -32,10 +33,15 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
     const fetchProduct = async () => {
       setLoading(true)
       try {
-        const [currentProd, allProdsRes] = await Promise.all([
+        const [currentProd, allProdsRes, paySettings] = await Promise.all([
           productsApi.getProductById(productId),
           productsApi.getProducts('all'),
+          settingsApi.getPaymentSettings().catch(() => null),
         ])
+
+        if (paySettings) {
+          setPaymentSettings(paySettings)
+        }
 
         if (currentProd) {
           const productGallery = currentProd.images && currentProd.images.length > 0
@@ -53,14 +59,12 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             rating: currentProd.rating || 5.0,
             reviewsCount: currentProd.reviews_count || 12,
             stock: currentProd.stock,
+            hasInstallments: currentProd.has_installments !== false,
             image: productGallery[0] || currentProd.image || '/hero-perfumes/odyssey-aqua.png',
             gallery: productGallery,
             tags: ['Garantía Oficial', 'Original'],
             description: currentProd.description,
-            variants: [
-              { id: 'v1', name: 'Estándar', colorClass: 'bg-[#1b1c1c]' },
-              { id: 'v2', name: 'Edición Premium', colorClass: 'bg-[#FF4D4F]' },
-            ],
+            variants: [],
             specs: [
               { label: 'Garantía', value: '1 Año Oficial' },
               { label: 'Disponibilidad', value: currentProd.stock <= 0 ? 'Sin stock (Agotado)' : `${currentProd.stock} unidades en stock` },
@@ -86,7 +90,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
           }
           setProduct(mapped)
           setSelectedImage(productGallery[0])
-          setSelectedVariant(mapped.variants[0]?.name || 'Estándar')
         }
 
         if (allProdsRes.products) {
@@ -120,7 +123,7 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
 
   const handleAddToCart = () => {
     if (!product) return
-    addItem({ ...product, variant: selectedVariant }, quantity)
+    addItem(product, quantity)
     setIsAdded(true)
     setTimeout(() => setIsAdded(false), 2000)
     openDrawer()
@@ -288,24 +291,6 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
             >
               {product.title}
             </h1>
-
-            {/* Rating & Reviews */}
-            <div className="flex items-center gap-2 text-xs font-dm font-bold text-[#55575a] pt-1">
-              <div className="flex items-center text-[#f59e0b]">
-                {[...Array(5)].map((_, i) => (
-                  <span
-                    key={i}
-                    className="material-symbols-outlined text-[16px]"
-                    style={{ fontVariationSettings: "'FILL' 1" }}
-                  >
-                    star
-                  </span>
-                ))}
-              </div>
-              <span className="font-black text-[#121314]">{product.rating}</span>
-              <span>•</span>
-              <span className="font-semibold">{product.reviewsCount} valoraciones verificadas</span>
-            </div>
           </div>
 
           {/* Price Tag with Neo-Editorial Styling */}
@@ -332,49 +317,22 @@ export const ProductDetail: React.FC<ProductDetailProps> = ({
               )}
             </div>
 
-            {/* Installments Pill */}
-            {!isOutOfStock && (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#a8d5e3] border-2 border-[#121314] text-xs font-dm font-black text-[#121314] neo-box-shadow-sm">
-                <span>💳</span>
-                <span>Hasta 6 cuotas fijas sin interés</span>
-              </div>
-            )}
+            {/* Installments Pill - Only if MP active, installments > 1, and perfume has installments enabled */}
+            {!isOutOfStock &&
+              paymentSettings?.mp_active &&
+              (paymentSettings?.mp_installments ?? 0) > 1 &&
+              product.hasInstallments !== false && (
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#a8d5e3] border-2 border-[#121314] text-xs font-dm font-black text-[#121314] neo-box-shadow-sm">
+                  <span>💳</span>
+                  <span>Hasta {paymentSettings.mp_installments} cuotas fijas sin interés</span>
+                </div>
+              )}
           </div>
 
           {/* Short Description */}
           <p className="text-sm text-[#444648] font-dm font-medium leading-relaxed">
             {product.description}
           </p>
-
-          {/* Variants Selector */}
-          {product.variants && product.variants.length > 0 && (
-            <div className="space-y-2.5 pt-2 border-t-2 border-[#121314]/15">
-              <span className="text-xs font-dm font-black text-[#121314] uppercase tracking-wider block">
-                Variante seleccionada: <span className="text-[#106ebe]">{selectedVariant}</span>
-              </span>
-              <div className="flex flex-wrap items-center gap-2.5">
-                {product.variants.map((variant) => {
-                  const isSelected = selectedVariant === variant.name
-                  return (
-                    <button
-                      key={variant.id}
-                      onClick={() => setSelectedVariant(variant.name)}
-                      className={`px-4 py-2 rounded-xl text-xs font-dm font-black flex items-center gap-2 transition-all cursor-pointer ${
-                        isSelected
-                          ? 'bg-[#ff78ac] text-[#121314] border-2 border-[#121314] neo-box-shadow-sm'
-                          : 'bg-white text-[#55575a] border-2 border-[#121314]/30 hover:border-[#121314] hover:text-[#121314]'
-                      }`}
-                    >
-                      <span
-                        className={`w-3.5 h-3.5 rounded-full ${variant.colorClass} border border-[#121314]`}
-                      />
-                      <span>{variant.name}</span>
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-          )}
 
           {/* Quantity Selector & Add to Cart Action */}
           <div className="space-y-4 pt-2">
