@@ -68,7 +68,7 @@
       "openings": ["kinetic-question", "counter-hook", "abstract-shapes-morph"],
       "closings": ["kinetic-statement", "particle-logo-close", "counter-final"],
       "core": ["paper-cards", "flip-card-3d", "label-callout", "counter-odometer", "grid-pattern-break", "ghost-trails-type"],
-      "backgrounds": ["shape-drift-parallax", "seeded-particles", "bokeh-circles", "mesh-gradient", "radial-glow"]
+      "backgrounds": ["shape-drift-parallax", "seeded-particles", "bokeh-circles", "mesh-gradient", "radial-glow", "topographic-isolines", "crumpled-paper-stopmotion", "halftone-wave-field", "kinetic-text-wall", "diagonal-stripes-accent", "optical-spiral-vortex"]
     },
     "flythrough-3d": {
       "status": "tested", "example": "flythrough-3d-cine.html",
@@ -77,7 +77,7 @@
       "openings": ["3d-dolly-title", "letterbox-reveal"],
       "closings": ["particle-logo-close", "wide-pullback-fade", "kinetic-statement"],
       "core": ["3d-object-per-beat", "anamorphic-flare", "label-callout"],
-      "backgrounds": ["three-fog-dust", "bokeh-circles", "radial-glow"]
+      "backgrounds": ["three-fog-dust", "bokeh-circles", "radial-glow", "cyber-horizon-grid", "concentric-neon-tunnel", "checkered-warp-tunnel", "fire-embers-sparks", "plasma-energy-portal", "infinite-light-pillars", "floating-glass-spheres"]
     },
     "widget-wall": {
       "status": "tested", "example": "widget-wall-camera-shots.html (+ vertical)",
@@ -86,7 +86,7 @@
       "openings": ["abstract-shapes-morph", "letterbox-reveal"],
       "closings": ["wide-pullback-fade", "kinetic-statement"],
       "core": ["widget-live-anim", "stroke-draw-route", "counter-odometer", "glass-focus"],
-      "backgrounds": ["radial-glow", "bokeh-circles", "mesh-gradient"]
+      "backgrounds": ["radial-glow", "bokeh-circles", "mesh-gradient", "studio-tile-floor", "wavy-distorted-grid", "topographic-isolines", "floating-glass-spheres"]
     },
     "map-kinetic-type": {
       "status": "tested", "example": "map-kinetic-type-glitch.html",
@@ -95,7 +95,7 @@
       "openings": ["map-drift-word"],
       "closings": ["kinetic-statement", "particle-logo-close"],
       "core": ["kinetic-3d-word", "ghost-trails-type", "rgb-split-glitch"],
-      "backgrounds": ["procedural-city-map"]
+      "backgrounds": ["procedural-city-map", "topographic-isolines", "kinetic-text-wall", "cyber-horizon-grid", "diagonal-stripes-accent", "optical-spiral-vortex"]
     },
     "data-infographic": {
       "status": "tested", "example": "data-infographic-particle-logo.html",
@@ -104,7 +104,7 @@
       "openings": ["kinetic-question", "counter-hook"],
       "closings": ["particle-logo-close", "counter-final"],
       "core": ["chart-morph-bars", "glass-focus", "grid-pattern-break", "counter-odometer"],
-      "backgrounds": ["radial-glow", "mesh-gradient", "shape-drift-parallax"]
+      "backgrounds": ["radial-glow", "mesh-gradient", "shape-drift-parallax", "cyber-horizon-grid", "halftone-wave-field", "studio-tile-floor", "infinite-light-pillars"]
     },
     "ui-mockup-demo": {
       "status": "tested", "example": "ui-mockup-demo.html",
@@ -113,7 +113,7 @@
       "openings": ["brand-pills-reveal"],
       "closings": ["spark-tagline", "kinetic-statement"],
       "core": ["typewriter-in-mockup", "browser-window-3d", "code-backdrop", "sweep-highlight", "anamorphic-flare"],
-      "backgrounds": ["radial-glow"]
+      "backgrounds": ["radial-glow", "studio-tile-floor", "cyber-horizon-grid", "bolt-energy-lightning", "kinetic-sunburst-rays", "plasma-energy-portal", "floating-glass-spheres"]
     }
   },
 

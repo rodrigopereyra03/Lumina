@@ -14,9 +14,128 @@ export interface GalleryItemDTO {
 }
 
 const GALLERY_STORAGE_KEY = 'lumina_custom_gallery_items'
+const DB_NAME = 'lumina_gallery_db'
+const DB_VERSION = 1
+const STORE_NAME = 'gallery_store'
+const STORE_KEY = 'items'
 
-// Default seed gallery items (3 Flagship Videos + 6 Curated Editorial Photos)
+// Lightweight IndexedDB helper for large assets (bypasses 5MB localStorage limit)
+function openDB(): Promise<IDBDatabase> {
+  return new Promise((resolve, reject) => {
+    if (typeof indexedDB === 'undefined') {
+      return reject(new Error('IndexedDB not supported in this environment'))
+    }
+    const req = indexedDB.open(DB_NAME, DB_VERSION)
+    req.onupgradeneeded = () => {
+      const db = req.result
+      if (!db.objectStoreNames.contains(STORE_NAME)) {
+        db.createObjectStore(STORE_NAME)
+      }
+    }
+    req.onsuccess = () => resolve(req.result)
+    req.onerror = () => reject(req.error)
+  })
+}
+
+async function getStoredItems(): Promise<GalleryItemDTO[] | null> {
+  // 1. Try IndexedDB first (huge quota: 50MB - 1GB+)
+  try {
+    const db = await openDB()
+    const items = await new Promise<GalleryItemDTO[] | null>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readonly')
+      const store = tx.objectStore(STORE_NAME)
+      const req = store.get(STORE_KEY)
+      req.onsuccess = () => resolve(req.result ?? null)
+      req.onerror = () => reject(req.error)
+    })
+    if (items && Array.isArray(items) && items.length > 0) {
+      return items
+    }
+  } catch (e) {
+    console.warn('[galleryApi] IndexedDB read error:', e)
+  }
+
+  // 2. Fallback: Check localStorage and migrate to IndexedDB if found
+  try {
+    const stored = localStorage.getItem(GALLERY_STORAGE_KEY)
+    if (stored) {
+      const parsed = JSON.parse(stored)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        saveStoredItems(parsed).catch(() => {})
+        return parsed
+      }
+    }
+  } catch (e) {
+    console.warn('[galleryApi] localStorage read error:', e)
+  }
+
+  return null
+}
+
+async function saveStoredItems(items: GalleryItemDTO[]): Promise<void> {
+  let idbSaved = false
+
+  // 1. Save to IndexedDB
+  try {
+    const db = await openDB()
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction(STORE_NAME, 'readwrite')
+      const store = tx.objectStore(STORE_NAME)
+      const req = store.put(items, STORE_KEY)
+      req.onsuccess = () => resolve()
+      req.onerror = () => reject(req.error)
+    })
+    idbSaved = true
+  } catch (e) {
+    console.warn('[galleryApi] IndexedDB save error:', e)
+  }
+
+  // 2. Mirror to localStorage only if size is small enough (< 2MB)
+  try {
+    const serialized = JSON.stringify(items)
+    if (serialized.length < 2 * 1024 * 1024) {
+      localStorage.setItem(GALLERY_STORAGE_KEY, serialized)
+    } else {
+      // Clear large localStorage payload to prevent QuotaExceededError in future operations
+      localStorage.removeItem(GALLERY_STORAGE_KEY)
+    }
+  } catch (e) {
+    // If IndexedDB saved successfully, safely suppress localStorage quota errors
+    if (!idbSaved) {
+      console.error('[galleryApi] Storage failed:', e)
+      throw new Error(
+        'El almacenamiento del navegador está lleno. Usa una URL directa (/formula-perfume-ad.mp4 o https://...) para videos pesados.'
+      )
+    }
+  }
+}
+
+// Default seed gallery items (Viral Reels + Flagship Videos + Curated Editorial Photos)
 export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
+  {
+    id: 'seed-vid-formula-ad',
+    type: 'video',
+    title: 'FORMULA • Colección Exclusiva',
+    subtitle: 'Spot Publicitario 9:16 • Supabase Cloud 60 FPS',
+    src: 'https://dxxoxzaowyaxpxphqpsd.supabase.co/storage/v1/object/public/product-images/videos/formula-perfume-ad.mp4',
+    poster: '/hero-perfumes/odyssey-aqua.png',
+    aspectRatio: 'aspect-[9/16]',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    order: 0,
+  },
+  {
+    id: 'seed-vid-reel-viral',
+    type: 'video',
+    title: 'Obsesión Árabe • Tendencia Viral',
+    subtitle: 'Reel TikTok 9:16 • Supabase Cloud',
+    src: 'https://dxxoxzaowyaxpxphqpsd.supabase.co/storage/v1/object/public/product-images/videos/reel-obsesion-arabe.mp4',
+    poster: '/reel-obsesion-arabe-poster.jpg',
+    aspectRatio: 'aspect-[9/16]',
+    isActive: true,
+    createdAt: new Date().toISOString(),
+    order: 1,
+  },
   {
     id: 'seed-vid-1',
     type: 'video',
@@ -27,7 +146,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[16/10]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 1,
+    order: 2,
   },
   {
     id: 'seed-photo-1',
@@ -38,7 +157,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[4/5]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 2,
+    order: 3,
   },
   {
     id: 'seed-vid-2',
@@ -50,7 +169,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[9/16]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 3,
+    order: 4,
   },
   {
     id: 'seed-photo-2',
@@ -61,7 +180,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[3/4]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 4,
+    order: 5,
   },
   {
     id: 'seed-photo-3',
@@ -72,7 +191,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[4/5]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 5,
+    order: 6,
   },
   {
     id: 'seed-vid-3',
@@ -84,7 +203,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[16/9]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 6,
+    order: 7,
   },
   {
     id: 'seed-photo-4',
@@ -95,7 +214,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-square',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 7,
+    order: 8,
   },
   {
     id: 'seed-photo-5',
@@ -106,7 +225,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[4/5]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 8,
+    order: 9,
   },
   {
     id: 'seed-photo-6',
@@ -117,7 +236,7 @@ export const INITIAL_GALLERY_SEEDS: GalleryItemDTO[] = [
     aspectRatio: 'aspect-[3/4]',
     isActive: true,
     createdAt: new Date().toISOString(),
-    order: 9,
+    order: 10,
   },
 ]
 
@@ -126,24 +245,17 @@ export const galleryApi = {
   getItems: async (): Promise<GalleryItemDTO[]> => {
     let currentList: GalleryItemDTO[] = []
 
-    try {
-      const stored = localStorage.getItem(GALLERY_STORAGE_KEY)
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          currentList = parsed
-        }
-      }
-    } catch (e) {
-      console.warn('Error reading gallery items from storage:', e)
+    const stored = await getStoredItems()
+    if (stored && stored.length > 0) {
+      currentList = stored
     }
 
     if (currentList.length === 0) {
       currentList = [...INITIAL_GALLERY_SEEDS]
     }
 
-    // If only the 9 initial seeds are present, auto-import the 100 product photos into the admin gallery
-    if (currentList.length <= 10) {
+    // If only initial seeds are present, auto-import the product photos into the gallery
+    if (currentList.length <= 12) {
       try {
         const res = await productsApi.getProducts()
         if (res.products && res.products.length > 0) {
@@ -170,11 +282,33 @@ export const galleryApi = {
           })
 
           currentList = [...currentList, ...importedItems]
-          localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(currentList))
+          await saveStoredItems(currentList).catch(() => {})
         }
       } catch (err) {
         console.warn('Error syncing products into gallery:', err)
       }
+    }
+
+    // Ensure the new FORMULA commercial reel is present at the top (with Supabase Storage URL)
+    const formulaAdIdx = currentList.findIndex((i) => i.src.includes('formula-perfume-ad.mp4'))
+    if (formulaAdIdx === -1) {
+      currentList = [INITIAL_GALLERY_SEEDS[0], ...currentList]
+      await saveStoredItems(currentList).catch(() => {})
+    } else if (currentList[formulaAdIdx].src.startsWith('/')) {
+      // Upgrade local path to Supabase Cloud URL
+      currentList[formulaAdIdx].src = INITIAL_GALLERY_SEEDS[0].src
+      await saveStoredItems(currentList).catch(() => {})
+    }
+
+    // Ensure the viral TikTok reel is present (with Supabase Storage URL)
+    const reelIdx = currentList.findIndex((i) => i.src.includes('reel-obsesion-arabe.mp4'))
+    if (reelIdx === -1) {
+      currentList = [INITIAL_GALLERY_SEEDS[1], ...currentList]
+      await saveStoredItems(currentList).catch(() => {})
+    } else if (currentList[reelIdx].src.startsWith('/')) {
+      // Upgrade local path to Supabase Cloud URL
+      currentList[reelIdx].src = INITIAL_GALLERY_SEEDS[1].src
+      await saveStoredItems(currentList).catch(() => {})
     }
 
     return currentList
@@ -210,7 +344,7 @@ export const galleryApi = {
         })
 
         const updated = [...current, ...newItems]
-        localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(updated))
+        await saveStoredItems(updated)
         return updated
       }
     } catch (err) {
@@ -229,7 +363,7 @@ export const galleryApi = {
       createdAt: new Date().toISOString(),
     }
     const updated = [newItem, ...current]
-    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(updated))
+    await saveStoredItems(updated)
     return newItem
   },
 
@@ -240,7 +374,7 @@ export const galleryApi = {
     if (idx === -1) return null
     const updatedItem = { ...current[idx], ...updates }
     current[idx] = updatedItem
-    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(current))
+    await saveStoredItems(current)
     return updatedItem
   },
 
@@ -250,7 +384,7 @@ export const galleryApi = {
     const item = current.find((i) => i.id === id)
     if (!item) return false
     item.isActive = !item.isActive
-    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(current))
+    await saveStoredItems(current)
     return item.isActive
   },
 
@@ -258,13 +392,25 @@ export const galleryApi = {
   deleteItem: async (id: string): Promise<boolean> => {
     const current = await galleryApi.getItems()
     const updated = current.filter((i) => i.id !== id)
-    localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(updated))
+    await saveStoredItems(updated)
     return true
   },
 
   // Reset to initial seeds + 100 products
   resetToDefaults: async (): Promise<GalleryItemDTO[]> => {
-    localStorage.removeItem(GALLERY_STORAGE_KEY)
+    try {
+      localStorage.removeItem(GALLERY_STORAGE_KEY)
+      const db = await openDB()
+      await new Promise<void>((resolve, reject) => {
+        const tx = db.transaction(STORE_NAME, 'readwrite')
+        const store = tx.objectStore(STORE_NAME)
+        const req = store.delete(STORE_KEY)
+        req.onsuccess = () => resolve()
+        req.onerror = () => reject(req.error)
+      })
+    } catch (e) {
+      console.warn('[galleryApi] resetToDefaults error:', e)
+    }
     return galleryApi.getItems()
   },
 }

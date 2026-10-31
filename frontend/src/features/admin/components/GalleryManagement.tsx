@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { galleryApi, type GalleryItemDTO } from '../../../api/galleryApi'
+import { storageApi } from '../../../api/storageApi'
 
 export const GalleryManagement: React.FC = () => {
   const [items, setItems] = useState<GalleryItemDTO[]>([])
@@ -11,6 +12,10 @@ export const GalleryManagement: React.FC = () => {
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<GalleryItemDTO | null>(null)
+
+  // Upload progress to Supabase Storage
+  const [isUploading, setIsUploading] = useState(false)
+  const [uploadPercent, setUploadPercent] = useState<number | null>(null)
 
   // Form Fields
   const [formType, setFormType] = useState<'video' | 'photo'>('photo')
@@ -83,22 +88,34 @@ export const GalleryManagement: React.FC = () => {
     setIsModalOpen(true)
   }
 
-  // Handle local file upload
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle local file upload directly to Supabase Storage Bucket
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    const reader = new FileReader()
-    reader.onload = () => {
-      if (typeof reader.result === 'string') {
-        setFormSrc(reader.result)
-        if (!formTitle) {
-          const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name
-          setFormTitle(nameWithoutExt.replace(/[-_]/g, ' '))
-        }
-      }
+    if (!formTitle) {
+      const nameWithoutExt = file.name.substring(0, file.name.lastIndexOf('.')) || file.name
+      setFormTitle(nameWithoutExt.replace(/[-_]/g, ' '))
     }
-    reader.readAsDataURL(file)
+
+    setIsUploading(true)
+    setUploadPercent(0)
+    try {
+      showToast('☁️ Subiendo archivo a Supabase Storage...')
+      const folder = formType === 'video' ? 'videos' : 'photos'
+      const cloudUrl = await storageApi.uploadMedia(file, folder, (percent) => {
+        setUploadPercent(percent)
+      })
+      setFormSrc(cloudUrl)
+      showToast('✓ Archivo subido con éxito al Bucket de Supabase')
+    } catch (err: any) {
+      console.error('Error al subir a Supabase:', err)
+      showToast(`⚠️ Error al subir: ${err?.message || 'Fallo de conexión a Supabase'}`)
+    } finally {
+      setIsUploading(false)
+      setUploadPercent(null)
+      e.target.value = ''
+    }
   }
 
   // Handle Form Submit
@@ -109,32 +126,37 @@ export const GalleryManagement: React.FC = () => {
       return
     }
 
-    if (editingItem) {
-      await galleryApi.updateItem(editingItem.id, {
-        type: formType,
-        title: formTitle.trim(),
-        subtitle: formSubtitle.trim() || (formType === 'video' ? 'Motion Graphic' : 'Fotografía'),
-        src: formSrc.trim(),
-        poster: formPoster.trim() || undefined,
-        aspectRatio: formAspectRatio,
-        isActive: formIsActive,
-      })
-      showToast('✓ Pieza actualizada correctamente.')
-    } else {
-      await galleryApi.addItem({
-        type: formType,
-        title: formTitle.trim(),
-        subtitle: formSubtitle.trim() || (formType === 'video' ? 'Motion Graphic' : 'Fotografía'),
-        src: formSrc.trim(),
-        poster: formPoster.trim() || undefined,
-        aspectRatio: formAspectRatio,
-        isActive: formIsActive,
-      })
-      showToast('✓ Nueva pieza agregada a la galería.')
-    }
+    try {
+      if (editingItem) {
+        await galleryApi.updateItem(editingItem.id, {
+          type: formType,
+          title: formTitle.trim(),
+          subtitle: formSubtitle.trim() || (formType === 'video' ? 'Motion Graphic' : 'Fotografía'),
+          src: formSrc.trim(),
+          poster: formPoster.trim() || undefined,
+          aspectRatio: formAspectRatio,
+          isActive: formIsActive,
+        })
+        showToast('✓ Pieza actualizada correctamente.')
+      } else {
+        await galleryApi.addItem({
+          type: formType,
+          title: formTitle.trim(),
+          subtitle: formSubtitle.trim() || (formType === 'video' ? 'Motion Graphic' : 'Fotografía'),
+          src: formSrc.trim(),
+          poster: formPoster.trim() || undefined,
+          aspectRatio: formAspectRatio,
+          isActive: formIsActive,
+        })
+        showToast('✓ Nueva pieza agregada a la galería.')
+      }
 
-    setIsModalOpen(false)
-    loadItems()
+      setIsModalOpen(false)
+      loadItems()
+    } catch (err: any) {
+      console.error('Error al guardar en galería:', err)
+      showToast(`⚠️ Error al guardar: ${err?.message || 'Memoria excedida.'}`)
+    }
   }
 
   // Toggle visibility
@@ -550,20 +572,85 @@ export const GalleryManagement: React.FC = () => {
                     className="w-full bg-[#f6f4ee] border-2 border-[#121314] rounded-xl px-3.5 py-2 text-xs font-bold text-[#121314] focus:outline-none"
                   />
 
-                  {/* Local file upload alternative */}
+                  {/* Video Quick Presets */}
+                  {formType === 'video' && (
+                    <div className="pt-1 space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[10px] font-black uppercase text-[#55575a]">Videos listos (Supabase):</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormSrc(
+                              'https://dxxoxzaowyaxpxphqpsd.supabase.co/storage/v1/object/public/product-images/videos/formula-perfume-ad.mp4'
+                            )
+                            if (!formTitle) setFormTitle('FORMULA • Colección Exclusiva')
+                            if (!formSubtitle) setFormSubtitle('Spot Comercial 9:16 • Supabase Cloud')
+                            setFormAspectRatio('aspect-[9/16]')
+                            setFormPoster('/hero-perfumes/odyssey-aqua.png')
+                          }}
+                          className="text-[11px] font-bold px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 rounded-lg cursor-pointer transition flex items-center gap-1"
+                        >
+                          <span>🎬 Spot FORMULA (Supabase)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormSrc(
+                              'https://dxxoxzaowyaxpxphqpsd.supabase.co/storage/v1/object/public/product-images/videos/reel-obsesion-arabe.mp4'
+                            )
+                            if (!formTitle) setFormTitle('Obsesión Árabe • Tendencia Viral')
+                            if (!formSubtitle) setFormSubtitle('Reel TikTok 9:16 • Supabase Cloud')
+                            setFormAspectRatio('aspect-[9/16]')
+                            setFormPoster('/reel-obsesion-arabe-poster.jpg')
+                          }}
+                          className="text-[11px] font-bold px-2 py-1 bg-teal-100 hover:bg-teal-200 text-teal-900 border border-teal-300 rounded-lg cursor-pointer transition flex items-center gap-1"
+                        >
+                          <span>✨ Reel Obsesión Árabe</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Supabase Storage file upload */}
                   <div className="flex items-center gap-2 pt-1">
-                    <span className="text-[11px] font-bold text-[#55575a]">O subir archivo local:</span>
-                    <label className="px-3 py-1 bg-white hover:bg-[#a8d5e3] border border-[#121314] rounded-lg text-xs font-black uppercase text-[#121314] cursor-pointer inline-flex items-center gap-1 transition">
-                      <span className="material-symbols-outlined text-[14px]">upload</span>
-                      <span>Examinar...</span>
+                    <span className="text-[11px] font-bold text-[#55575a]">O subir archivo al Bucket:</span>
+                    <label
+                      className={`px-3 py-1 bg-white hover:bg-[#a8d5e3] border border-[#121314] rounded-lg text-xs font-black uppercase text-[#121314] cursor-pointer inline-flex items-center gap-1 transition ${
+                        isUploading ? 'opacity-50 pointer-events-none' : ''
+                      }`}
+                    >
+                      <span className="material-symbols-outlined text-[14px]">
+                        {isUploading ? 'progress_activity' : 'cloud_upload'}
+                      </span>
+                      <span>{isUploading ? 'Subiendo...' : 'Examinar & Subir a Supabase'}</span>
                       <input
                         type="file"
+                        disabled={isUploading}
                         accept={formType === 'video' ? 'video/mp4,video/webm' : 'image/*'}
                         onChange={handleFileUpload}
                         className="hidden"
                       />
                     </label>
+
+                    {isUploading && (
+                      <span className="text-xs font-black text-[#121314] animate-pulse">
+                        {uploadPercent !== null ? `${uploadPercent}%` : 'Procesando...'}
+                      </span>
+                    )}
                   </div>
+                  {isUploading && (
+                    <div className="w-full bg-[#121314]/10 rounded-full h-1.5 overflow-hidden">
+                      <div
+                        className="bg-[#0ffcbe] h-1.5 transition-all duration-300"
+                        style={{ width: `${uploadPercent ?? 10}%` }}
+                      />
+                    </div>
+                  )}
+                  {formType === 'video' && (
+                    <p className="text-[10px] text-[#55575a] italic leading-tight">
+                      ☁️ Los videos subidos se alojan directamente en el bucket público de Supabase Storage para máxima velocidad y streaming global.
+                    </p>
+                  )}
                 </div>
 
                 {/* 4. Poster (only for video) */}
@@ -641,9 +728,12 @@ export const GalleryManagement: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 rounded-xl bg-[#0ffcbe] hover:bg-[#00eaad] border-2 border-[#121314] neo-box-shadow text-xs font-black uppercase tracking-wider text-[#121314] cursor-pointer"
+                    disabled={isUploading}
+                    className={`px-6 py-2 rounded-xl bg-[#0ffcbe] hover:bg-[#00eaad] border-2 border-[#121314] neo-box-shadow text-xs font-black uppercase tracking-wider text-[#121314] cursor-pointer transition ${
+                      isUploading ? 'opacity-50 pointer-events-none' : ''
+                    }`}
                   >
-                    {editingItem ? 'Guardar Cambios' : 'Subir a la Galería'}
+                    {isUploading ? 'Subiendo archivo...' : editingItem ? 'Guardar Cambios' : 'Subir a la Galería'}
                   </button>
                 </div>
               </form>
