@@ -1,4 +1,5 @@
 import { axiosInstance } from './axiosInstance'
+import { settingsApi, DEFAULT_PAYMENT_SETTINGS } from './settingsApi'
 
 export interface CreateMPPreferenceItem {
   id?: string
@@ -98,12 +99,17 @@ export const mercadoPagoApi = {
       statement_descriptor: 'FORMULA 1370',
     }
 
-    console.log('📡 Enviando petición directa a https://api.mercadopago.com/checkout/preferences:', mpBody)
+    const settings = await settingsApi.getPaymentSettings().catch(() => DEFAULT_PAYMENT_SETTINGS)
+    const token = (settings?.mp_access_token || '').trim() || DEFAULT_MP_ACCESS_TOKEN
+    const pubKey = (settings?.mp_public_key || '').trim() || DEFAULT_MP_PUBLIC_KEY
+    const isSandbox = Boolean(settings?.mp_sandbox)
+
+    console.log('📡 Enviando petición directa a https://api.mercadopago.com/checkout/preferences con Access Token:', token.slice(0, 15) + '...')
 
     const response = await fetch('https://api.mercadopago.com/checkout/preferences', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${DEFAULT_MP_ACCESS_TOKEN}`,
+        'Authorization': `Bearer ${token}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(mpBody),
@@ -126,9 +132,9 @@ export const mercadoPagoApi = {
 
     return {
       preference_id: data.id,
-      init_point: data.init_point,
+      init_point: isSandbox ? (data.sandbox_init_point || data.init_point) : (data.init_point || data.sandbox_init_point),
       sandbox_init_point: data.sandbox_init_point,
-      public_key: DEFAULT_MP_PUBLIC_KEY,
+      public_key: pubKey,
     }
   },
 
@@ -136,10 +142,13 @@ export const mercadoPagoApi = {
     paymentId: string
   ): Promise<{ success: boolean; message: string; refund_id?: string }> => {
     try {
+      const settings = await settingsApi.getPaymentSettings().catch(() => DEFAULT_PAYMENT_SETTINGS)
+      const token = (settings?.mp_access_token || '').trim() || DEFAULT_MP_ACCESS_TOKEN
+
       const response = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}/refunds`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${DEFAULT_MP_ACCESS_TOKEN}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       })
