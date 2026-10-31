@@ -135,8 +135,7 @@ export const useCartStore = create<CartState>((set, get) => {
     getTotal: () => {
       const subtotal = get().getSubtotal()
       const discount = get().getDiscountAmount()
-      const shipping = subtotal >= FREE_SHIPPING_THRESHOLD || subtotal === 0 ? 0 : 15
-      return Math.max(0, subtotal - discount + shipping)
+      return Math.max(0, subtotal - discount)
     },
 
     getFreeShippingThreshold: () => FREE_SHIPPING_THRESHOLD,
